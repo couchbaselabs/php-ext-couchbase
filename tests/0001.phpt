@@ -4,7 +4,7 @@ Couchbase Basic Test
 <?php if (!extension_loaded("couchbase")) echo 'skip'; ?>
 --FILE--
 <?php
-couchbase_hello();
+echo couchbase_hello();
 ?>
 --EXPECT--
 Hello Couchbase
