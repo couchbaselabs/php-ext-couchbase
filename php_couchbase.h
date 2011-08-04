@@ -1,10 +1,22 @@
+#include "php.h"
+#include <libcouchbase/couchbase.h>
+
 #ifndef PHP_COUCHBASE_H
 #define PHP_COUCHBASE_H 1
 
 #define PHP_COUCHBASE_VERSION "0.0.1"
 #define PHP_COUCHBASE_EXTNAME "couchbase"
 
-PHP_FUNCTION(couchbase_hello);
+PHP_FUNCTION(couchbase_version);
+PHP_FUNCTION(couchbase_create);
+
+typedef struct _php_couchbase_instance {
+  libcouchbase_t instance;
+} php_couchbase_instance;
+
+#define PHP_COUCHBASE_INSTANCE "Couchbase Instance"
+
+PHP_MINIT_FUNCTION(couchbase);
 
 extern zend_module_entry couchbase_module_entry;
 #define phpext_hello_ptr &couchbase_module_entry
