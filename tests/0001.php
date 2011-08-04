@@ -1,0 +1,3 @@
+<?php
+couchbase_hello();
+?>
