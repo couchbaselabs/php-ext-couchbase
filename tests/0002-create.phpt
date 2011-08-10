@@ -4,7 +4,7 @@ Couchbase Create Test
 <?php if (!extension_loaded("couchbase")) echo 'skip'; ?>
 --FILE--
 <?php
-$host = "localhost:11211";
+$host = "localhost:8091";
 $cb = couchbase_create("$host");
 var_dump($cb);
 

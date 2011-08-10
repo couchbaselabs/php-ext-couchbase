@@ -9,6 +9,9 @@
 
 PHP_FUNCTION(couchbase_version);
 PHP_FUNCTION(couchbase_create);
+PHP_FUNCTION(couchbase_execute);
+PHP_FUNCTION(couchbase_get);
+PHP_FUNCTION(couchbase_set);
 
 typedef struct _php_couchbase_instance {
   libcouchbase_t instance;
