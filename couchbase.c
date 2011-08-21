@@ -18,6 +18,8 @@ static function_entry couchbase_functions[] = {
     PHP_FE(couchbase_execute, NULL)
     PHP_FE(couchbase_mget, NULL)
     PHP_FE(couchbase_set, NULL)
+    PHP_FE(couchbase_add, NULL)
+    PHP_FE(couchbase_remove, NULL)
     {NULL, NULL, NULL}
 };
 
@@ -44,6 +46,7 @@ ZEND_GET_MODULE(couchbase)
 
 // forward declaration
 long map_error_constant(libcouchbase_error_t error);
+static void couchbase_store(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t operation);
 
 enum php_libcouchbase_error_t {
     COUCHBASE_SUCCESS,
@@ -199,10 +202,7 @@ PHP_FUNCTION(couchbase_execute)
     ZEND_FETCH_RESOURCE(php_instance, php_couchbase_instance*,
         &zinstance, -1, PHP_COUCHBASE_VERSION, le_couchbase_instance);
 
-    // todo return value
     libcouchbase_execute(php_instance->instance);
-
-    RETURN_TRUE;
 }
 
 static void get_callback(libcouchbase_t instance,
@@ -226,22 +226,26 @@ static void get_callback(libcouchbase_t instance,
     zval **zzargv[3];
     zval *zkey = NULL;
     zval *zvalue = NULL;
-    zval *zerror_msg = NULL;
+    zval *zerror = NULL;
 
-    MAKE_STD_ZVAL(zerror_msg);
+    MAKE_STD_ZVAL(zerror);
     if(error != LIBCOUCHBASE_SUCCESS) {
-        ZVAL_LVAL(zerror_msg, error, 1);
+        ZVAL_LONG(zerror, error);
     } else {
-        ZVAL_NULL(zerror_msg)
+        ZVAL_NULL(zerror)
     }
 
     MAKE_STD_ZVAL(zkey);
     ZVAL_STRINGL(zkey, key, nkey, 1);
 
     MAKE_STD_ZVAL(zvalue);
-    ZVAL_STRINGL(zvalue, bytes, nbytes, 1);
+    if(error == LIBCOUCHBASE_KEY_ENOENT) {
+	ZVAL_NULL(zvalue);
+    } else {
+	ZVAL_STRINGL(zvalue, bytes, nbytes, 1);
+    }
 
-    zzargv[0] = &zerror_msg;
+    zzargv[0] = &zerror;
     zzargv[1] = &zkey;
     zzargv[2] = &zvalue;
 
@@ -304,12 +308,11 @@ PHP_FUNCTION(couchbase_mget)
                               keys_sizes,
                               NULL);
     if(error != LIBCOUCHBASE_SUCCESS) {
-        ZVAL_LVAL(return_value, map_error_constant(error), 1);
+        ZVAL_LONG(return_value, map_error_constant(error));
     }
 
     efree(keys);
     efree(keys_sizes);
-
     RETURN_TRUE;
 }
 
@@ -331,17 +334,22 @@ static void storage_callback(libcouchbase_t instance,
     }
 
     zval *result;
-    zval **argv[1];
-    zval *error_msg = NULL;
+    zval **argv[2];
+    zval *zerror = NULL;
+    zval *zkey = NULL;
 
-    MAKE_STD_ZVAL(error_msg);
+    MAKE_STD_ZVAL(zerror);
     if(error != LIBCOUCHBASE_SUCCESS) {
-      ZVAL_LVAL(error_msg, error, 1);
+      ZVAL_LONG(zerror, error);
     } else {
-      ZVAL_NULL(error_msg);
+      ZVAL_NULL(zerror);
     }
 
-    argv[0] = &error_msg;
+    MAKE_STD_ZVAL(zkey);
+    ZVAL_STRINGL(zkey, key, nkey, 1);
+
+    argv[0] = &zerror;
+    argv[1] = &zkey;
 
     if (Z_TYPE_P(zcallback) != IS_NULL) {
         zend_fcall_info fci;
@@ -351,7 +359,7 @@ static void storage_callback(libcouchbase_t instance,
         fci.function_name = zcallback;
         fci.symbol_table = NULL;
         fci.retval_ptr_ptr = &result;
-        fci.param_count = 1;
+        fci.param_count = 2;
         fci.params = argv;
         fci.no_separation = 0;
         if (zend_call_function(&fci, NULL TSRMLS_CC) != SUCCESS ) {
@@ -362,13 +370,24 @@ static void storage_callback(libcouchbase_t instance,
     zval_ptr_dtor(&result);
     zval_ptr_dtor(&zcallback);
     zval_ptr_dtor(argv[0]);
+    zval_ptr_dtor(argv[1]);
 }
 
 PHP_FUNCTION(couchbase_set)
 {
+    couchbase_store(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET);
+}
+
+PHP_FUNCTION(couchbase_add)
+{
+    couchbase_store(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_ADD);
+}
+
+static void couchbase_store(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t operation)
+{
     zval *zinstance;
     zval *zcallback = NULL;
-    zval *result, *value;
+    zval *value;
 
     const char *key = NULL; int key_len;
 
@@ -389,21 +408,113 @@ PHP_FUNCTION(couchbase_set)
     void *bytes = estrdup(Z_STRVAL_P(value));
     size_t nbytes = strlen(bytes);
 
- 
     Z_ADDREF_P(zcallback);
     (void)libcouchbase_set_storage_callback(php_instance->instance, storage_callback);
 
     error = libcouchbase_store(php_instance->instance,
 			       zcallback,
-                               LIBCOUCHBASE_SET,
+                               operation,
                                (const void * const *)key, (size_t)strlen(key),
                                bytes, nbytes,
                                0, 0, 0);
     if(error != LIBCOUCHBASE_SUCCESS) {
-        ZVAL_LVAL(return_value, map_error_constant(error), 1);
+        ZVAL_LONG(return_value, map_error_constant(error));
     }
 
     efree(bytes);
+    RETURN_TRUE;
+}
+
+void remove_callback(libcouchbase_t instance,
+                     const void *cookie,
+                     libcouchbase_error_t error,
+                     const void *key, size_t nkey)
+{
+    zval *zcallback = (zval *)cookie;
+    char *callback_name;
+
+    if (Z_TYPE_P(zcallback) != IS_NULL) {
+        if (!zend_is_callable(zcallback, 0, &callback_name)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "The callback, '%s', is invalid", callback_name);
+            efree(callback_name);
+        }
+        efree(callback_name);
+    }
+
+    zval *result;
+    zval **argv[2];
+    zval *zerror = NULL;
+    zval *zkey = NULL;
+
+    MAKE_STD_ZVAL(zerror);
+    if(error != LIBCOUCHBASE_SUCCESS) {
+      ZVAL_LONG(zerror, error);
+    } else {
+      ZVAL_NULL(zerror);
+    }
+
+    MAKE_STD_ZVAL(zkey);
+    ZVAL_STRINGL(zkey, key, nkey, 1);
+
+    argv[0] = &zerror;
+    argv[1] = &zkey;
+
+    if (Z_TYPE_P(zcallback) != IS_NULL) {
+        zend_fcall_info fci;
+
+        fci.size = sizeof(fci);
+        fci.function_table = EG(function_table);
+        fci.function_name = zcallback;
+        fci.symbol_table = NULL;
+        fci.retval_ptr_ptr = &result;
+        fci.param_count = 2;
+        fci.params = argv;
+        fci.no_separation = 0;
+
+        if (zend_call_function(&fci, NULL TSRMLS_CC) != SUCCESS ) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "An error occurred while invoking the storage callback");
+        }
+    }
+
+    zval_ptr_dtor(&result);
+    zval_ptr_dtor(&zerror);
+    zval_ptr_dtor(&zcallback);
+    zval_ptr_dtor(argv[0]);
+    zval_ptr_dtor(argv[1]);
+}
+
+PHP_FUNCTION(couchbase_remove)
+{
+    zval *zinstance;
+    zval *zcallback = NULL;
+
+    const char *key = NULL; int key_len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsz",
+        &zinstance,
+        &key, &key_len,
+        &zcallback
+    ) == FAILURE) {
+        RETURN_FALSE;
+    }
+
+    php_couchbase_instance *php_instance;
+    ZEND_FETCH_RESOURCE(php_instance, php_couchbase_instance*,
+        &zinstance, -1, PHP_COUCHBASE_VERSION, le_couchbase_instance);
+
+    libcouchbase_error_t error;
+
+    Z_ADDREF_P(zcallback);
+    (void)libcouchbase_set_remove_callback(php_instance->instance, remove_callback);
+
+    error = libcouchbase_remove(php_instance->instance,
+			       zcallback,
+                               (const void * const *)key, (size_t)strlen(key),
+                               0);
+    if(error != LIBCOUCHBASE_SUCCESS) {
+        ZVAL_LONG(return_value, map_error_constant(error));
+    }
+
     RETURN_TRUE;
 }
 
