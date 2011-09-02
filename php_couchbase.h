@@ -15,6 +15,9 @@ PHP_FUNCTION(couchbase_set);
 PHP_FUNCTION(couchbase_add);
 PHP_FUNCTION(couchbase_remove);
 
+// callbacks
+PHP_FUNCTION(couchbase_set_storage_callback);
+
 typedef struct _php_couchbase_instance {
   libcouchbase_t instance;
 } php_couchbase_instance;
