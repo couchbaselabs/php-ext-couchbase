@@ -298,9 +298,9 @@ PHP_FUNCTION(couchbase_mget)
     keys[0] = (char *)key;
     keys_sizes[0] = key_len;
 
-    Z_ADDREF_P(zcallback);
     (void)libcouchbase_set_get_callback(php_instance->instance, get_callback);
 
+    Z_ADDREF_P(zcallback);
     error = libcouchbase_mget(php_instance->instance,
 			      zcallback,
                               1,
@@ -313,7 +313,6 @@ PHP_FUNCTION(couchbase_mget)
 
     efree(keys);
     efree(keys_sizes);
-    RETURN_TRUE;
 }
 
 static void storage_callback(libcouchbase_t instance,
