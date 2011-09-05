@@ -17,10 +17,16 @@ PHP_FUNCTION(couchbase_remove);
 
 // callbacks
 PHP_FUNCTION(couchbase_set_storage_callback);
+PHP_FUNCTION(couchbase_set_get_callback);
 
 typedef struct _php_couchbase_instance {
   libcouchbase_t instance;
 } php_couchbase_instance;
+
+typedef struct _php_couchbase_callbacks {
+    zval *storage;
+    zval *get;
+} php_couchbase_callbacks;
 
 #define PHP_COUCHBASE_INSTANCE "Couchbase Instance"
 
