@@ -15,11 +15,13 @@ PHP_FUNCTION(couchbase_set);
 PHP_FUNCTION(couchbase_add);
 PHP_FUNCTION(couchbase_replace);
 PHP_FUNCTION(couchbase_remove);
+PHP_FUNCTION(couchbase_mtouch);
 
 // callbacks
 PHP_FUNCTION(couchbase_set_storage_callback);
 PHP_FUNCTION(couchbase_set_get_callback);
 PHP_FUNCTION(couchbase_set_remove_callback);
+PHP_FUNCTION(couchbase_set_touch_callback);
 
 typedef struct _php_couchbase_instance {
   libcouchbase_t instance;
@@ -30,12 +32,14 @@ typedef struct _php_couchbase_callbacks {
     zval *storage;
     zval *get;
     zval *remove;
+    zval *touch;
 } php_couchbase_callbacks;
 
 typedef enum {
     STORAGE_CALLBACK = 1,
     GET_CALLBACK = 2,
-    REMOVE_CALLBACK = 3
+    REMOVE_CALLBACK = 3,
+    TOUCH_CALLBACK = 4
 } php_couchbase_callback_type;
 
 #define PHP_COUCHBASE_INSTANCE "Couchbase Instance"
@@ -62,7 +66,10 @@ static void remove_callback(libcouchbase_t instance,
                      const void *cookie,
                      libcouchbase_error_t error,
                      const void *key, size_t nkey);
-
+static void touch_callback(libcouchbase_t instance,
+			   const void *cookie,
+			   libcouchbase_error_t error,
+			   const void *key, size_t nkey);
 
 extern zend_module_entry couchbase_module_entry;
 #define phpext_hello_ptr &couchbase_module_entry
