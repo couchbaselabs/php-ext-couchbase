@@ -39,8 +39,6 @@ couchbase_execute($cb);
 couchbase_set($cb, "k", "y", function($error, $key, $superfluous_arg) {});
 couchbase_mget($cb, "k", function($error, $key, $value, $superfluous_arg) {});
 
-//couchbase_execute($cb);
-
 var_dump("end");
 ?>
 --EXPECTF--

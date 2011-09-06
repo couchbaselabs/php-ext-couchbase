@@ -19,6 +19,7 @@ static zend_function_entry couchbase_functions[] = {
     PHP_FE(couchbase_mget, NULL)
     PHP_FE(couchbase_set, NULL)
     PHP_FE(couchbase_add, NULL)
+    PHP_FE(couchbase_replace, NULL)
     PHP_FE(couchbase_remove, NULL)
     PHP_FE(couchbase_set_storage_callback, NULL)
     PHP_FE(couchbase_set_get_callback, NULL)
@@ -46,27 +47,6 @@ zend_module_entry couchbase_module_entry = {
 #ifdef COMPILE_DL_COUCHBASE
 ZEND_GET_MODULE(couchbase)
 #endif
-
-// forward declaration
-long map_error_constant(libcouchbase_error_t error);
-static void couchbase_store(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t operation);
-static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, int type);
-static void storage_callback(libcouchbase_t instance,
-                             const void *cookie,
-                             libcouchbase_storage_t operation,
-                             libcouchbase_error_t error,
-                             const void *key, size_t nkey,
-                             uint64_t cas);
-static void get_callback(libcouchbase_t instance,
-                         const void *cookie,
-                         libcouchbase_error_t error,
-                         const void *key, size_t nkey,
-                         const void *bytes, size_t nbytes,
-                         uint32_t flags, uint64_t cas);
-void remove_callback(libcouchbase_t instance,
-                     const void *cookie,
-                     libcouchbase_error_t error,
-                     const void *key, size_t nkey);
 
 enum php_libcouchbase_error_t {
     COUCHBASE_SUCCESS,
@@ -106,6 +86,9 @@ static void php_couchbase_instance_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 		}
 		if(callbacks->get != NULL) {
 		    zval_dtor(callbacks->get);
+		}
+		if(callbacks->remove != NULL) {
+		    zval_dtor(callbacks->remove);
 		}
 		efree(callbacks);
 	    }
@@ -231,7 +214,9 @@ PHP_FUNCTION(couchbase_create)
     php_couchbase_callbacks *callbacks = emalloc(sizeof(php_couchbase_callbacks));
     callbacks->storage = NULL;
     callbacks->get = NULL;
+    callbacks->remove = NULL;
     libcouchbase_set_cookie(instance, callbacks);
+
     libcouchbase_set_storage_callback(instance, storage_callback);
     libcouchbase_set_get_callback(instance, get_callback);
     libcouchbase_set_remove_callback(instance, remove_callback);
@@ -256,20 +241,20 @@ PHP_FUNCTION(couchbase_execute)
 
 PHP_FUNCTION(couchbase_set_storage_callback)
 {
-    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, STORAGE_CALLBACK);
 }
 
 PHP_FUNCTION(couchbase_set_get_callback)
 {
-    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, 2);
+    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, GET_CALLBACK);
 }
 
 PHP_FUNCTION(couchbase_set_remove_callback)
 {
-    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, 3);
+    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, REMOVE_CALLBACK);
 }
 
-static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, int type)
+static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, php_couchbase_callback_type type)
 {
     zval *zinstance;
     zval *zcallback;
@@ -288,19 +273,27 @@ static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, int type)
     Z_ADDREF_P(zcallback);
     php_couchbase_callbacks *callbacks = (php_couchbase_callbacks *)libcouchbase_get_cookie(php_instance->instance);
     switch(type) {
-    case 1:
+    case STORAGE_CALLBACK:
+	if(callbacks->storage != NULL) {
+	    zval_dtor(callbacks->storage);
+	}
 	callbacks->storage = zcallback;
 	break;
-    case 2:
+    case GET_CALLBACK:
+	if(callbacks->get != NULL) {
+	    zval_dtor(callbacks->get);
+	}
 	callbacks->get = zcallback;
 	break;
-    case 3:
+    case REMOVE_CALLBACK:
+	if(callbacks->remove != NULL) {
+	    zval_dtor(callbacks->remove);
+	}
 	callbacks->remove = zcallback;
 	break;
     }
 
     libcouchbase_set_cookie(php_instance->instance, callbacks);
-
     RETURN_TRUE;
 }
 
@@ -479,6 +472,11 @@ PHP_FUNCTION(couchbase_add)
     couchbase_store(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_ADD);
 }
 
+PHP_FUNCTION(couchbase_replace)
+{
+    couchbase_store(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_REPLACE);
+}
+
 static void couchbase_store(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t operation)
 {
     zval *zinstance;
@@ -516,7 +514,7 @@ static void couchbase_store(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t
     RETURN_TRUE;
 }
 
-void remove_callback(libcouchbase_t instance,
+static void remove_callback(libcouchbase_t instance,
                      const void *cookie,
                      libcouchbase_error_t error,
                      const void *key, size_t nkey)
@@ -571,7 +569,6 @@ void remove_callback(libcouchbase_t instance,
 
     zval_ptr_dtor(&result);
     zval_ptr_dtor(&zerror);
-    zval_ptr_dtor(&zcallback);
     zval_ptr_dtor(argv[0]);
     zval_ptr_dtor(argv[1]);
 }

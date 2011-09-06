@@ -53,7 +53,7 @@ couchbase_execute($cb);
 function get_callback2($error, $key, $value) {
     var_dump($error === COUCHBASE_KEY_ENOENT);
     var_dump($value);
-};
+}
 
 couchbase_set_get_callback($cb, "get_callback2");
 

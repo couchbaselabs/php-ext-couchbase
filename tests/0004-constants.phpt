@@ -1,5 +1,5 @@
 --TEST--
-Couchbase Set Get Test
+Couchbase Constants
 --SKIPIF--
 <?php if (!extension_loaded("couchbase")) echo 'skip'; ?>
 --FILE--
