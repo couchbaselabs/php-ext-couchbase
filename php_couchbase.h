@@ -21,6 +21,7 @@ PHP_FUNCTION(couchbase_set_get_callback);
 
 typedef struct _php_couchbase_instance {
   libcouchbase_t instance;
+  void *evbase;
 } php_couchbase_instance;
 
 typedef struct _php_couchbase_callbacks {

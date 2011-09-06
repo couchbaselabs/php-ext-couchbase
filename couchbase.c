@@ -106,6 +106,9 @@ static void php_couchbase_instance_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 	    }
             libcouchbase_destroy(php_instance->instance);
         }
+        if (php_instance->evbase) {
+            event_base_free(php_instance->evbase);
+        }
         efree(php_instance);
     }
 }
@@ -166,7 +169,7 @@ long map_error_constant(libcouchbase_error_t error)
 	    case LIBCOUCHBASE_UNKNOWN_COMMAND: return COUCHBASE_UNKNOWN_COMMAND;
 	    case LIBCOUCHBASE_UNKNOWN_HOST: return COUCHBASE_UNKNOWN_HOST;
     }
-}    
+}
 
 // functions
 
@@ -192,15 +195,22 @@ PHP_FUNCTION(couchbase_create)
     }
 
     struct event_base *base;
-    struct event_base *evbase = event_init();
+    struct event_base *evbase = event_base_new();
+    if (evbase == NULL) {
+        php_printf("Failed to create event base for libcouchbase\n");
+        RETURN_FALSE;
+    }
+
     libcouchbase_t instance = libcouchbase_create(host, user,
                                                   passwd, bucket, evbase);
     if (instance == NULL) {
+        event_base_free(evbase);
         php_printf("Failed to create libcouchbase instance\n");
         RETURN_FALSE;
     }
 
     if (libcouchbase_connect(instance) != LIBCOUCHBASE_SUCCESS) {
+        event_base_free(evbase);
         php_printf("Failed to connect libcouchbase instance to server\n");
         RETURN_FALSE;
     }
@@ -208,6 +218,7 @@ PHP_FUNCTION(couchbase_create)
     php_couchbase_instance *php_instance;
     php_instance = emalloc(sizeof(php_couchbase_instance));
     php_instance->instance = instance;
+    php_instance->evbase = evbase;
 
     ZEND_REGISTER_RESOURCE(return_value, php_instance, le_couchbase_instance);
 
