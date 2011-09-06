@@ -22,6 +22,7 @@ static zend_function_entry couchbase_functions[] = {
     PHP_FE(couchbase_remove, NULL)
     PHP_FE(couchbase_set_storage_callback, NULL)
     PHP_FE(couchbase_set_get_callback, NULL)
+    PHP_FE(couchbase_set_remove_callback, NULL)
     {NULL, NULL, NULL}
 };
 
@@ -62,6 +63,10 @@ static void get_callback(libcouchbase_t instance,
                          const void *key, size_t nkey,
                          const void *bytes, size_t nbytes,
                          uint32_t flags, uint64_t cas);
+void remove_callback(libcouchbase_t instance,
+                     const void *cookie,
+                     libcouchbase_error_t error,
+                     const void *key, size_t nkey);
 
 enum php_libcouchbase_error_t {
     COUCHBASE_SUCCESS,
@@ -229,6 +234,7 @@ PHP_FUNCTION(couchbase_create)
     libcouchbase_set_cookie(instance, callbacks);
     libcouchbase_set_storage_callback(instance, storage_callback);
     libcouchbase_set_get_callback(instance, get_callback);
+    libcouchbase_set_remove_callback(instance, remove_callback);
 }
 
 PHP_FUNCTION(couchbase_execute)
@@ -258,6 +264,11 @@ PHP_FUNCTION(couchbase_set_get_callback)
     couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, 2);
 }
 
+PHP_FUNCTION(couchbase_set_remove_callback)
+{
+    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, 3);
+}
+
 static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, int type)
 {
     zval *zinstance;
@@ -282,6 +293,9 @@ static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, int type)
 	break;
     case 2:
 	callbacks->get = zcallback;
+	break;
+    case 3:
+	callbacks->remove = zcallback;
 	break;
     }
 
@@ -507,7 +521,8 @@ void remove_callback(libcouchbase_t instance,
                      libcouchbase_error_t error,
                      const void *key, size_t nkey)
 {
-    zval *zcallback = (zval *)cookie;
+    php_couchbase_callbacks *callbacks = (php_couchbase_callbacks *)libcouchbase_get_cookie(instance);
+    zval *zcallback = callbacks->remove;
     char *callback_name;
 
     if (Z_TYPE_P(zcallback) != IS_NULL) {
@@ -547,6 +562,7 @@ void remove_callback(libcouchbase_t instance,
         fci.param_count = 2;
         fci.params = argv;
         fci.no_separation = 0;
+	fci.object_ptr = NULL;
 
         if (zend_call_function(&fci, NULL TSRMLS_CC) != SUCCESS ) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "An error occurred while invoking the storage callback");
@@ -563,14 +579,12 @@ void remove_callback(libcouchbase_t instance,
 PHP_FUNCTION(couchbase_remove)
 {
     zval *zinstance;
-    zval *zcallback = NULL;
 
     const char *key = NULL; int key_len;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsz",
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
         &zinstance,
-        &key, &key_len,
-        &zcallback
+        &key, &key_len
     ) == FAILURE) {
         RETURN_FALSE;
     }
@@ -581,11 +595,8 @@ PHP_FUNCTION(couchbase_remove)
 
     libcouchbase_error_t error;
 
-    Z_ADDREF_P(zcallback);
-    (void)libcouchbase_set_remove_callback(php_instance->instance, remove_callback);
-
     error = libcouchbase_remove(php_instance->instance,
-			       zcallback,
+				NULL,
                                (const void * const *)key, (size_t)strlen(key),
                                0);
     if(error != LIBCOUCHBASE_SUCCESS) {
