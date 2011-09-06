@@ -18,12 +18,14 @@ static zend_function_entry couchbase_functions[] = {
     PHP_FE(couchbase_replace, NULL)
     PHP_FE(couchbase_remove, NULL)
     PHP_FE(couchbase_mtouch, NULL)
+    PHP_FE(couchbase_arithmetic, NULL)
 
     // callbacks
     PHP_FE(couchbase_set_storage_callback, NULL)
     PHP_FE(couchbase_set_get_callback, NULL)
     PHP_FE(couchbase_set_remove_callback, NULL)
     PHP_FE(couchbase_set_touch_callback, NULL)
+    PHP_FE(couchbase_set_arithmetic_callback, NULL)
     {NULL, NULL, NULL}
 };
 
@@ -92,6 +94,9 @@ static void php_couchbase_instance_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 		}
 		if(callbacks->touch != NULL) {
 		    zval_dtor(callbacks->touch);
+		}
+		if(callbacks->arithmetic != NULL) {
+		    zval_dtor(callbacks->arithmetic);
 		}
 		efree(callbacks);
 	    }
@@ -171,9 +176,11 @@ long map_error_constant(libcouchbase_error_t error)
 #include "functions/mtouch.c"
 #include "functions/remove.c"
 #include "functions/set_callback.c"
+#include "functions/arithmetic.c"
 
 // callbacks
 #include "callbacks/touch.c"
 #include "callbacks/remove.c"
 #include "callbacks/storage.c"
 #include "callbacks/get.c"
+#include "callbacks/arithmetic.c"

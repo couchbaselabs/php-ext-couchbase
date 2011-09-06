@@ -18,6 +18,11 @@ PHP_FUNCTION(couchbase_set_touch_callback)
     couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, TOUCH_CALLBACK);
 }
 
+PHP_FUNCTION(couchbase_set_arithmetic_callback)
+{
+    couchbase_set_callback(INTERNAL_FUNCTION_PARAM_PASSTHRU, ARITHMETIC_CALLBACK);
+}
+
 static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, php_couchbase_callback_type type)
 {
     zval *zinstance;
@@ -60,6 +65,12 @@ static void couchbase_set_callback(INTERNAL_FUNCTION_PARAMETERS, php_couchbase_c
 	    zval_dtor(callbacks->touch);
 	}
 	callbacks->touch = zcallback;
+	break;
+    case ARITHMETIC_CALLBACK:
+	if(callbacks->arithmetic != NULL) {
+	    zval_dtor(callbacks->arithmetic);
+	}
+	callbacks->arithmetic = zcallback;
 	break;
     }
 

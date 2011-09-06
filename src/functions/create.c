@@ -48,10 +48,12 @@ PHP_FUNCTION(couchbase_create)
     callbacks->get = NULL;
     callbacks->remove = NULL;
     callbacks->touch = NULL;
+    callbacks->arithmetic = NULL;
     libcouchbase_set_cookie(instance, callbacks);
 
     libcouchbase_set_storage_callback(instance, storage_callback);
     libcouchbase_set_get_callback(instance, get_callback);
     libcouchbase_set_remove_callback(instance, remove_callback);
     libcouchbase_set_touch_callback(instance, touch_callback);
+    libcouchbase_set_arithmetic_callback(instance, arithmetic_callback);
 }
