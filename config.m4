@@ -39,7 +39,7 @@ if test "$PHP_COUCHBASE" = "yes"; then
     PHP_SUBST(COUCHBASE_SHARED_LIBADD)
 
     AC_DEFINE(HAVE_COUCHBASE, 1, [Whether you have Couchbase])
-    PHP_NEW_EXTENSION(couchbase, couchbase.c, $ext_shared)
+    PHP_NEW_EXTENSION(couchbase, src/couchbase.c, $ext_shared)
 
   fi
 fi
