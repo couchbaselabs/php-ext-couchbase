@@ -41,4 +41,5 @@ var_dump("end");
 resource(%d) of type (Couchbase Instance)
 string(1) "k"
 string(3) "set"
+string(1) "k"
 string(3) "end"
