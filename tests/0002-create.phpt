@@ -16,7 +16,6 @@ var_dump($cb);
 
 $cb = couchbase_create("$host", "user", "pass", "bucket");
 var_dump($cb);
-
 ?>
 --EXPECTF--
 resource(%d) of type (Couchbase Instance)
