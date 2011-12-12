@@ -1,4 +1,0 @@
-PHP_FUNCTION(couchbase_version)
-{
-    RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
-}
