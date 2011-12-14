@@ -1,18 +1,18 @@
 --TEST--
-Check for couchbase_add
+Check for couchbase_get_stats
 --SKIPIF--
 <?php include "skipif.inc" ?>
---INI--
-precision=19
 --FILE--
 <?php
 include "couchbase.inc";
 $handle = couchbase_connect(COUCHBASE_CONFIG_HOST, COUCHBASE_CONFIG_USER, COUCHBASE_CONFIG_PASSWD, COUCHBASE_CONFIG_BUCKET);
 
-$key = uniqid("couchbase_");
-$value = "foo";
-var_dump(couchbase_add($handle, $key, $value));
-couchbase_delete($handle, $key);
+$stats = couchbase_get_stats($handle);
+var_dump(is_array($stats));
+var_dump(count($stats) > 0);
+var_dump(count(current($stats)) > 10);
 ?>
 --EXPECTF--
-float(%d)
+bool(true)
+bool(true)
+bool(true)
