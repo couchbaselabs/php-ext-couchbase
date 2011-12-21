@@ -14,7 +14,24 @@ couchbase_add($handle, $key, $value);
 var_dump(couchbase_get($handle, $key));
 couchbase_delete($handle, $key);
 var_dump(couchbase_get($handle, $key));
+
+
+$cas = couchbase_add($handle, $key, $value);
+var_dump(couchbase_get($handle, $key));
+
+$cas2 = couchbase_set($handle, $key, "bar");
+
+var_dump(couchbase_delete($handle, $key, $cas));
+var_dump(couchbase_get($handle, $key));
+
+var_dump(couchbase_delete($handle, $key, $cas2));
+var_dump(couchbase_get($handle, $key));
 ?>
 --EXPECTF--
 string(3) "foo"
+NULL
+string(3) "foo"
+bool(false)
+string(3) "bar"
+bool(true)
 NULL

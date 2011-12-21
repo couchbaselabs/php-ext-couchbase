@@ -3,7 +3,7 @@ Check for couchbase_set_multi
 --SKIPIF--
 <?php include "skipif.inc" ?>
 --INI--
-precision=19
+
 --FILE--
 <?php
 include "couchbase.inc";
@@ -21,13 +21,13 @@ couchbase_flush($handle);
 --EXPECTF--
 Array
 (
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
-    [couchbase_%s] => %d
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
+    [couchbase_%s] => %s
 )

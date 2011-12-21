@@ -28,6 +28,7 @@ extern zend_module_entry couchbase_module_entry;
 
 #ifdef PHP_WIN32
 #    define PHP_COUCHBASE_API __declspec(dllexport)
+#    define strtoull _strtoui64
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #    define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
 #else
@@ -48,7 +49,7 @@ extern zend_module_entry couchbase_module_entry;
 #define php_ignore_value(x) ((void) (x))
 #endif
 
-#if (PHP_MAJOR_VERSION == 5) && (PHP_MINFO_FUNCTION > 2)
+#if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)
 #define COUCHBASE_ARG_PREFIX
 #else
 #define COUCHBASE_ARG_PREFIX static
@@ -57,28 +58,29 @@ extern zend_module_entry couchbase_module_entry;
 #define PHP_COUCHBASE_VERSION     "0.0.1"
 #define PHP_COUCHBASE_RESOURCE    "Couchbase"
 
-enum memcached_serializer {
-    SERIALIZER_PHP = 1,
-    SERIALIZER_IGBINARY = 2,
-    SERIALIZER_JSON = 3,
-    SERIALIZER_JSON_ARRAY = 4,
-};
+#define COUCHBASE_OPT_SERIALIZER            1
+#define COUCHBASE_OPT_PREFIX_KEY            2
 
 #define COUCHBASE_SERIALIZER_PHP            0
-#define COUCHBASE_SERIALIZER_JSON           1
-#define COUCHBASE_SERIALIZER_JSON_ARRAY     2
-#define COUCHBASE_SERIALIZER_DEFAULT        SERIALIZER_PHP
+#define COUCHBASE_SERIALIZER_DEFAULT        COUCHBASE_SERIALIZER_PHP
 #define COUCHBASE_SERIALIZER_DEFAULT_NAME   "php"
 
-#define COMPRESSION_TYPE_FASTLZ 0
-#define COMPRESSION_TYPE_ZLIB   1
+#ifdef HAVE_JSON_API
+#   define COUCHBASE_SERIALIZER_JSON        1
+#   define COUCHBASE_SERIALIZER_JSON_ARRAY  2
+#endif
+
+#define COUCHBASE_IS_JSON                   65
+#define COUCHBASE_IS_SERIALIZED             66
 
 typedef struct _php_couchbase_res {
     libcouchbase_t handle;
     libcouchbase_io_opt_t *io;
     long seqno;
+    unsigned char async;
     unsigned char serializer;
-    unsigned char compression_type;
+    const char *prefix_key;
+    unsigned int prefix_key_len;
     libcouchbase_error_t rc;
 } php_couchbase_res;
 
@@ -86,12 +88,12 @@ typedef struct _php_couchbase_ctx {
     zval *rv;
     zval *cas;
     php_couchbase_res *res;
+    unsigned char flags;
     void *extended_value;
 } php_couchbase_ctx;
 
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
     unsigned char serializer;
-    unsigned char compression_type;
 ZEND_END_MODULE_GLOBALS(couchbase)
 
 PHP_GINIT_FUNCTION(couchbase);
@@ -111,12 +113,17 @@ PHP_FUNCTION(couchbase_append);
 PHP_FUNCTION(couchbase_cas);
 PHP_FUNCTION(couchbase_get);
 PHP_FUNCTION(couchbase_get_multi);
+PHP_FUNCTION(couchbase_get_delayed);
+PHP_FUNCTION(couchbase_fetch);
+PHP_FUNCTION(couchbase_fetch_all);
 PHP_FUNCTION(couchbase_delete);
 PHP_FUNCTION(couchbase_get_stats);
 PHP_FUNCTION(couchbase_flush);
 PHP_FUNCTION(couchbase_increment);
 PHP_FUNCTION(couchbase_decrement);
 PHP_FUNCTION(couchbase_get_result_code);
+PHP_FUNCTION(couchbase_set_option);
+PHP_FUNCTION(couchbase_get_option);
 PHP_FUNCTION(couchbase_version);
 
 #endif    /* PHP_COUCHBASE_H */

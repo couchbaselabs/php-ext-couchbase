@@ -15,8 +15,30 @@ $v = couchbase_get($handle, $key, NULL, $cas2);
 var_dump($v === $value);
 var_dump($cas1 == $cas2);
 
+function cache_cb($res, $key, &$value) {
+      $value = "from db";
+      return true;
+}
+
+couchbase_get($handle, $key, "cache_cb", $cas3);
+var_dump($cas3 === $cas2);
+
+var_dump("from db" === couchbase_get($handle, "non-exists-key", "cache_cb", $cas4));
+var_dump($cas4);
+
+function another_cache_cb($res, $key, &$value) {
+      $value = "from db";
+      return false;
+}
+
+var_dump(NULL === couchbase_get($handle, "non-exists-key", "another_cache_cb"));
+
 couchbase_delete($handle, $key);
 ?>
 --EXPECTF--
 bool(true)
+bool(true)
+bool(true)
+bool(true)
+NULL
 bool(true)

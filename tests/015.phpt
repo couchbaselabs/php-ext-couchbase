@@ -3,13 +3,13 @@ Check for number key
 --SKIPIF--
 <?php include "skipif.inc" ?>
 --INI--
-precision=19
+
 --FILE--
 <?php
 include "couchbase.inc";
 $handle = couchbase_connect(COUCHBASE_CONFIG_HOST, COUCHBASE_CONFIG_USER, COUCHBASE_CONFIG_PASSWD, COUCHBASE_CONFIG_BUCKET);
 $key = 8888888;
-var_dump(couchbase_get($handle, $key, "foo"));
+var_dump(couchbase_get($handle, $key));
 var_dump(COUCHBASE_KEY_ENOENT === couchbase_get_result_code($handle));
 
 var_dump(couchbase_replace($handle, $key, "foo"));
@@ -32,7 +32,7 @@ NULL
 bool(true)
 bool(false)
 bool(true)
-float(%d)
+string(%d) %s
 bool(true)
 bool(true)
 bool(true)

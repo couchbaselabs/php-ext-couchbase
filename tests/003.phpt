@@ -3,7 +3,7 @@ Check for couchbase_add
 --SKIPIF--
 <?php include "skipif.inc" ?>
 --INI--
-precision=19
+
 --FILE--
 <?php
 include "couchbase.inc";
@@ -15,4 +15,4 @@ var_dump(couchbase_add($handle, $key, $value));
 couchbase_delete($handle, $key);
 ?>
 --EXPECTF--
-float(%d)
+string(%d) %s
