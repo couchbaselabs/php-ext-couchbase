@@ -18,7 +18,9 @@ PHP_ARG_WITH(fastlz-src, for FastLZ,
 
 if test "$PHP_COUCHBASE" != "no"; then
   if test -r "$PHP_COUCHBASE/include/libcouchbase/couchbase.h"; then
+      AC_MSG_CHECKING([for libcouchbase location])
       COUCHBASE_DIR="$PHP_COUCHBASE"
+      AC_MSG_RESULT($PHP_COUCHBASE)
   else
     dnl # look in system dirs
      AC_MSG_CHECKING([for libcouchbase files in default path])
