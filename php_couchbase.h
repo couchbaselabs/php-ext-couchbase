@@ -61,29 +61,38 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_PROPERTY_HANDLE "_handle"
 
 #define COUCHBASE_OPT_SERIALIZER            1
-#define COUCHBASE_OPT_PREFIX_KEY            2
+#define COUCHBASE_OPT_COMPRESSER            2
+#define COUCHBASE_OPT_PREFIX_KEY            3
 
 #define COUCHBASE_SERIALIZER_PHP            0
 #define COUCHBASE_SERIALIZER_DEFAULT        COUCHBASE_SERIALIZER_PHP
 #define COUCHBASE_SERIALIZER_DEFAULT_NAME   "php"
+#define COUCHBASE_SERIALIZER_JSON           1
+#define COUCHBASE_SERIALIZER_JSON_ARRAY     2
 
-#ifdef HAVE_JSON_API
-#   define COUCHBASE_SERIALIZER_JSON        1
-#   define COUCHBASE_SERIALIZER_JSON_ARRAY  2
-#endif
+#define COUCHBASE_IS_JSON                   30 
+#define COUCHBASE_IS_SERIALIZED             31
+#define COUCHBASE_GET_TYPE(f)               ((f) & 31)
 
-#define COUCHBASE_IS_JSON                   65
-#define COUCHBASE_IS_SERIALIZED             66
+#define COUCHBASE_COMPRESSER_MASK           224 /* 7 << 5 */
+#define COUCHBASE_COMPRESSER_NONE           0
+#define COUCHBASE_COMPRESSER_FASTLZ         1
+#define COUCHBASE_COMPRESSER_ZLIB           2
+
+#define COUCHBASE_GET_COMPRESSER(f)         ((f) >> 5)
+#define COUCHBASE_SET_COMPRESSER(f, c)      ((f) = ((f) & ~COUCHBASE_COMPRESSER_MASK) | (c) << 5)
+
 
 typedef struct _php_couchbase_res {
     libcouchbase_t handle;
     libcouchbase_io_opt_t *io;
     long seqno;
-    unsigned char async;
-    unsigned char serializer;
-    const char *prefix_key;
-    unsigned int prefix_key_len;
-    libcouchbase_error_t rc;
+    char async;
+    char serializer;
+    char compresser;
+    char *prefix_key;
+    int prefix_key_len;
+    libcouchbase_error_t rc; /* returned code */
 } php_couchbase_res;
 
 typedef struct _php_couchbase_ctx {
@@ -95,7 +104,12 @@ typedef struct _php_couchbase_ctx {
 } php_couchbase_ctx;
 
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
-    unsigned char serializer;
+    char serializer_real;
+    char *serializer;
+    char compresser_real;
+    char *compresser;
+    long compression_threshold;
+    double compression_factor;
 ZEND_END_MODULE_GLOBALS(couchbase)
 
 PHP_GINIT_FUNCTION(couchbase);
@@ -108,24 +122,24 @@ PHP_MINFO_FUNCTION(couchbase);
 PHP_METHOD(couchbase, __construct);
 PHP_METHOD(couchbase, add);
 PHP_METHOD(couchbase, set);
-PHP_METHOD(couchbase, setmulti);
+PHP_METHOD(couchbase, setMulti);
 PHP_METHOD(couchbase, replace);
 PHP_METHOD(couchbase, prepend);
 PHP_METHOD(couchbase, append);
 PHP_METHOD(couchbase, cas);
 PHP_METHOD(couchbase, get);
-PHP_METHOD(couchbase, getmulti);
-PHP_METHOD(couchbase, getdelayed);
+PHP_METHOD(couchbase, getMulti);
+PHP_METHOD(couchbase, getDelayed);
 PHP_METHOD(couchbase, fetch);
-PHP_METHOD(couchbase, fetchall);
+PHP_METHOD(couchbase, fetchAll);
 PHP_METHOD(couchbase, delete);
-PHP_METHOD(couchbase, getstats);
+PHP_METHOD(couchbase, getStats);
 PHP_METHOD(couchbase, flush);
 PHP_METHOD(couchbase, increment);
 PHP_METHOD(couchbase, decrement);
-PHP_METHOD(couchbase, getresultcode);
-PHP_METHOD(couchbase, setoption);
-PHP_METHOD(couchbase, getoption);
+PHP_METHOD(couchbase, getResultCode);
+PHP_METHOD(couchbase, setOption);
+PHP_METHOD(couchbase, getOption);
 PHP_METHOD(couchbase, version);
 
 PHP_FUNCTION(couchbase_connect);
