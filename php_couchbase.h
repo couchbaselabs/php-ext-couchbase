@@ -25,6 +25,7 @@
 
 extern zend_module_entry couchbase_module_entry;
 #define phpext_couchbase_ptr &couchbase_module_entry
+extern zend_class_entry *couchbase_ce;
 
 #ifdef PHP_WIN32
 #    define PHP_COUCHBASE_API __declspec(dllexport)
@@ -57,6 +58,7 @@ extern zend_module_entry couchbase_module_entry;
 
 #define PHP_COUCHBASE_VERSION     "0.0.1"
 #define PHP_COUCHBASE_RESOURCE    "Couchbase"
+#define COUCHBASE_PROPERTY_HANDLE "_handle"
 
 #define COUCHBASE_OPT_SERIALIZER            1
 #define COUCHBASE_OPT_PREFIX_KEY            2
@@ -102,6 +104,29 @@ PHP_MSHUTDOWN_FUNCTION(couchbase);
 PHP_RINIT_FUNCTION(couchbase);
 PHP_RSHUTDOWN_FUNCTION(couchbase);
 PHP_MINFO_FUNCTION(couchbase);
+
+PHP_METHOD(couchbase, __construct);
+PHP_METHOD(couchbase, add);
+PHP_METHOD(couchbase, set);
+PHP_METHOD(couchbase, setmulti);
+PHP_METHOD(couchbase, replace);
+PHP_METHOD(couchbase, prepend);
+PHP_METHOD(couchbase, append);
+PHP_METHOD(couchbase, cas);
+PHP_METHOD(couchbase, get);
+PHP_METHOD(couchbase, getmulti);
+PHP_METHOD(couchbase, getdelayed);
+PHP_METHOD(couchbase, fetch);
+PHP_METHOD(couchbase, fetchall);
+PHP_METHOD(couchbase, delete);
+PHP_METHOD(couchbase, getstats);
+PHP_METHOD(couchbase, flush);
+PHP_METHOD(couchbase, increment);
+PHP_METHOD(couchbase, decrement);
+PHP_METHOD(couchbase, getresultcode);
+PHP_METHOD(couchbase, setoption);
+PHP_METHOD(couchbase, getoption);
+PHP_METHOD(couchbase, version);
 
 PHP_FUNCTION(couchbase_connect);
 PHP_FUNCTION(couchbase_add);

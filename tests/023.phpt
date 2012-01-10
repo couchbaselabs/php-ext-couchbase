@@ -19,11 +19,6 @@ $value4 = TRUE;
 couchbase_add($handle, $key, $value);
 var_dump(couchbase_get($handle, $key) === $value);
 couchbase_set($handle, $key, $value2);
-
-/**
- * when using the identity operator (===), object variables are identical if and only if they refer to the same instance of the same class.
- * so we should use == here instead
- */
 var_dump(couchbase_get($handle, $key) == $value2);
 couchbase_set($handle, $key, $value3);
 var_dump(couchbase_get($handle, $key) === $value3);

@@ -38,8 +38,9 @@
 ZEND_DECLARE_MODULE_GLOBALS(couchbase)
 
 static int le_couchbase;
+zend_class_entry *couchbase_ce;
 
-/* {{{ COUCHBASE_ARG_INFO
+/* {{{ COUCHBASE_FUNCTIONS_ARG_INFO
  */
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_connect, 0, 0, 1)
@@ -185,18 +186,159 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_result_code, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
-ZEND_BEGIN_ARG_INFO_EX(arginfo_set_option, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_set_option, 0, 0, 3)
+    ZEND_ARG_INFO(0, resource)
     ZEND_ARG_INFO(0, option)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
-ZEND_BEGIN_ARG_INFO_EX(arginfo_get_option, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_option, 0, 0, 2)
+    ZEND_ARG_INFO(0, resource)
     ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_version, 0, 0, 0)
+ZEND_END_ARG_INFO()
+/* }}} */
+
+/* {{{ COUCHBASE_METHODS_ARG_INFO
+ */
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_construct, 0, 0, 1)
+    ZEND_ARG_INFO(0, host)
+    ZEND_ARG_INFO(0, user)
+    ZEND_ARG_INFO(0, password)
+    ZEND_ARG_INFO(0, bucket)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_add, 0, 0, 2)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, expiration)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_set, 0, 0, 2)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, expiration)
+    ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_setmulti, 0, 0, 1)
+    ZEND_ARG_ARRAY_INFO(0, values, 0)
+    ZEND_ARG_INFO(0, expiration)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_replace, 0, 0, 2)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, expiration)
+    ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_append, 0, 0, 2)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, expiration)
+    ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_prepend, 0, 0, 2)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, expiration)
+    ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_cas, 0, 0, 3)
+    ZEND_ARG_INFO(0, cas)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, expiration)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_get, 0, 0, 1)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, cache_cb)
+    ZEND_ARG_INFO(1, cas_token)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getmulti, 0, 0, 1)
+    ZEND_ARG_ARRAY_INFO(0, keys, 0)
+    ZEND_ARG_ARRAY_INFO(1, cas_tokens, 1)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getdelayed, 0, 0, 1)
+    ZEND_ARG_ARRAY_INFO(0, keys, 0)
+    ZEND_ARG_INFO(0, with_cas)
+    ZEND_ARG_INFO(0, cb)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_fetch, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_fetchall, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_increment, 0, 0, 1)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, offset)
+    ZEND_ARG_INFO(0, create)
+    ZEND_ARG_INFO(0, expiration)
+    ZEND_ARG_INFO(0, initial)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_decrement, 0, 0, 1)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, offset)
+    ZEND_ARG_INFO(0, create)
+    ZEND_ARG_INFO(0, expiration)
+    ZEND_ARG_INFO(0, initial)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_delete, 0, 0, 1)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getstats, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_flush, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_resultcode, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_setoption, 0, 0, 2)
+    ZEND_ARG_INFO(0, option)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getoption, 0, 0, 1)
+    ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -225,6 +367,35 @@ static zend_function_entry couchbase_functions[] = {
     PHP_FE(couchbase_set_option, arginfo_set_option)
     PHP_FE(couchbase_get_option, arginfo_get_option)
     PHP_FE(couchbase_version, arginfo_version)
+    {NULL, NULL, NULL}
+};
+/* }}} */
+
+/* {{{ couchbase_methods[]
+ */
+static zend_function_entry couchbase_methods[] = {
+    PHP_ME(couchbase, __construct, arginfo_construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+    PHP_ME(couchbase, add, arginfo_m_add, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, set, arginfo_m_set, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, setmulti, arginfo_m_setmulti, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, replace, arginfo_m_replace, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, prepend, arginfo_m_prepend, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, append, arginfo_m_append, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, cas, arginfo_m_cas, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, get, arginfo_m_get, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, getmulti, arginfo_m_getmulti, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, getdelayed, arginfo_m_getdelayed, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, fetch, arginfo_m_fetch, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, fetchall, arginfo_m_fetchall, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, delete, arginfo_m_delete, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, getstats, arginfo_m_getstats, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, flush, arginfo_m_flush, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, increment, arginfo_m_increment, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, decrement, arginfo_m_decrement, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, getresultcode, arginfo_m_resultcode, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, setoption, arginfo_m_setoption, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, getoption, arginfo_m_getoption, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, version, arginfo_version, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */
@@ -447,6 +618,21 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 }
 /* }}} */
 
+static void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */ {
+    php_couchbase_res *couchbase_res = (php_couchbase_res*)rsrc->ptr;
+    if (couchbase_res) {
+        if (couchbase_res->handle) {
+            libcouchbase_destroy(couchbase_res->handle);
+        }
+        if (couchbase_res->prefix_key) {
+            efree((void *)couchbase_res->prefix_key);
+        }
+        efree(couchbase_res);
+    }
+}
+/* }}} */
+
+/* callbacks */
 static void php_couchbase_error_callback(libcouchbase_t handle, libcouchbase_error_t error, const char *errinfo) /* {{{ */ {
     php_couchbase_ctx *ctx = (php_couchbase_ctx *)libcouchbase_get_cookie(handle);
     /**
@@ -727,21 +913,85 @@ php_couchbase_stat_callback(libcouchbase_t handle,
 }
 /* }}} */
 
-static void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */ {
-    php_couchbase_res *couchbase_res = (php_couchbase_res*)rsrc->ptr;
-    if (couchbase_res) {
-        if (couchbase_res->handle) {
-            libcouchbase_destroy(couchbase_res->handle);
+/* internal implementions */
+static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
+    char *host;
+    char *user = NULL, *passwd = NULL, *bucket = NULL;
+    int host_len, user_len, passwd_len, bucket_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sss",
+                &host, &host_len, &user, &user_len, &passwd, &passwd_len, &bucket, &bucket_len) == FAILURE) {
+        return;
+    } else {
+        libcouchbase_t handle;
+        libcouchbase_error_t retval;
+        libcouchbase_io_opt_t *iops;
+        php_couchbase_res *couchbase_res;
+        php_couchbase_ctx *ctx;
+
+        iops = libcouchbase_create_io_ops(LIBCOUCHBASE_IO_OPS_DEFAULT, NULL, NULL);
+        if (!iops) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to create IO instance");
+            RETURN_FALSE;
         }
-        if (couchbase_res->prefix_key) {
-            efree((void *)couchbase_res->prefix_key);
+
+        if (!bucket) {
+            bucket = "default";
         }
-        efree(couchbase_res);
+
+        handle = libcouchbase_create(host, user, passwd, bucket, iops);
+        if (!handle) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to create libcouchbase instance");
+            RETURN_FALSE;
+        }
+
+        php_ignore_value(libcouchbase_set_error_callback(handle, php_couchbase_error_callback));
+
+        if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_connect(handle))) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING,
+                    "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
+            RETURN_FALSE;
+        }
+
+        php_ignore_value(libcouchbase_set_get_callback(handle, php_couchbase_get_callback));
+        php_ignore_value(libcouchbase_set_storage_callback(handle, php_couchbase_storage_callback));
+        php_ignore_value(libcouchbase_set_remove_callback(handle, php_couchbase_remove_callback));
+        php_ignore_value(libcouchbase_set_flush_callback(handle, php_couchbase_flush_callback));
+        php_ignore_value(libcouchbase_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
+        php_ignore_value(libcouchbase_set_stat_callback(handle, php_couchbase_stat_callback));
+
+        couchbase_res = ecalloc(1, sizeof(php_couchbase_res));
+        couchbase_res->handle = handle;
+        couchbase_res->seqno = -1; /* tell error callback stop event loop when error occurred */
+        couchbase_res->io = iops;
+        couchbase_res->async = 0;
+
+        ctx = ecalloc(1, sizeof(php_couchbase_ctx));
+        ctx->res = couchbase_res;
+        libcouchbase_set_cookie(handle, (const void *)ctx);
+
+        /* wait for the connection established */
+        libcouchbase_wait(handle);
+
+        couchbase_res->seqno = 0;
+        if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_get_last_error(handle))) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING,
+                    "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
+            libcouchbase_destroy(handle);
+            efree(couchbase_res);
+            RETURN_FALSE;
+        }
+
+        ZEND_REGISTER_RESOURCE(return_value, couchbase_res, le_couchbase);
+        if (oo) {
+            zval *self = getThis();
+            zend_update_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), return_value TSRMLS_CC);
+        }
     }
 }
 /* }}} */
 
-static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi) /* {{{ */ {
+static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* {{{ */ {
     char *key, **keys;
     long *klens, klen = 0;
     int  nkey, flag = 0;
@@ -760,8 +1010,19 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi) /* {
         zval *akeys;
         zval **ppzval;
         int i;
-        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|zl", &res, &akeys, &cas_token, &flag) == FAILURE) {
-            return;
+        if (oo) {
+            if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|zl", &akeys, &cas_token, &flag) == FAILURE) {
+                return;
+            }
+            res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+            if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+                RETURN_FALSE;
+            }
+        } else {
+            if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|zl", &res, &akeys, &cas_token, &flag) == FAILURE) {
+                return;
+            }
         }
 
         ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
@@ -811,13 +1072,29 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi) /* {
             array_init(cas_token);
         }
     } else {
+        if (oo) {
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|f!z", &res, &key, &klen, &fci, &fci_cache, &cas_token) == FAILURE)
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|f!z", &key, &klen, &fci, &fci_cache, &cas_token) == FAILURE)
 #else
-        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|zz", &res, &key, &klen, &callback, &cas_token) == FAILURE)
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|zz", &key, &klen, &callback, &cas_token) == FAILURE)
 #endif
-        {
-           return;
+            {
+               return;
+            }
+            res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+            if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+                RETURN_FALSE;
+            }
+        } else {
+#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|f!z", &res, &key, &klen, &fci, &fci_cache, &cas_token) == FAILURE)
+#else
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|zz", &res, &key, &klen, &callback, &cas_token) == FAILURE)
+#endif
+            {
+               return;
+            }
         }
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3
         if (callback && Z_TYPE_P(callback) != IS_NULL && !zend_is_callable(callback, 0, NULL)) {
@@ -882,8 +1159,14 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi) /* {
 
                     MAKE_STD_ZVAL(result);
                     MAKE_STD_ZVAL(zkey);
-                    ZVAL_STRINGL(zkey, key, klen, 0);
-                    params[0] = &res;
+                    ZVAL_STRINGL(zkey, key, klen, 1);
+                    if (oo) {
+                        params[0] = &(getThis());
+                        Z_ADDREF_P(getThis());
+                    } else {
+                        params[0] = &res;
+                        Z_ADDREF_P(res);
+                    }
                     params[1] = &zkey;
                     params[2] = &result;
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
@@ -927,26 +1210,51 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi) /* {
 }
 /* }}} */
 
-static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
+static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     zval *res, *akeys;
     long with_cas = 0;
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
     zend_fcall_info fci = {0};
     zend_fcall_info_cache fci_cache;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lf!", &res, &akeys, &with_cas, &fci, &fci_cache) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|lf!", &akeys, &with_cas, &fci, &fci_cache) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
+    } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lf!", &res, &akeys, &with_cas, &fci, &fci_cache) == FAILURE) {
+            return;
+        }
     }
 #else
     zval *callback = NULL;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lz", &res, &akeys, &with_cas, &callback) == FAILURE) {
-        return;
-    } else if (callback && Z_TYPE_P(callback) != IS_NULL
+    if (oo) {
+        zval *self = getThis();
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|lz", &akeys, &with_cas, &callback) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
+    } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lz", &res, &akeys, &with_cas, &callback) == FAILURE) {
+            return;
+        }
+    }
+    if (callback && Z_TYPE_P(callback) != IS_NULL
             && !zend_is_callable(callback, 0, NULL)) {
         php_error_docref(NULL TSRMLS_CC, E_WARNING, "Third argument is expected to be a valid callback");
         return;
     }
 #endif
-    else {
+    {
         zval **ppzval;
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
@@ -1042,7 +1350,13 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ 
                 if (zend_hash_get_current_data(Z_ARRVAL_P(result), (void**)&ppzval) == FAILURE) {
                     continue;
                 }
-                params[0] = &res;
+                if (oo) {
+                    params[0] = &(getThis());
+                    Z_ADDREF_P(getThis());
+                } else {
+                    params[0] = &res;
+                    Z_ADDREF_P(res);
+                }
                 params[1] = ppzval;
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
                 fci.retval_ptr_ptr = &retval_ptr;
@@ -1062,12 +1376,22 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ 
 }
 /* }}} */
 
-static void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi) /* {{{ */ {
+static void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* {{{ */ {
     zval *res;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
     } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
+            return;
+        }
+    }
+    {
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
@@ -1119,8 +1443,8 @@ fetch_one:
 }
 /* }}} */
 
-static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t op, int multi) /* {{{ */ {
-    zval *res;
+static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_storage_t op, int multi, int oo) /* {{{ */ {
+    zval *res, *self;
     libcouchbase_error_t retval;
     php_couchbase_res *couchbase_res;
     php_couchbase_ctx *ctx;
@@ -1131,13 +1455,25 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
     unsigned long long cas_v = 0;
     long expire = 0, cas_len = 0;
 
+    self = getThis();
     if (!multi) {
         char *key;
         zval *value;
         long klen = 0;
 
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsz|ls", &res, &key, &klen, &value, &expire, &cas, &cas_len) == FAILURE) {
-            return;
+        if (oo) {
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz|ls", &key, &klen, &value, &expire, &cas, &cas_len) == FAILURE) {
+                return;
+            }
+            res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+            if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+                RETURN_FALSE;
+            }
+        } else {
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsz|ls", &res, &key, &klen, &value, &expire, &cas, &cas_len) == FAILURE) {
+                return;
+            }
         }
 
         ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
@@ -1190,8 +1526,19 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
         long klen = 0, idx;
         int key_type, nkey = 0;
 
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|l", &res, &akeys, &expire) == FAILURE) {
-            return;
+        if (oo) {
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|l", &akeys, &expire) == FAILURE) {
+                return;
+            }
+            res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+            if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+                RETURN_FALSE;
+            }
+        } else {
+            if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|l", &res, &akeys, &expire) == FAILURE) {
+                return;
+            }
         }
 
         ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
@@ -1297,15 +1644,28 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
 }
 /* }}} */
 
-static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
+static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     zval *res;
     char *key, *cas = NULL;
     long klen = 0, cas_len = 0;
     unsigned long long cas_v = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|s", &res, &key, &klen, &cas, &cas_len) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &key, &klen, &cas, &cas_len) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
     } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|s", &res, &key, &klen, &cas, &cas_len) == FAILURE) {
+            return;
+        }
+    }
+    {
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
@@ -1340,19 +1700,33 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
         } else if (LIBCOUCHBASE_KEY_ENOENT == ctx->res->rc) {
             RETVAL_FALSE;
         } else {
-            RETURN_TRUE;
+            if (oo) {
+                RETVAL_ZVAL(getThis(), 1, 0);
+            } else {
+                RETVAL_TRUE;
+            }
         }
         efree(ctx);
     }
 }
 /* }}} */
 
-static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
+static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     zval *res;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
     } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
+            return;
+        }
+    }
+    {
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
@@ -1384,20 +1758,38 @@ static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
         }
         efree(ctx);
     }
+
+    if (oo) {
+        RETURN_ZVAL(getThis(), 1, 0);
+    }
+
     RETURN_TRUE;
 }
 /* }}} */
 
-static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op) /* {{{ */ {
+static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo) /* {{{ */ {
     zval *res;
     char *key;
     time_t exp = {0};
     long klen = 0, offset = 1, expire = 0;
     long create = 0, initial = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|llll", &res, &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|llll", &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
     } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|llll", &res, &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
+            return;
+        }
+    }
+    {
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
@@ -1438,12 +1830,22 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op)
 }
 /* }}} */
 
-static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
+static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     zval *res;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
     } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
+            return;
+        }
+    }
+    {
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
@@ -1479,7 +1881,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
 }
 /* }}} */
 
-static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
+static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     zval *res, *value;
     time_t exp = {0};
     unsigned int flags = 0;
@@ -1488,9 +1890,22 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
     char *key, *payload, *cas = NULL;
     long klen = 0, expire = 0, cas_len = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rssz|l", &res, &cas, &cas_len, &key, &klen, &value, &expire) == FAILURE) {
-        return;
+    if (oo) {
+        zval *self = getThis();
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssz|l", &cas, &cas_len, &key, &klen, &value, &expire) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
     } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rssz|l", &res, &cas, &cas_len, &key, &klen, &value, &expire) == FAILURE) {
+            return;
+        }
+    }
+    {
         libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
@@ -1549,223 +1964,24 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS) /* {{{ */ {
 }
 /* }}} */
 
-/* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket]]])
-*/
-PHP_FUNCTION(couchbase_connect) {
-    char *host;
-    char *user = NULL, *passwd = NULL, *bucket = NULL;
-    int host_len, user_len, passwd_len, bucket_len;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sss",
-                &host, &host_len, &user, &user_len, &passwd, &passwd_len, &bucket, &bucket_len) == FAILURE) {
-        return;
-    } else {
-        libcouchbase_t handle;
-        libcouchbase_error_t retval;
-        libcouchbase_io_opt_t *iops;
-        php_couchbase_res *couchbase_res;
-        php_couchbase_ctx *ctx;
-
-        iops = libcouchbase_create_io_ops(LIBCOUCHBASE_IO_OPS_DEFAULT, NULL, NULL);
-        if (!iops) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to create IO instance");
-            RETURN_FALSE;
-        }
-
-        if (!bucket) {
-            bucket = "default";
-        }
-
-        handle = libcouchbase_create(host, user, passwd, bucket, iops);
-        if (!handle) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to create libcouchbase instance");
-            RETURN_FALSE;
-        }
-
-        php_ignore_value(libcouchbase_set_error_callback(handle, php_couchbase_error_callback));
-
-        if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_connect(handle))) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                    "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
-            RETURN_FALSE;
-        }
-
-        php_ignore_value(libcouchbase_set_get_callback(handle, php_couchbase_get_callback));
-        php_ignore_value(libcouchbase_set_storage_callback(handle, php_couchbase_storage_callback));
-        php_ignore_value(libcouchbase_set_remove_callback(handle, php_couchbase_remove_callback));
-        php_ignore_value(libcouchbase_set_flush_callback(handle, php_couchbase_flush_callback));
-        php_ignore_value(libcouchbase_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
-        php_ignore_value(libcouchbase_set_stat_callback(handle, php_couchbase_stat_callback));
-
-        couchbase_res = ecalloc(1, sizeof(php_couchbase_res));
-        couchbase_res->handle = handle;
-        couchbase_res->seqno = -1; /* tell error callback stop event loop when error occurred */
-        couchbase_res->io = iops;
-        couchbase_res->async = 0;
-
-        ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-        ctx->res = couchbase_res;
-        libcouchbase_set_cookie(handle, (const void *)ctx);
-
-        /* wait for the connection established */
-        libcouchbase_wait(handle);
-
-        couchbase_res->seqno = 0;
-        if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_get_last_error(handle))) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                    "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
-            libcouchbase_destroy(handle);
-            efree(couchbase_res);
-            RETURN_FALSE;
-        }
-
-        ZEND_REGISTER_RESOURCE(return_value, couchbase_res, le_couchbase);
-    }
-}
-/* }}} */
-
-/* {{{ proto couchbase_get(resource $couchbase, string $key[, callback $cache_cb[, string &$cas_tokey]])
- */
-PHP_FUNCTION(couchbase_get) {
-    php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_get_multi(resource $couchbase, array $keys[, array &cas[, int $flag]])
- */
-PHP_FUNCTION(couchbase_get_multi) {
-    php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
-}
-/* }}} */
-
-/* {{{ proto couchbase_cas(resource $couchbase, string $cas, string $key, mixed $value[, int $expiration])
- */
-PHP_FUNCTION(couchbase_cas) {
-    php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-/* {{{ proto couchbase_add(resource $couchbase, string $key, mixed $value[, int $expiration])
- */
-PHP_FUNCTION(couchbase_add) {
-    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_ADD, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_set(resource $couchbase, string $key, mixed $value[, int $expiration])
- */
-PHP_FUNCTION(couchbase_set) {
-    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_set_multi(resource $couchbase, array $values[, int $expiration])
- */
-PHP_FUNCTION(couchbase_set_multi) {
-    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET, 1);
-}
-/* }}} */
-
-/* {{{ proto couchbase_prepend(resource $couchbase, string $key[, string $cas = '0'])
- */
-PHP_FUNCTION(couchbase_prepend) {
-    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_PREPEND, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_append(resource $couchbase, string $key[, string $cas = '0'])
- */
-PHP_FUNCTION(couchbase_append) {
-    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_APPEND, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_replace(resource $couchbase, string $key, mixed $value[, int $expiration[, string $cas = '0']])
- */
-PHP_FUNCTION(couchbase_replace) {
-    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_REPLACE, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_increment(resource $couchbase, string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
- */
-PHP_FUNCTION(couchbase_increment) {
-    php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '+');
-}
-/* }}} */
-
-/* {{{ proto couchbase_decrement(resource $couchbase, string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
- */
-PHP_FUNCTION(couchbase_decrement) {
-    php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '-');
-}
-/* }}} */
-
-/* {{{ proto couchbase_get_stats(resource $couchbase)
- */
-PHP_FUNCTION(couchbase_get_stats) {
-    php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-/* {{{ proto couchbase_get_delayed(resource $couchbase, array $keys[, bool $with_cas[, callback $value_cb]])
- */
-PHP_FUNCTION(couchbase_get_delayed) {
-    php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-/* {{{ proto couchbase_fetch(resource $couchbase)
- */
-PHP_FUNCTION(couchbase_fetch) {
-    php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
-}
-/* }}} */
-
-/* {{{ proto couchbase_fetch_all(resource $couchbase)
- */
-PHP_FUNCTION(couchbase_fetch_all) {
-    php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
-}
-/* }}} */
-
-/* {{{ proto couchbase_delete(resource $couchbase, string $key[, string $cas = '0'])
- */
-PHP_FUNCTION(couchbase_delete) {
-    php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-/* {{{ proto couchbase_flush(resource $couchbase)
- */
-PHP_FUNCTION(couchbase_flush) {
-    php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-/* }}} */
-
-/* {{{ proto couchbase_get_result_code(resource $couchbase)
- */
-PHP_FUNCTION(couchbase_get_result_code) {
-    zval *res;
-    php_couchbase_res *couchbase_res;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
-        return;
-    }
-    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
-    RETURN_LONG(couchbase_res->rc);
-}
-/* }}} */
-
-/* {{{ proto couchbase_set_option(resource $couchbase, int $option, int $value)
- */
-PHP_FUNCTION(couchbase_set_option) {
+static void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     long option;
     zval *res, *value;
     php_couchbase_res *couchbase_res;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlz", &res, &option, &value) == FAILURE) {
-        return;
+    if (oo) {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz", &option, &value) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
+    } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rlz", &res, &option, &value) == FAILURE) {
+            return;
+        }
     }
     ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
 
@@ -1780,9 +1996,12 @@ PHP_FUNCTION(couchbase_set_option) {
                     case COUCHBASE_SERIALIZER_JSON_ARRAY:
 #endif
                         couchbase_res->serializer = Z_LVAL_P(value);
+                        if (oo) {
+                            RETURN_ZVAL(getThis(), 1, 0);
+                        }
                         RETURN_TRUE;
                     default:
-                    php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unsupported serializer:%d", Z_LVAL_P(value));
+                        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unsupported serializer:%d", Z_LVAL_P(value));
                 }
             }
         case COUCHBASE_OPT_PREFIX_KEY:
@@ -1800,16 +2019,26 @@ PHP_FUNCTION(couchbase_set_option) {
 }
 /* }}} */
 
-/* {{{ proto couchbase_get_option(resource $couchbase, int $option)
- */
-PHP_FUNCTION(couchbase_get_option) {
+static void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
     zval *res;
     php_couchbase_res *couchbase_res;
     long option;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &res, &option) == FAILURE) {
-        return;
+    if (oo) {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &option) == FAILURE) {
+            return;
+        }
+        res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+        if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+            RETURN_FALSE;
+        }
+    } else {
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &res, &option) == FAILURE) {
+            return;
+        }
     }
+
     ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
 
     switch (option) {
@@ -1832,6 +2061,326 @@ PHP_FUNCTION(couchbase_get_option) {
 }
 /* }}} */
 
+/* OO style APIs */
+/* {{{ proto Couchbase::__construct(string $host[, string $user[, string $password[, string $bucket]]])
+*/
+PHP_METHOD(couchbase, __construct) {
+    php_couchbase_create_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::get(string $key[, callback $cache_cb[, string &$cas_tokey]])
+ */
+PHP_METHOD(couchbase, get) {
+    php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::getMulti(array $keys[, array &cas[, int $flag]])
+ */
+PHP_METHOD(couchbase, getmulti) {
+    php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::cas(string $cas, string $key, mixed $value[, int $expiration])
+ */
+PHP_METHOD(couchbase, cas) {
+    php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::add(string $key, mixed $value[, int $expiration])
+ */
+PHP_METHOD(couchbase, add) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_ADD, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::set(string $key, mixed $value[, int $expiration])
+ */
+PHP_METHOD(couchbase, set) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::setMulti(array $values[, int $expiration])
+ */
+PHP_METHOD(couchbase, setmulti) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET, 1, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::prepend(string $key[, string $cas = '0'])
+ */
+PHP_METHOD(couchbase, prepend) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_PREPEND, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::append(string $key[, string $cas = '0'])
+ */
+PHP_METHOD(couchbase, append) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_APPEND, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::replace(string $key, mixed $value[, int $expiration[, string $cas = '0']])
+ */
+PHP_METHOD(couchbase, replace) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_REPLACE, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::increment(string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
+ */
+PHP_METHOD(couchbase, increment) {
+    php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '+', 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::decrement(string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
+ */
+PHP_METHOD(couchbase, decrement) {
+    php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '-', 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::getStats(void)
+ */
+PHP_METHOD(couchbase, getstats) {
+    php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::getDelayed(array $keys[, bool $with_cas[, callback $value_cb]])
+ */
+PHP_METHOD(couchbase, getdelayed) {
+    php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::fetch(void)
+ */
+PHP_METHOD(couchbase, fetch) {
+    php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::fetchAll(void)
+ */
+PHP_METHOD(couchbase, fetchall) {
+    php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::delete(string $key[, string $cas = '0'])
+ */
+PHP_METHOD(couchbase, delete) {
+    php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::flush(void)
+ */
+PHP_METHOD(couchbase, flush) {
+    php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::getResultCode(void)
+ */
+PHP_METHOD(couchbase, getresultcode) {
+    zval *res;
+    php_couchbase_res *couchbase_res;
+
+    res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
+    if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unintilized Couchbase");
+        RETURN_FALSE;
+    }
+
+    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+    RETURN_LONG(couchbase_res->rc);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::setOption(int $option, int $value)
+ */
+PHP_METHOD(couchbase, setoption) {
+    php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::getOption(int $option)
+ */
+PHP_METHOD(couchbase, getoption) {
+    php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::getVersion(void)
+ */
+PHP_METHOD(couchbase, version) {
+    RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
+}
+/* }}} */
+
+/* procedural APIs*/
+/* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket]]])
+*/
+PHP_FUNCTION(couchbase_connect) {
+    php_couchbase_create_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_get(resource $couchbase, string $key[, callback $cache_cb[, string &$cas_tokey]])
+ */
+PHP_FUNCTION(couchbase_get) {
+    php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_get_multi(resource $couchbase, array $keys[, array &cas[, int $flag]])
+ */
+PHP_FUNCTION(couchbase_get_multi) {
+    php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_cas(resource $couchbase, string $cas, string $key, mixed $value[, int $expiration])
+ */
+PHP_FUNCTION(couchbase_cas) {
+    php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_add(resource $couchbase, string $key, mixed $value[, int $expiration])
+ */
+PHP_FUNCTION(couchbase_add) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_ADD, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_set(resource $couchbase, string $key, mixed $value[, int $expiration])
+ */
+PHP_FUNCTION(couchbase_set) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_set_multi(resource $couchbase, array $values[, int $expiration])
+ */
+PHP_FUNCTION(couchbase_set_multi) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_SET, 1, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_prepend(resource $couchbase, string $key[, string $cas = '0'])
+ */
+PHP_FUNCTION(couchbase_prepend) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_PREPEND, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_append(resource $couchbase, string $key[, string $cas = '0'])
+ */
+PHP_FUNCTION(couchbase_append) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_APPEND, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_replace(resource $couchbase, string $key, mixed $value[, int $expiration[, string $cas = '0']])
+ */
+PHP_FUNCTION(couchbase_replace) {
+    php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LIBCOUCHBASE_REPLACE, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_increment(resource $couchbase, string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
+ */
+PHP_FUNCTION(couchbase_increment) {
+    php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '+', 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_decrement(resource $couchbase, string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
+ */
+PHP_FUNCTION(couchbase_decrement) {
+    php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '-', 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_get_stats(resource $couchbase)
+ */
+PHP_FUNCTION(couchbase_get_stats) {
+    php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_get_delayed(resource $couchbase, array $keys[, bool $with_cas[, callback $value_cb]])
+ */
+PHP_FUNCTION(couchbase_get_delayed) {
+    php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_fetch(resource $couchbase)
+ */
+PHP_FUNCTION(couchbase_fetch) {
+    php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_fetch_all(resource $couchbase)
+ */
+PHP_FUNCTION(couchbase_fetch_all) {
+    php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_delete(resource $couchbase, string $key[, string $cas = '0'])
+ */
+PHP_FUNCTION(couchbase_delete) {
+    php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_flush(resource $couchbase)
+ */
+PHP_FUNCTION(couchbase_flush) {
+    php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_get_result_code(resource $couchbase)
+ */
+PHP_FUNCTION(couchbase_get_result_code) {
+    zval *res;
+    php_couchbase_res *couchbase_res;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
+        return;
+    }
+    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+    RETURN_LONG(couchbase_res->rc);
+}
+/* }}} */
+
+/* {{{ proto couchbase_set_option(resource $couchbase, int $option, int $value)
+ */
+PHP_FUNCTION(couchbase_set_option) {
+    php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_get_option(resource $couchbase, int $option)
+ */
+PHP_FUNCTION(couchbase_get_option) {
+    php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
 /* {{{ proto couchbase_version(void)
  */
 PHP_FUNCTION(couchbase_version) {
@@ -1848,28 +2397,30 @@ PHP_GINIT_FUNCTION(couchbase) {
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(couchbase) {
+    zend_class_entry ce;
+
     REGISTER_INI_ENTRIES();
 
     REGISTER_LONG_CONSTANT("COUCHBASE_SUCCESS",         LIBCOUCHBASE_SUCCESS, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_AUTH_CONTINUE",     LIBCOUCHBASE_AUTH_CONTINUE, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_AUTH_ERROR",         LIBCOUCHBASE_AUTH_ERROR, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_DELTA_BADVAL",     LIBCOUCHBASE_DELTA_BADVAL, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_E2BIG",             LIBCOUCHBASE_E2BIG, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_EBUSY",             LIBCOUCHBASE_EBUSY, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_EINTERNAL",         LIBCOUCHBASE_EINTERNAL, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_EINVAL",             LIBCOUCHBASE_EINVAL, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_ENOMEM",             LIBCOUCHBASE_ENOMEM, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_ERANGE",             LIBCOUCHBASE_ERANGE, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_ERROR",             LIBCOUCHBASE_ERROR, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_ETMPFAIL",         LIBCOUCHBASE_ETMPFAIL, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_AUTH_CONTINUE",   LIBCOUCHBASE_AUTH_CONTINUE, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_AUTH_ERROR",      LIBCOUCHBASE_AUTH_ERROR, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_DELTA_BADVAL",    LIBCOUCHBASE_DELTA_BADVAL, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_E2BIG",           LIBCOUCHBASE_E2BIG, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_EBUSY",           LIBCOUCHBASE_EBUSY, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_EINTERNAL",       LIBCOUCHBASE_EINTERNAL, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_EINVAL",          LIBCOUCHBASE_EINVAL, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_ENOMEM",          LIBCOUCHBASE_ENOMEM, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_ERANGE",          LIBCOUCHBASE_ERANGE, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_ERROR",           LIBCOUCHBASE_ERROR, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_ETMPFAIL",        LIBCOUCHBASE_ETMPFAIL, CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("COUCHBASE_KEY_EEXISTS",     LIBCOUCHBASE_KEY_EEXISTS, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_KEY_ENOENT",         LIBCOUCHBASE_KEY_ENOENT, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_NETWORK_ERROR",     LIBCOUCHBASE_NETWORK_ERROR, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_NOT_MY_VBUCKET",     LIBCOUCHBASE_NOT_MY_VBUCKET, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_NOT_STORED",         LIBCOUCHBASE_NOT_STORED, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_NOT_SUPPORTED",     LIBCOUCHBASE_NOT_SUPPORTED, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_KEY_ENOENT",      LIBCOUCHBASE_KEY_ENOENT, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_NETWORK_ERROR",   LIBCOUCHBASE_NETWORK_ERROR, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_NOT_MY_VBUCKET",  LIBCOUCHBASE_NOT_MY_VBUCKET, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_NOT_STORED",      LIBCOUCHBASE_NOT_STORED, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_NOT_SUPPORTED",   LIBCOUCHBASE_NOT_SUPPORTED, CONST_PERSISTENT | CONST_CS);
     REGISTER_LONG_CONSTANT("COUCHBASE_UNKNOWN_COMMAND", LIBCOUCHBASE_UNKNOWN_COMMAND, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_UNKNOWN_HOST",     LIBCOUCHBASE_UNKNOWN_HOST, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_UNKNOWN_HOST",    LIBCOUCHBASE_UNKNOWN_HOST, CONST_PERSISTENT | CONST_CS);
 
 
     REGISTER_LONG_CONSTANT("COUCHBASE_OPT_SERIALIZER",     COUCHBASE_OPT_SERIALIZER, CONST_PERSISTENT | CONST_CS);
@@ -1878,11 +2429,46 @@ PHP_MINIT_FUNCTION(couchbase) {
     REGISTER_LONG_CONSTANT("COUCHBASE_SERIALIZER_PHP",     COUCHBASE_SERIALIZER_PHP, CONST_PERSISTENT | CONST_CS);
 #ifdef HAVE_JSON_API
     REGISTER_LONG_CONSTANT("COUCHBASE_SERIALIZER_JSON",    COUCHBASE_SERIALIZER_JSON, CONST_PERSISTENT | CONST_CS);
-    REGISTER_LONG_CONSTANT("COUCHBASE_SERIALIZER_JSON_ARRAY",    COUCHBASE_SERIALIZER_JSON_ARRAY, CONST_PERSISTENT | CONST_CS);
+    REGISTER_LONG_CONSTANT("COUCHBASE_SERIALIZER_JSON_ARRAY", COUCHBASE_SERIALIZER_JSON_ARRAY, CONST_PERSISTENT | CONST_CS);
 #endif
 
-
     le_couchbase = zend_register_list_destructors_ex(php_couchbase_res_dtor, NULL, PHP_COUCHBASE_RESOURCE, module_number);
+
+    INIT_CLASS_ENTRY(ce, "Couchbase", couchbase_methods);
+    couchbase_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SUCCESS"), LIBCOUCHBASE_SUCCESS TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("AUTH_CONTINUE"), LIBCOUCHBASE_AUTH_CONTINUE TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("AUTH_ERROR"), LIBCOUCHBASE_AUTH_ERROR TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("DELTA_BADVAL"), LIBCOUCHBASE_DELTA_BADVAL TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("E2BIG"), LIBCOUCHBASE_E2BIG TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("EBUSY"), LIBCOUCHBASE_EBUSY TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("EINTERNAL"), LIBCOUCHBASE_EINTERNAL TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("EINVAL"), LIBCOUCHBASE_EINVAL TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("ENOMEM"), LIBCOUCHBASE_ENOMEM TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("ERANGE"), LIBCOUCHBASE_ERANGE TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("ERROR"), LIBCOUCHBASE_ERROR TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("ETMPFAIL"), LIBCOUCHBASE_ETMPFAIL TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("KEY_EEXISTS"), LIBCOUCHBASE_KEY_EEXISTS TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("KEY_ENOENT"), LIBCOUCHBASE_KEY_ENOENT TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("NETWORK_ERROR"), LIBCOUCHBASE_NETWORK_ERROR TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("NOT_MY_VBUCKET"), LIBCOUCHBASE_NOT_MY_VBUCKET TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("NOT_STORED"), LIBCOUCHBASE_NOT_STORED TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("NOT_SUPPORTED"), LIBCOUCHBASE_NOT_SUPPORTED TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("UNKNOWN_COMMAND"), LIBCOUCHBASE_UNKNOWN_COMMAND TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("UNKNOWN_HOST"), LIBCOUCHBASE_UNKNOWN_HOST TSRMLS_CC);
+
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("OPT_SERIALIZER"), COUCHBASE_OPT_SERIALIZER TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("OPT_PREFIX_KEY"), COUCHBASE_OPT_PREFIX_KEY TSRMLS_CC);
+
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SERIALIZER_PHP"), COUCHBASE_SERIALIZER_PHP TSRMLS_CC);
+
+#ifdef HAVE_JSON_API
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SERIALIZER_JSON"), COUCHBASE_SERIALIZER_JSON TSRMLS_CC);
+    zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SERIALIZER_JSON_ARRAY"), COUCHBASE_SERIALIZER_JSON_ARRAY TSRMLS_CC);
+#endif
+
+    zend_declare_property_null(couchbase_ce, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), ZEND_ACC_PRIVATE TSRMLS_CC);
 
     return SUCCESS;
 }
