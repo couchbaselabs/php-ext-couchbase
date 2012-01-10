@@ -2205,7 +2205,7 @@ static void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
             }
             break;
         default:
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknow option type: %d", option);
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %d", option);
             break;
     }
     RETURN_FALSE;
@@ -2250,7 +2250,7 @@ static void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
             RETURN_LONG(couchbase_res->compresser);
             break;
         default:
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknow option type: %d", option);
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %d", option);
             break;
     }
     RETURN_FALSE;

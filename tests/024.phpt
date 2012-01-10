@@ -16,8 +16,8 @@ var_dump(couchbase_set_option($handle, 1111, 1111));
 bool(true)
 bool(true)
 
-Warning: couchbase_set_option(): Unsupported serializer:1111 in %s024.php on line %d
+Warning: couchbase_set_option(): unsupported serializer: 1111 in %s024.php on line %d
 bool(false)
 
-Warning: couchbase_set_option(): Unknow option type:1111 in %s024.php on line %d
+Warning: couchbase_set_option(): unknown option type: 1111 in %s024.php on line %d
 bool(false)
