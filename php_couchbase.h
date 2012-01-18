@@ -58,6 +58,7 @@ extern zend_class_entry *couchbase_ce;
 
 #define PHP_COUCHBASE_VERSION     "0.0.1"
 #define PHP_COUCHBASE_RESOURCE    "Couchbase"
+#define PHP_COUCHBASE_PERSISTENT_RESOURCE "Persistent Couchbase"
 #define COUCHBASE_PROPERTY_HANDLE "_handle"
 
 #define COUCHBASE_OPT_SERIALIZER            1

@@ -44,6 +44,7 @@
 ZEND_DECLARE_MODULE_GLOBALS(couchbase)
 
 static int le_couchbase;
+static int le_pcouchbase;
 zend_class_entry *couchbase_ce;
 
 /* {{{ COUCHBASE_FUNCTIONS_ARG_INFO
@@ -54,6 +55,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_connect, 0, 0, 1)
     ZEND_ARG_INFO(0, user)
     ZEND_ARG_INFO(0, password)
     ZEND_ARG_INFO(0, bucket)
+    ZEND_ARG_INFO(0, persistent)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -217,6 +219,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_construct, 0, 0, 1)
     ZEND_ARG_INFO(0, user)
     ZEND_ARG_INFO(0, password)
     ZEND_ARG_INFO(0, bucket)
+    ZEND_ARG_INFO(0, persistent)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -594,7 +597,7 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 #endif
                 break;
              default:
-                php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknow compresser type: %d", compresser);
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown compresser type: %d", compresser);
                 return NULL;
         }
 
@@ -796,6 +799,20 @@ static void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ 
             efree((void *)couchbase_res->prefix_key);
         }
         efree(couchbase_res);
+    }
+}
+/* }}} */
+
+static void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */ {
+    php_couchbase_res *couchbase_res = (php_couchbase_res*)rsrc->ptr;
+    if (couchbase_res) {
+        if (couchbase_res->handle) {
+            libcouchbase_destroy(couchbase_res->handle);
+        }
+        if (couchbase_res->prefix_key) {
+            free((void *)couchbase_res->prefix_key);
+        }
+        free(couchbase_res);
     }
 }
 /* }}} */
@@ -1086,9 +1103,10 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
     char *host;
     char *user = NULL, *passwd = NULL, *bucket = NULL;
     int host_len, user_len, passwd_len, bucket_len;
+    zend_bool persistent = 0;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sss",
-                &host, &host_len, &user, &user_len, &passwd, &passwd_len, &bucket, &bucket_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sssb",
+                &host, &host_len, &user, &user_len, &passwd, &passwd_len, &bucket, &bucket_len, &persistent) == FAILURE) {
         return;
     } else {
         libcouchbase_t handle;
@@ -1096,63 +1114,89 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
         libcouchbase_io_opt_t *iops;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
+        char *hashed_key;
+        int hashed_key_len;
+        if (persistent) {
+            zend_rsrc_list_entry *le;
+            hashed_key_len = spprintf(&hashed_key, 0, "couchbase_%s_%s_%s_%s", host, user, passwd, bucket);
+            if (zend_hash_find(&EG(persistent_list), hashed_key, hashed_key_len + 1, (void **) &le) == FAILURE) {
+                goto create_new_link;
+            }
+            couchbase_res = le->ptr;
+            couchbase_res->seqno = 0;
+            couchbase_res->async = 0;
+            couchbase_res->serializer = COUCHBASE_G(serializer_real);
+            couchbase_res->compresser = COUCHBASE_G(compresser_real);
+            efree(hashed_key);
+        } else {
+create_new_link:
+            iops = libcouchbase_create_io_ops(LIBCOUCHBASE_IO_OPS_DEFAULT, NULL, NULL);
+            if (!iops) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to create IO instance");
+                RETURN_FALSE;
+            }
 
-        iops = libcouchbase_create_io_ops(LIBCOUCHBASE_IO_OPS_DEFAULT, NULL, NULL);
-        if (!iops) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to create IO instance");
-            RETURN_FALSE;
+            if (!bucket) {
+                bucket = "default";
+            }
+
+            handle = libcouchbase_create(host, user, passwd, bucket, iops);
+            if (!handle) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to create libcouchbase instance");
+                RETURN_FALSE;
+            }
+
+            php_ignore_value(libcouchbase_set_error_callback(handle, php_couchbase_error_callback));
+
+            if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_connect(handle))) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING,
+                        "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
+                RETURN_FALSE;
+            }
+
+            php_ignore_value(libcouchbase_set_get_callback(handle, php_couchbase_get_callback));
+            php_ignore_value(libcouchbase_set_storage_callback(handle, php_couchbase_storage_callback));
+            php_ignore_value(libcouchbase_set_remove_callback(handle, php_couchbase_remove_callback));
+            php_ignore_value(libcouchbase_set_flush_callback(handle, php_couchbase_flush_callback));
+            php_ignore_value(libcouchbase_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
+            php_ignore_value(libcouchbase_set_stat_callback(handle, php_couchbase_stat_callback));
+
+            couchbase_res = pecalloc(1, sizeof(php_couchbase_res), persistent);
+            couchbase_res->handle = handle;
+            couchbase_res->seqno = -1; /* tell error callback stop event loop when error occurred */
+            couchbase_res->io = iops;
+            couchbase_res->async = 0;
+            couchbase_res->serializer = COUCHBASE_G(serializer_real);
+            couchbase_res->compresser = COUCHBASE_G(compresser_real);
+
+            ctx = ecalloc(1, sizeof(php_couchbase_ctx));
+            ctx->res = couchbase_res;
+            libcouchbase_set_cookie(handle, (const void *)ctx);
+
+            /* wait for the connection established */
+            libcouchbase_wait(handle);
+
+            couchbase_res->seqno = 0;
+            if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_get_last_error(handle))) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING,
+                        "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
+                libcouchbase_destroy(handle);
+                efree(couchbase_res);
+                RETURN_FALSE;
+            }
+
+            if (persistent) {
+                zend_rsrc_list_entry le;
+                Z_TYPE(le) = le_pcouchbase;
+                le.ptr = couchbase_res;
+                if (zend_hash_update(&EG(persistent_list), hashed_key, hashed_key_len + 1, (void *) &le, sizeof(zend_rsrc_list_entry), NULL) == FAILURE) {
+                    php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to store persistent link");
+                }
+                efree(hashed_key);
+            }
         }
 
-        if (!bucket) {
-            bucket = "default";
-        }
-
-        handle = libcouchbase_create(host, user, passwd, bucket, iops);
-        if (!handle) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to create libcouchbase instance");
-            RETURN_FALSE;
-        }
-
-        php_ignore_value(libcouchbase_set_error_callback(handle, php_couchbase_error_callback));
-
-        if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_connect(handle))) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                    "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
-            RETURN_FALSE;
-        }
-
-        php_ignore_value(libcouchbase_set_get_callback(handle, php_couchbase_get_callback));
-        php_ignore_value(libcouchbase_set_storage_callback(handle, php_couchbase_storage_callback));
-        php_ignore_value(libcouchbase_set_remove_callback(handle, php_couchbase_remove_callback));
-        php_ignore_value(libcouchbase_set_flush_callback(handle, php_couchbase_flush_callback));
-        php_ignore_value(libcouchbase_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
-        php_ignore_value(libcouchbase_set_stat_callback(handle, php_couchbase_stat_callback));
-
-        couchbase_res = ecalloc(1, sizeof(php_couchbase_res));
-        couchbase_res->handle = handle;
-        couchbase_res->seqno = -1; /* tell error callback stop event loop when error occurred */
-        couchbase_res->io = iops;
-        couchbase_res->async = 0;
-        couchbase_res->serializer = COUCHBASE_G(serializer_real);
-        couchbase_res->compresser = COUCHBASE_G(compresser_real);
-
-        ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-        ctx->res = couchbase_res;
-        libcouchbase_set_cookie(handle, (const void *)ctx);
-
-        /* wait for the connection established */
-        libcouchbase_wait(handle);
-
-        couchbase_res->seqno = 0;
-        if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_get_last_error(handle))) {
-            php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                    "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
-            libcouchbase_destroy(handle);
-            efree(couchbase_res);
-            RETURN_FALSE;
-        }
-
-        ZEND_REGISTER_RESOURCE(return_value, couchbase_res, le_couchbase);
+        ZEND_REGISTER_RESOURCE(return_value, couchbase_res, persistent? le_pcouchbase : le_couchbase);
         if (oo) {
             zval *self = getThis();
             zend_update_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), return_value TSRMLS_CC);
@@ -1195,7 +1239,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
             }
         }
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -1276,7 +1320,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
             return;
         }
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -1436,7 +1480,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
         keys = ecalloc(nkey, sizeof(char *));
         klens = ecalloc(nkey, sizeof(long));
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
 
         for(i=0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
                 zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
@@ -1566,7 +1610,7 @@ static void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (!couchbase_res->async) {
             RETURN_FALSE;
         }
@@ -1646,7 +1690,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
             }
         }
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -1711,7 +1755,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
             }
         }
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -1840,7 +1884,7 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -1901,7 +1945,7 @@ static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -1965,7 +2009,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
         php_couchbase_ctx *ctx;
         long delta = (op == '+')? offset : -offset;
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -2020,7 +2064,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -2080,7 +2124,7 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
 
-        ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+        ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
         if (couchbase_res->async) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
             RETURN_FALSE;
@@ -2153,7 +2197,7 @@ static void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
             return;
         }
     }
-    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+    ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
 
     switch (option) {
         case COUCHBASE_OPT_SERIALIZER:
@@ -2232,7 +2276,7 @@ static void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
         }
     }
 
-    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+    ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
 
     switch (option) {
         case COUCHBASE_OPT_SERIALIZER:
@@ -2258,7 +2302,7 @@ static void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
 /* }}} */
 
 /* OO style APIs */
-/* {{{ proto Couchbase::__construct(string $host[, string $user[, string $password[, string $bucket]]])
+/* {{{ proto Couchbase::__construct(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
 */
 PHP_METHOD(couchbase, __construct) {
     php_couchbase_create_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
@@ -2396,7 +2440,7 @@ PHP_METHOD(couchbase, getResultCode) {
         RETURN_FALSE;
     }
 
-    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+    ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
     RETURN_LONG(couchbase_res->rc);
 }
 /* }}} */
@@ -2423,7 +2467,7 @@ PHP_METHOD(couchbase, version) {
 /* }}} */
 
 /* procedural APIs*/
-/* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket]]])
+/* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
 */
 PHP_FUNCTION(couchbase_connect) {
     php_couchbase_create_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
@@ -2558,7 +2602,7 @@ PHP_FUNCTION(couchbase_get_result_code) {
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &res) == FAILURE) {
         return;
     }
-    ZEND_FETCH_RESOURCE(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase);
+    ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
     RETURN_LONG(couchbase_res->rc);
 }
 /* }}} */
@@ -2633,6 +2677,7 @@ PHP_MINIT_FUNCTION(couchbase) {
     REGISTER_LONG_CONSTANT("COUCHBASE_COMPRESSER_ZLIB", COUCHBASE_COMPRESSER_ZLIB, CONST_PERSISTENT | CONST_CS);
 
     le_couchbase = zend_register_list_destructors_ex(php_couchbase_res_dtor, NULL, PHP_COUCHBASE_RESOURCE, module_number);
+    le_pcouchbase = zend_register_list_destructors_ex(NULL, php_couchbase_pres_dtor, PHP_COUCHBASE_PERSISTENT_RESOURCE, module_number);
 
     INIT_CLASS_ENTRY(ce, "Couchbase", couchbase_methods);
     couchbase_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
