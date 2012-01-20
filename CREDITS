@@ -1,1 +1,7 @@
-couchbase
+This extension wouldn't be what it is without these fine folks:
+
+ - Xinchen Hui <laruence@gmail.com>
+ - Trond Norbye <trond.norbye@couchbase.com>
+ - Jan Lehnardt <jan@apache.org>
+ - David Coallier <davidc@php.net>
+ - The ext/memcached team <https://github.com/php-memcached-dev/php-memcached>
