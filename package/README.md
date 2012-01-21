@@ -11,9 +11,9 @@ Contents:
 
 Edit your `php.ini` to include this line:
 
-    extension=memcached.so
+    extension=couchbase.so
 
-To find where you `php.ini` file is, try `phpi -i | grep memcached` or look
+To find where you `php.ini` file is, try `phpi -i | grep couchbase` or look
 at your `<?php phpinfo() ?>` output.
 
 
@@ -22,13 +22,12 @@ at your `<?php phpinfo() ?>` output.
 Run this test script:
 
     <?php
-    $mc = new Memcached;
-    $mc->addServer("localhost", 11211);
-    $mc->set("a", 1);
-    var_dump($mc->get("a"));
+    $cb = new Couchbase("127.0.0.1:8091", "username", "password", "default");
+    $cb->set("a", 1);
+    var_dump($cb->get("a"));
 
-Make sure you have started your memcached, Membase or Couchbase server. Adjust
-the hostname and port as needed.
+Make sure you have started your Couchbase server. Adjust the hostname, port, user
+name and password as needed.
 
 
 ## Support
@@ -38,23 +37,6 @@ Couchbase SDK forums:
 
 http://www.couchbase.org/forums/sdks/sdks
 
+## License
 
-## Build from Source
-
-To build this package from source, follow these steps:
-
-### Get Repo
-
-    $ curl http://android.git.kernel.org/repo > ~/bin/repo
-    $ chmod a+x ~/bin/repo
-
-### Get Source
-
-    $ mkdir php-couchbase-memcached
-    $ repo init -u git://github.com/couchbase/php-memcached-manifest.git
-
-### Build
-
-    $ make
-
-Done.
+Apache License 2.0 — See LICENSE for details.
