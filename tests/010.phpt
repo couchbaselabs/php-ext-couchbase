@@ -19,6 +19,12 @@ couchbase_set($handle, $key, "string");
 var_dump(couchbase_increment($handle, $key));
 
 couchbase_delete($handle, $key);
+
+// test incrementing a nonexisting key (PCBC-30)
+var_dump(couchbase_increment($handle, "key", $offset = 1, $create = true, $expire = NULL, $initial_value = 2));
+var_dump(couchbase_get($handle, "key"));
+couchbase_delete($handle, "key");
+
 ?>
 --EXPECTF--
 int(3)
@@ -28,3 +34,5 @@ string(1) "1"
 
 Warning: couchbase_increment(): Faild to increment value in server: Not a number in %s010.php on line %d
 bool(false)
+int(2)
+int(2)

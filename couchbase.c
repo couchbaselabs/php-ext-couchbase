@@ -720,6 +720,7 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
             ZVAL_STRINGL(value, payload, payload_len, 1);
             break;
 
+        case 0: /* see http://www.couchbase.com/issues/browse/PCBC-30 */
         case IS_LONG:
         {
             long lval = strtol(payload, NULL, 10);
