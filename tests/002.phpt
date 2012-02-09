@@ -15,7 +15,7 @@ print_r($handle);
 --EXPECTF--
 resource(%d) of type (Couchbase)
 
-Warning: couchbase_connect(): Failed to connect libcouchbase to server: Protocol error in %s002.php on line %d
+Warning: couchbase_connect(): Failed to connect libcouchbase to server: Authentication error in %s002.php on line %d
 Couchbase Object
 (
     [_handle:Couchbase:private] => Resource id #%d
