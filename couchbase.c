@@ -636,8 +636,10 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 
 static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_len, unsigned int flags, int serializer TSRMLS_DC) /* {{{ */ {
     int compresser;
-    char *buffer = NULL;
     zend_bool payload_emalloc = 0;
+#ifdef HAVE_COMPRESSION
+    char *buffer = NULL;
+#endif
 
     if (payload == NULL && payload_len > 0) {
         php_error_docref(NULL TSRMLS_CC, E_WARNING,
@@ -654,8 +656,7 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 
     if ((compresser = COUCHBASE_GET_COMPRESSION(flags))) {
 #ifdef HAVE_COMPRESSION
-        uint len;
-        size_t length;
+        size_t len, length;
         zend_bool decompress_status = 0;
         /* This is copied from pecl-memcached */
         memcpy(&len, payload, sizeof(size_t));
@@ -840,7 +841,7 @@ php_couchbase_get_callback(libcouchbase_t handle,
                             const void *key, size_t nkey,
                             const void *bytes, size_t nbytes,
                             uint32_t flags, uint64_t cas) {
-    zval *retval, *value;
+    zval *retval;
     php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
     TSRMLS_FETCH();
     php_ignore_value(handle);
@@ -857,7 +858,7 @@ php_couchbase_get_callback(libcouchbase_t handle,
     }
 
     if (ctx->res->async) { /* get_delayed */
-        zval *k, *v, *dst;
+        zval *k, *v;
         MAKE_STD_ZVAL(v);
         if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes, flags, ctx->res->serializer TSRMLS_CC)) {
             ctx->res->rc = LIBCOUCHBASE_ERROR;
@@ -1116,7 +1117,8 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
         char *hashed_key;
-        int hashed_key_len;
+        uint hashed_key_len = 0;
+
         if (persistent) {
             zend_rsrc_list_entry *le;
             hashed_key_len = spprintf(&hashed_key, 0, "couchbase_%s_%s_%s_%s", host, user, passwd, bucket);
@@ -1607,7 +1609,6 @@ static void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
         }
     }
     {
-        libcouchbase_error_t retval;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
 
@@ -2220,7 +2221,7 @@ static void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
 #endif
                         break;
                     default:
-                        php_error_docref(NULL TSRMLS_CC, E_WARNING, "unsupported serializer: %d", Z_LVAL_P(value));
+                        php_error_docref(NULL TSRMLS_CC, E_WARNING, "unsupported serializer: %ld", Z_LVAL_P(value));
                 }
             }
         case COUCHBASE_OPT_PREFIX_KEY:
@@ -2244,13 +2245,13 @@ static void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
                         RETURN_TRUE;
                         break;
                     default:
-                        php_error_docref(NULL TSRMLS_CC, E_WARNING, "unsupported compresser: %d", Z_LVAL_P(value));
+                        php_error_docref(NULL TSRMLS_CC, E_WARNING, "unsupported compresser: %ld", Z_LVAL_P(value));
                         break;
                 }
             }
             break;
         default:
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %d", option);
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %ld", option);
             break;
     }
     RETURN_FALSE;
@@ -2295,7 +2296,7 @@ static void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) 
             RETURN_LONG(couchbase_res->compresser);
             break;
         default:
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %d", option);
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %ld", option);
             break;
     }
     RETURN_FALSE;
