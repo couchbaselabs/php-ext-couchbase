@@ -825,7 +825,7 @@ static void php_couchbase_error_callback(libcouchbase_t handle, libcouchbase_err
      * @FIXME: when connect to a non-couchbase-server port (but the socket is valid)
      * like a apache server, process will be hanged by event_loop
      */
-    if (ctx->res->seqno < 0) {
+    if (ctx && ctx->res->seqno < 0) {
         ctx->res->io->stop_event_loop(ctx->res->io);
     }
 }
