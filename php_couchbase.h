@@ -62,7 +62,7 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_PROPERTY_HANDLE "_handle"
 
 #define COUCHBASE_OPT_SERIALIZER            1
-#define COUCHBASE_OPT_COMPRESSER            2
+#define COUCHBASE_OPT_COMPRESSION            2
 #define COUCHBASE_OPT_PREFIX_KEY            3
 
 #define COUCHBASE_SERIALIZER_PHP            0
@@ -75,13 +75,13 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_IS_SERIALIZED             31
 #define COUCHBASE_GET_TYPE(f)               ((f) & 31)
 
-#define COUCHBASE_COMPRESSER_MASK           224 /* 7 << 5 */
-#define COUCHBASE_COMPRESSER_NONE           0
-#define COUCHBASE_COMPRESSER_FASTLZ         1
-#define COUCHBASE_COMPRESSER_ZLIB           2
+#define COUCHBASE_COMPRESSION_MASK           224 /* 7 << 5 */
+#define COUCHBASE_COMPRESSION_NONE           0
+#define COUCHBASE_COMPRESSION_FASTLZ         1
+#define COUCHBASE_COMPRESSION_ZLIB           2
 
-#define COUCHBASE_GET_COMPRESSER(f)         ((f) >> 5)
-#define COUCHBASE_SET_COMPRESSER(f, c)      ((f) = ((f) & ~COUCHBASE_COMPRESSER_MASK) | (c) << 5)
+#define COUCHBASE_GET_COMPRESSION(f)         ((f) >> 5)
+#define COUCHBASE_SET_COMPRESSION(f, c)      ((f) = ((f) & ~COUCHBASE_COMPRESSION_MASK) | (c) << 5)
 
 
 typedef struct _php_couchbase_res {

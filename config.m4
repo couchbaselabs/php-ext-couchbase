@@ -148,8 +148,8 @@ if test "$PHP_COUCHBASE" != "no"; then
     AC_MSG_RESULT([$PHP_ZLIB_DIR])
     PHP_ADD_LIBRARY_WITH_PATH(z, $PHP_ZLIB_DIR/$PHP_LIBDIR, COUCHBASE_SHARED_LIBADD)
     PHP_ADD_INCLUDE($PHP_ZLIB_INCDIR)
-    AC_DEFINE(HAVE_COMPRESSER,1,[Whether has a compresser])
-    AC_DEFINE(HAVE_COMPRESSER_ZLIB,1,[Whether zlib lib is available])
+    AC_DEFINE(HAVE_COMPRESSION,1,[Whether has a compresser])
+    AC_DEFINE(HAVE_COMPRESSION_ZLIB,1,[Whether zlib lib is available])
   else
     AC_MSG_ERROR([couchbase support requires ZLIB. Use --with-zlib-dir=<DIR> to specify the prefix where ZLIB headers and library are located])
   fi
@@ -159,8 +159,8 @@ if test "$PHP_COUCHBASE" != "no"; then
     if test -f "$PHP_FASTLZ_SRC/fastlz.c"; then
       AC_MSG_RESULT([$PHP_FASTLZ_SRC])
       PHP_ADD_INCLUDE($PHP_FASTLZ_SRC)
-      AC_DEFINE(HAVE_COMPRESSER,1,[Whether has a compresser])
-      AC_DEFINE(HAVE_COMPRESSER_FASTLZ,1,[Whether fastlz lib is available])
+      AC_DEFINE(HAVE_COMPRESSION,1,[Whether has a compresser])
+      AC_DEFINE(HAVE_COMPRESSION_FASTLZ,1,[Whether fastlz lib is available])
     else
       AC_MSG_ERROR([Can't find fastlz src under $PHP_FASTLZ_SRC])
     fi
