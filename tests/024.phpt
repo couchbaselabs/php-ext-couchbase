@@ -25,7 +25,7 @@ bool(true)
 Warning: couchbase_set_option(): unsupported serializer: 1111 in %s024.php on line %d
 bool(false)
 
-Warning: couchbase_set_option(): unknow option type: 1111 in %s024.php on line %d
+Warning: couchbase_set_option(): unknown option type: 1111 in %s024.php on line %d
 bool(false)
 bool(true)
 bool(true)
@@ -33,5 +33,5 @@ bool(true)
 Warning: Couchbase::setOption(): unsupported serializer: 1111 in %s024.php on line %d
 bool(false)
 
-Warning: Couchbase::setOption(): unknow option type: 1111 in %s024.php on line %d
+Warning: Couchbase::setOption(): unknown option type: 1111 in %s024.php on line %d
 bool(false)
