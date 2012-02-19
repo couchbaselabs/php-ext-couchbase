@@ -27,6 +27,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "ext/standard/url.h"
 #include "ext/standard/php_smart_str.h"
 #ifdef HAVE_JSON_API
 # include "ext/json/php_json.h"
@@ -1119,6 +1120,42 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
         char *hashed_key;
         uint hashed_key_len = 0;
 
+        if (ZEND_NUM_ARGS() == 1 && (strncasecmp(host, "http://", sizeof("http://") - 1) == 0
+                || strncasecmp(host, "https://", sizeof("https://") - 1) == 0)) {
+             php_url *url;
+
+             if (!(url = php_url_parse_ex(host, host_len))) {
+                 php_error_docref(NULL TSRMLS_CC, E_WARNING, "malformed host url %s", host);
+                 RETURN_FALSE;
+             }
+
+             if (url->host) {
+                 host = url->host;
+                 if (url->port) {
+                    spprintf(&host, 0, "%s:%d", host, url->port);
+                    efree(url->host);
+                 }
+             } else {
+                 php_url_free(url);
+                 php_error_docref(NULL TSRMLS_CC, E_WARNING, "malformed host url %s", host);
+                 RETURN_FALSE;
+             }
+
+             user = url->user;
+             passwd = url->pass;
+             bucket = url->path;
+             if (*bucket == '/') {
+                 int i=0, j = strlen(bucket);
+                 if (*(bucket + j - 1) == '/') {
+                     *(bucket + j - 1) = '\0';
+                 }
+                 for(;i<j;i++) {
+                     bucket[i] = bucket[i+1];
+                 }
+             }
+             efree(url);
+        }
+
         if (persistent) {
             zend_rsrc_list_entry *le;
             hashed_key_len = spprintf(&hashed_key, 0, "couchbase_%s_%s_%s_%s", host, user, passwd, bucket);
@@ -1621,8 +1658,8 @@ static void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 fetch_one:
             {
                 char *key;
-                int key_len;
-                long index = 0;
+                uint key_len;
+                ulong index = 0;
                 zval **ppzval;
                 zval *stash = (zval *)ctx->extended_value;
                 if (zend_hash_num_elements(Z_ARRVAL_P(stash)) == 0) {
@@ -1739,7 +1776,8 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
     } else {
         zval *akeys, **ppzval;
         char *key;
-        long klen = 0, idx;
+        uint klen = 0;
+        ulong idx;
         int key_type, nkey = 0;
 
         if (oo) {

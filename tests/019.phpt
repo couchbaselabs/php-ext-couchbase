@@ -1,7 +1,7 @@
 --TEST--
 Check for couchbase delayed & callback
 --SKIPIF--
-<?php exit; include "skipif.inc" ?>
+<?php include "skipif.inc" ?>
 --INI--
 
 --FILE--
