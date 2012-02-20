@@ -1117,12 +1117,12 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
         libcouchbase_io_opt_t *iops;
         php_couchbase_res *couchbase_res;
         php_couchbase_ctx *ctx;
+        php_url *url = NULL;
         char *hashed_key;
         uint hashed_key_len = 0;
 
         if (ZEND_NUM_ARGS() == 1 && (strncasecmp(host, "http://", sizeof("http://") - 1) == 0
                 || strncasecmp(host, "https://", sizeof("https://") - 1) == 0)) {
-             php_url *url;
 
              if (!(url = php_url_parse_ex(host, host_len))) {
                  php_error_docref(NULL TSRMLS_CC, E_WARNING, "malformed host url %s", host);
@@ -1134,6 +1134,7 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
                  if (url->port) {
                     spprintf(&host, 0, "%s:%d", host, url->port);
                     efree(url->host);
+                    url->host = host;
                  }
              } else {
                  php_url_free(url);
@@ -1153,7 +1154,6 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
                      bucket[i] = bucket[i+1];
                  }
              }
-             efree(url);
         }
 
         if (persistent) {
@@ -1172,6 +1172,9 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 create_new_link:
             iops = libcouchbase_create_io_ops(LIBCOUCHBASE_IO_OPS_DEFAULT, NULL, NULL);
             if (!iops) {
+                if (url) {
+                    php_url_free(url);
+                }
                 php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to create IO instance");
                 RETURN_FALSE;
             }
@@ -1182,6 +1185,9 @@ create_new_link:
 
             handle = libcouchbase_create(host, user, passwd, bucket, iops);
             if (!handle) {
+                if (url) {
+                    php_url_free(url);
+                }
                 php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to create libcouchbase instance");
                 RETURN_FALSE;
             }
@@ -1189,6 +1195,9 @@ create_new_link:
             php_ignore_value(libcouchbase_set_error_callback(handle, php_couchbase_error_callback));
 
             if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_connect(handle))) {
+                if (url) {
+                    php_url_free(url);
+                }
                 php_error_docref(NULL TSRMLS_CC, E_WARNING,
                         "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
                 RETURN_FALSE;
@@ -1218,6 +1227,9 @@ create_new_link:
 
             couchbase_res->seqno = 0;
             if (LIBCOUCHBASE_SUCCESS != (retval = libcouchbase_get_last_error(handle))) {
+                if (url) {
+                    php_url_free(url);
+                }
                 php_error_docref(NULL TSRMLS_CC, E_WARNING,
                         "Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
                 libcouchbase_destroy(handle);
@@ -1230,6 +1242,9 @@ create_new_link:
                 Z_TYPE(le) = le_pcouchbase;
                 le.ptr = couchbase_res;
                 if (zend_hash_update(&EG(persistent_list), hashed_key, hashed_key_len + 1, (void *) &le, sizeof(zend_rsrc_list_entry), NULL) == FAILURE) {
+                    if (url) {
+                        php_url_free(url);
+                    }
                     php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to store persistent link");
                 }
                 efree(hashed_key);
@@ -1240,6 +1255,10 @@ create_new_link:
         if (oo) {
             zval *self = getThis();
             zend_update_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), return_value TSRMLS_CC);
+        }
+
+        if (url) {
+            php_url_free(url);
         }
     }
 }
