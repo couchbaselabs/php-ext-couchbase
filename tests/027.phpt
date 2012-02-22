@@ -10,7 +10,7 @@ include "couchbase.inc";
 $handle = couchbase_connect(COUCHBASE_CONFIG_HOST, COUCHBASE_CONFIG_USER, COUCHBASE_CONFIG_PASSWD, COUCHBASE_CONFIG_BUCKET);
 $key = uniqid("couchbase_");
 
-couchbase_set_option($handle, COUCHBASE_OPT_COMPRESSER, Couchbase::COMPRESSER_NONE);
+couchbase_set_option($handle, COUCHBASE_OPT_COMPRESSION, Couchbase::COMPRESSION_NONE);
 var_dump(couchbase_get_option($handle, COUCHBASE_OPT_PREFIX_KEY));
 
 @couchbase_set_option($handle, COUCHBASE_OPT_PREFIX_KEY, array());
