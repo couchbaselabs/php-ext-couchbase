@@ -17,5 +17,5 @@ print_r($handle);
 resource(%d) of type (Couchbase)
 Couchbase Object
 (
-    [_handle:Couchbase:private] => Resource id #%d
+    [%s] => Resource id #%d
 )
