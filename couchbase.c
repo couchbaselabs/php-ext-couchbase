@@ -1436,11 +1436,12 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
                         callback
 #endif
                    ) {
-                    zval *retval_ptr, *result, *zkey;
+                    zval *result, *zkey, *retval_ptr = NULL;
                     zval **params[3];
 
                     MAKE_STD_ZVAL(result);
                     MAKE_STD_ZVAL(zkey);
+                    ZVAL_NULL(result);
                     ZVAL_STRINGL(zkey, key, klen, 1);
                     if (oo) {
                         params[0] = &(getThis());
@@ -1628,7 +1629,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
                 callback
 #endif
            ) {
-            zval *result, **ppzval, *retval_ptr;
+            zval *result, **ppzval, *retval_ptr = NULL;
             zval **params[2];
 
             MAKE_STD_ZVAL(result);
