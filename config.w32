@@ -1,13 +1,13 @@
 // $Id$
 // vim:ft=javascript
 
-// If your extension references something external, use ARG_WITH
-// ARG_WITH("couchbase", "for couchbase support", "no");
-
-// Otherwise, use ARG_ENABLE
-// ARG_ENABLE("couchbase", "enable couchbase support", "no");
+ARG_WITH("couchbase", "for couchbase support", "no");
 
 if (PHP_COUCHBASE != "no") {
-	EXTENSION("couchbase", "couchbase.c");
+	if (CHECK_LIB("libcouchbase.lib", "couchbase", PHP_COUCHBASE) && 
+		  CHECK_LIB("libvbucket.lib", "couchbase", PHP_COUCHBASE) && 
+	    CHECK_HEADER_ADD_INCLUDE("couchbase.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libcouchbase") &&
+	    CHECK_HEADER_ADD_INCLUDE("vbucket.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libvbucket")) {
+		EXTENSION("couchbase", "couchbase.c");
+	}
 }
-
