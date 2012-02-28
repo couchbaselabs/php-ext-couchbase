@@ -40,6 +40,8 @@ extern zend_class_entry *couchbase_ce;
 #include "TSRM.h"
 #endif
 
+#include <libcouchbase/couchbase.h>
+
 #ifdef ZTS
 #define COUCHBASE_G(v) TSRMG(couchbase_globals_id, zend_couchbase_globals *, v)
 #else
