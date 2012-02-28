@@ -24,6 +24,10 @@
 #include "config.h"
 #endif
 
+#ifdef PHP_WIN32
+# include "win32/php_stdint.h"
+#endif
+
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
@@ -33,7 +37,7 @@
 # include "ext/json/php_json.h"
 #endif
 #include "ext/standard/php_var.h"
-#include "libcouchbase/couchbase.h"
+#include <libcouchbase/couchbase.h>
 #include "php_couchbase.h"
 #ifdef HAVE_COMPRESSION_FASTLZ
 # include "fastlz.c"
@@ -870,7 +874,7 @@ php_couchbase_get_callback(libcouchbase_t handle,
         if (ctx->res->prefix_key_len && nkey) {
             if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
                 nkey -= (ctx->res->prefix_key_len + 1); /* '_' */
-                key = estrndup(key + ctx->res->prefix_key_len + 1, nkey);
+                key = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1, nkey);
             }
         }
 
@@ -912,7 +916,7 @@ php_couchbase_get_callback(libcouchbase_t handle,
             if (ctx->res->prefix_key_len && nkey) {
                 if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
                     nkey -= (ctx->res->prefix_key_len + 1);
-                    key = estrndup(key + ctx->res->prefix_key_len + 1, nkey);
+                    key = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1, nkey);
                 }
             }
            zend_hash_add((Z_ARRVAL_P(ctx->rv)), (char *)key, nkey + 1, (void **)&v, sizeof(zval *), NULL);
@@ -930,7 +934,7 @@ php_couchbase_get_callback(libcouchbase_t handle,
             if (ctx->res->prefix_key_len && nkey) {
                 if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
                     nkey -= (ctx->res->prefix_key_len + 1);
-                    key = estrndup(key + ctx->res->prefix_key_len + 1, nkey);
+                    key = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1, nkey);
                 }
             }
             if (!php_couchbase_zval_from_payload(ctx->rv, (char *)bytes, nbytes, flags, ctx->res->serializer TSRMLS_CC)) {
