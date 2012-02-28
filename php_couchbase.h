@@ -94,7 +94,7 @@ typedef struct _php_couchbase_res {
     long seqno;
     char async;
     char serializer;
-    char compresser;
+    char compressor;
     char *prefix_key;
     int prefix_key_len;
     libcouchbase_error_t rc; /* returned code */
@@ -111,8 +111,8 @@ typedef struct _php_couchbase_ctx {
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
     char serializer_real;
     char *serializer;
-    char compresser_real;
-    char *compresser;
+    char compressor_real;
+    char *compressor;
     long compression_threshold;
     double compression_factor;
 ZEND_END_MODULE_GLOBALS(couchbase)
