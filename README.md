@@ -39,7 +39,7 @@ Apache License 2.0
 
 ## Credits
 
-Couchbase
+See CREDITS file. Thanks all!
 
 ## Copyright
 
