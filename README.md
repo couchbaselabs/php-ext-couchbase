@@ -27,6 +27,12 @@ Create a new script `test.php`:
     echo $a;
     ?>
 
+# Compatibility
+
+PHP 5.2.9 or later.
+
+Windows support is coming in the next release.
+
 ## License
 
 Apache License 2.0
