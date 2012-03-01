@@ -208,7 +208,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_option, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
-ZEND_BEGIN_ARG_INFO_EX(arginfo_version, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_version, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -376,7 +376,7 @@ static zend_function_entry couchbase_functions[] = {
     PHP_FE(couchbase_get_result_code, arginfo_result_code)
     PHP_FE(couchbase_set_option, arginfo_set_option)
     PHP_FE(couchbase_get_option, arginfo_get_option)
-    PHP_FE(couchbase_version, arginfo_version)
+    PHP_FE(couchbase_get_version, arginfo_get_version)
     {NULL, NULL, NULL}
 };
 /* }}} */
@@ -405,7 +405,7 @@ static zend_function_entry couchbase_methods[] = {
     PHP_ME(couchbase, getResultCode, arginfo_m_resultcode, ZEND_ACC_PUBLIC)
     PHP_ME(couchbase, setOption, arginfo_m_setoption, ZEND_ACC_PUBLIC)
     PHP_ME(couchbase, getOption, arginfo_m_getoption, ZEND_ACC_PUBLIC)
-    PHP_ME(couchbase, version, arginfo_version, ZEND_ACC_PUBLIC)
+    PHP_ME(couchbase, getVersion, arginfo_get_version, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */
@@ -2558,7 +2558,7 @@ PHP_METHOD(couchbase, getOption) {
 
 /* {{{ proto Couchbase::getVersion(void)
  */
-PHP_METHOD(couchbase, version) {
+PHP_METHOD(couchbase, getVersion) {
     RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
 }
 /* }}} */
@@ -2718,9 +2718,9 @@ PHP_FUNCTION(couchbase_get_option) {
 }
 /* }}} */
 
-/* {{{ proto couchbase_version(void)
+/* {{{ proto couchbase_get_version(void)
  */
-PHP_FUNCTION(couchbase_version) {
+PHP_FUNCTION(couchbase_get_version) {
     RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
 }
 /* }}} */
