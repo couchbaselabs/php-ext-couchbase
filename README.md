@@ -9,10 +9,10 @@ libcouchbase
 ## Installation
 
     $ phpize
-	$ ./configure
-	$ make
-	$ make test # assumes a Couchbase Server 1.8 or later running on 127.0.0.1:8091
-	$ make install
+    $ ./configure
+    $ make
+    $ make test # assumes a Couchbase Server 1.8 or later running on 127.0.0.1:8091
+    $ make install
 
 If you are using a webserver installation of PHP, you might need to restart your webserver.
 
@@ -21,12 +21,11 @@ If you are using a webserver installation of PHP, you might need to restart your
 Create a new script `test.php`:
 
     <?php
-	$cb = new Couchbase("127.0.0.1:8091", "Administrator", "password", "default");
-	$cb->set("a", 1);
-	$a = $cb->get("a");
-	echo $a;
-	?>
-
+    $cb = new Couchbase("127.0.0.1:8091", "Administrator", "password", "default");
+    $cb->set("a", 1);
+    $a = $cb->get("a");
+    echo $a;
+    ?>
 
 ## License
 
