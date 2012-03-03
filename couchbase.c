@@ -2084,7 +2084,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 
 	if (oo) {
 		zval *self = getThis();
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|llll", &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|llll", &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
 			return;
 		}
 		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
