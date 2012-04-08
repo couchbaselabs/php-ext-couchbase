@@ -6,7 +6,7 @@ dnl Make sure that the comment is aligned:
 [  --with-couchbase=[DIR]            Set the path to libcouchbase install prefix])
 
 PHP_ARG_ENABLE(couchbase-json, whether to enable json serializer support,
-[  --disable-couchbase-json Disable json serializer support], yes)
+[  --disable-couchbase-json Disable json serializer support], no)
 
 if test -z "$PHP_ZLIB_DIR"; then
 PHP_ARG_WITH(zlib-dir, for ZLIB,
@@ -53,7 +53,7 @@ if test "$PHP_COUCHBASE" != "no"; then
     -L$COUCHBASE_DIR/lib -l$LIBNAME
   ])
 
-  if test "$PHP_COUCHBASE_JSON" != "no"; then
+  if test "$PHP_COUCHBASE_JSON" != "yes"; then
     AC_MSG_CHECKING([for json includes])
     json_inc_path=""
 
