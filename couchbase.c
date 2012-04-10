@@ -729,14 +729,22 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 		case 0: /* see http://www.couchbase.com/issues/browse/PCBC-30 */
 		case IS_LONG:
 		{
-			long lval = strtol(payload, NULL, 10);
+			char *buf = emalloc(payload_len + sizeof(char));
+			memcpy(buf, payload, payload_len);
+			buf[payload_len] = '\0';
+			long lval = strtol(buf, NULL, 10);
+			efree(buf);
 			ZVAL_LONG(value, lval);
 			break;
 		}
 
 		case IS_DOUBLE:
 		{
+			char *buf = emalloc(payload_len + sizeof(char));
+			memcpy(buf, payload, payload_len);
+			buf[payload_len] = '\0';
 			double dval = zend_strtod(payload, NULL);
+			efree(buf);
 			ZVAL_DOUBLE(value, dval);
 			break;
 		}
