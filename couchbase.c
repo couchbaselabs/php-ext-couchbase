@@ -1489,7 +1489,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 				}
 			} else {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-						"Faild to get a value from server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+						"Failed to get a value from server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 			}
 		}
 		efree(ctx);
@@ -1805,7 +1805,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
 
 		retval = libcouchbase_store(couchbase_res->handle,
 				(const void *)ctx, op, key, klen, payload, payload_len, flags, exp, (uint64_t)cas_v);
-		
+
 		efree(payload);
 		if (couchbase_res->prefix_key_len) {
 			efree(key);
@@ -1933,7 +1933,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, libcouchbase_
 						}
 					default:
 						php_error_docref(NULL TSRMLS_CC, E_WARNING,
-								"Faild to store a value to server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+								"Failed to store a value to server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 						break;
 				}
 			}
@@ -1994,7 +1994,7 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 		couchbase_res->io->run_event_loop(couchbase_res->io);
 		if (LIBCOUCHBASE_SUCCESS != ctx->res->rc && LIBCOUCHBASE_KEY_ENOENT != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Faild to remove a value from server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+					"Failed to remove a value from server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 			RETVAL_FALSE;
 		} else if (LIBCOUCHBASE_KEY_ENOENT == ctx->res->rc) {
 			RETVAL_FALSE;
@@ -2058,7 +2058,7 @@ static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 			}
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Faild to flush node %s: %s", ctx->extended_value?(char *)ctx->extended_value : "", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+					"Failed to flush node %s: %s", ctx->extended_value?(char *)ctx->extended_value : "", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 			RETURN_FALSE;
 		}
 		if(ctx->extended_value) {
@@ -2129,7 +2129,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 		couchbase_res->io->run_event_loop(couchbase_res->io);
 		if (LIBCOUCHBASE_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Faild to %s value in server: %s", (op == '+')? "increment" : "decrement", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+					"Failed to %s value in server: %s", (op == '+')? "increment" : "decrement", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 			efree(ctx);
 			RETURN_FALSE;
 		}
@@ -2181,7 +2181,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		if (LIBCOUCHBASE_SUCCESS != ctx->res->rc) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Faild to stat: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+					"Failed to stat: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 			RETURN_FALSE;
 		}
 		efree(ctx);
@@ -2247,7 +2247,7 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 
 		retval = libcouchbase_store(couchbase_res->handle, (const void *)ctx,
 				LIBCOUCHBASE_SET, key, klen, payload, payload_len, flags, exp, (uint64_t)cas_v);
-			
+
 		efree(payload);
 		if (couchbase_res->prefix_key_len) {
 		   efree(key);
@@ -2269,7 +2269,7 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 		} else {
 			ZVAL_FALSE(return_value);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Faild to store a value to server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+					"Failed to store a value to server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
 		}
 		efree(ctx);
 	}

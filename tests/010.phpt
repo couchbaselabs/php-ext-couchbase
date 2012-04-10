@@ -38,7 +38,7 @@ string(1) "3"
 int(1)
 string(1) "1"
 
-Warning: couchbase_increment(): Faild to increment value in server: Not a number in %s010.php on line %d
+Warning: couchbase_increment(): Failed to increment value in server: Not a number in %s010.php on line %d
 bool(false)
 int(2)
 int(2)

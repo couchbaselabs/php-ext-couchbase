@@ -21,5 +21,5 @@ couchbase_delete($handle, $key);
 int(2)
 int(0)
 
-Warning: couchbase_decrement(): Faild to decrement value in server: No such key in %s022.php on line %d
+Warning: couchbase_decrement(): Failed to decrement value in server: No such key in %s022.php on line %d
 bool(false)
