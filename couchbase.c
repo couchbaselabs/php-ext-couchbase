@@ -1992,18 +1992,19 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 
 		couchbase_res->seqno += 1;
 		couchbase_res->io->run_event_loop(couchbase_res->io);
-		if (LIBCOUCHBASE_SUCCESS != ctx->res->rc && LIBCOUCHBASE_KEY_ENOENT != ctx->res->rc) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Failed to remove a value from server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
-			RETVAL_FALSE;
-		} else if (LIBCOUCHBASE_KEY_ENOENT == ctx->res->rc) {
-			RETVAL_FALSE;
-		} else {
+		if (LIBCOUCHBASE_SUCCESS == ctx->res->rc) {
 			if (oo) {
 				RETVAL_ZVAL(getThis(), 1, 0);
 			} else {
 				RETVAL_TRUE;
 			}
+		} else if (LIBCOUCHBASE_KEY_ENOENT == ctx->res->rc ||	/* skip missing key errors */
+				   LIBCOUCHBASE_KEY_EEXISTS == ctx->res->rc) {	/* skip CAS mismatch */
+			RETVAL_FALSE;
+		} else {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+					"Failed to remove a value from server: %s", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+			RETVAL_FALSE;
 		}
 		efree(ctx);
 	}
