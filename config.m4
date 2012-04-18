@@ -53,7 +53,7 @@ if test "$PHP_COUCHBASE" != "no"; then
     -L$COUCHBASE_DIR/lib -l$LIBNAME
   ])
 
-  if test "$PHP_COUCHBASE_JSON" != "yes"; then
+  if test "$PHP_COUCHBASE_JSON" != "no"; then
     AC_MSG_CHECKING([for json includes])
     json_inc_path=""
 
