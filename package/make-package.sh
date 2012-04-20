@@ -7,14 +7,9 @@
 # Usage ./package/make-package.sh
 # Creates ./package/php-ext-couchbase.tar.gz
 
-
-# phpize
+make clean
 phpize
-
-# ./configure
 ./configure
-
-# make
 make
 
 # make test (requires Couchbase Server running)
