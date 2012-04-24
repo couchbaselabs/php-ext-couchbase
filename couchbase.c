@@ -512,7 +512,7 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 	switch (Z_TYPE_P(value)) {
 		case IS_STRING:
 			smart_str_appendl(&buf, Z_STRVAL_P(value), Z_STRLEN_P(value));
-			*flags = IS_STRING;
+			COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_STRING);
 			COUCHBASE_SET_COMPRESSION(*flags, compressor);
 			break;
 		case IS_LONG:
@@ -525,7 +525,17 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 				convert_to_string(&value_copy);
 				smart_str_appendl(&buf, Z_STRVAL(value_copy), Z_STRLEN(value_copy));
 				zval_dtor(&value_copy);
-				*flags = Z_TYPE_P(value);
+				switch (Z_TYPE_P(value)) {
+				case IS_LONG:
+					COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_LONG);
+					break;
+				case IS_DOUBLE:
+					COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_DOUBLE);
+					break;
+				case IS_BOOL:
+					COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_BOOL);
+					break;
+				}
 				break;
 			}
 		default:
@@ -541,7 +551,7 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 						php_json_encode(&buf, value, 0 TSRMLS_CC); /* options */
 #endif
 						buf.c[buf.len] = 0;
-						*flags |= COUCHBASE_IS_JSON;
+						COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_JSON);
 						break;
 					}
 #else
@@ -561,7 +571,7 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 							return NULL;
 						}
 
-						*flags |= COUCHBASE_IS_SERIALIZED;
+						COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_SERIALIZED);
 						break;
 					}
 			}
@@ -721,13 +731,13 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 #endif
 	}
 
-	switch (COUCHBASE_GET_TYPE(flags)) {
-		case IS_STRING:
+	switch (COUCHBASE_VAL_GET_TYPE(flags)) {
+		case COUCHBASE_VAL_IS_STRING:
 			ZVAL_STRINGL(value, payload, payload_len, 1);
 			break;
 
-		case 0: /* see http://www.couchbase.com/issues/browse/PCBC-30 */
-		case IS_LONG:
+		//case 0: /* see http://www.couchbase.com/issues/browse/PCBC-30 */
+		case COUCHBASE_VAL_IS_LONG:
 		{
 			char *buf = emalloc(payload_len + sizeof(char));
 			memcpy(buf, payload, payload_len);
@@ -738,7 +748,7 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 			break;
 		}
 
-		case IS_DOUBLE:
+		case COUCHBASE_VAL_IS_DOUBLE:
 		{
 			char *buf = emalloc(payload_len + sizeof(char));
 			memcpy(buf, payload, payload_len);
@@ -749,11 +759,11 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 			break;
 		}
 
-		case IS_BOOL:
+		case COUCHBASE_VAL_IS_BOOL:
 			ZVAL_BOOL(value, payload_len > 0 && payload[0] == '1');
 			break;
 
-		case COUCHBASE_IS_SERIALIZED:
+		case COUCHBASE_VAL_IS_SERIALIZED:
 		{
 			const char *payload_tmp = payload;
 			php_unserialize_data_t var_hash;
@@ -772,7 +782,7 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 			break;
 		}
 
-		case COUCHBASE_IS_JSON:
+		case COUCHBASE_VAL_IS_JSON:
 #ifdef HAVE_JSON_API
 # if HAVE_JSON_API_5_2
 			php_json_decode(value, payload, payload_len, (serializer == COUCHBASE_SERIALIZER_JSON_ARRAY) TSRMLS_CC);

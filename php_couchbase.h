@@ -73,9 +73,16 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_SERIALIZER_JSON			1
 #define COUCHBASE_SERIALIZER_JSON_ARRAY		2
 
-#define COUCHBASE_IS_JSON					30 
-#define COUCHBASE_IS_SERIALIZED				31
-#define COUCHBASE_GET_TYPE(f)				((f) & 31)
+#define COUCHBASE_VAL_TYPE_MASK             0xf
+#define COUCHBASE_VAL_GET_TYPE(f)			((f) & COUCHBASE_VAL_TYPE_MASK)
+#define COUCHBASE_VAL_SET_TYPE(flags, type) ((flags) |= ((type) & COUCHBASE_VAL_TYPE_MASK))
+#define COUCHBASE_VAL_IS_STRING             0
+#define COUCHBASE_VAL_IS_LONG               1
+#define COUCHBASE_VAL_IS_DOUBLE             2
+#define COUCHBASE_VAL_IS_BOOL               3
+#define COUCHBASE_VAL_IS_SERIALIZED         4
+#define COUCHBASE_VAL_IS_IGBINARY           5
+#define COUCHBASE_VAL_IS_JSON               6
 
 #define COUCHBASE_COMPRESSION_MASK			 224 /* 7 << 5 */
 #define COUCHBASE_COMPRESSION_NONE			 0
@@ -85,7 +92,7 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_GET_COMPRESSION(f)		 ((f) >> 5)
 #define COUCHBASE_SET_COMPRESSION(f, c)		 ((f) = ((f) & ~COUCHBASE_COMPRESSION_MASK) | (c) << 5)
 
-#ifndef Z_ADDREF_P 
+#ifndef Z_ADDREF_P
 #define Z_ADDREF_P	ZVAL_ADDREF
 #endif
 

@@ -41,5 +41,5 @@ string(1) "1"
 Warning: couchbase_increment(): Failed to increment value in server: Not a number in %s010.php on line %d
 bool(false)
 int(2)
-int(2)
+string(1) "2"
 int(2)
