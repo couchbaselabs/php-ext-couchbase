@@ -91,6 +91,7 @@ extern zend_class_entry *couchbase_ce;
 
 #define COUCHBASE_GET_COMPRESSION(f)		 ((f) >> 5)
 #define COUCHBASE_SET_COMPRESSION(f, c)		 ((f) = ((f) & ~COUCHBASE_COMPRESSION_MASK) | (c) << 5)
+#define COUCHBASE_GET_PRESERVE_ORDER		(1<<0)
 
 #ifndef Z_ADDREF_P
 #define Z_ADDREF_P	ZVAL_ADDREF
