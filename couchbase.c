@@ -953,7 +953,7 @@ php_couchbase_get_callback(libcouchbase_t handle,
 				memcpy(key_string, key, nkey);
 				key_string[nkey] = '\0';
 			}
-		   zend_hash_add((Z_ARRVAL_P(ctx->rv)), (char *)key_string, nkey + 1, (void **)&v, sizeof(zval *), NULL);
+		   zend_hash_update((Z_ARRVAL_P(ctx->rv)), (char *)key_string, nkey + 1, (void **)&v, sizeof(zval *), NULL);
 
 			if (ctx->cas) {
 				zval *c;
@@ -1321,6 +1321,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 	if (multi) {
 		zval *akeys;
 		zval **ppzval;
+		zend_bool preserve_order;
 		int i;
 		if (oo) {
 			if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|zl", &akeys, &cas_token, &flag) == FAILURE) {
@@ -1346,6 +1347,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 		nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
 		keys = ecalloc(nkey, sizeof(char *));
 		klens = ecalloc(nkey, sizeof(long));
+		preserve_order = (flag & COUCHBASE_GET_PRESERVE_ORDER);
 
 		array_init(return_value);
 
@@ -1371,6 +1373,10 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 			} else {
 				keys[i] = Z_STRVAL_PP(ppzval);
 				klens[i] = Z_STRLEN_PP(ppzval);
+			}
+
+			if(preserve_order) {
+				add_assoc_null_ex(return_value, keys[i], klens[i] + 1);
 			}
 		}
 
@@ -2851,6 +2857,8 @@ PHP_MINIT_FUNCTION(couchbase) {
 	REGISTER_LONG_CONSTANT("COUCHBASE_COMPRESSION_FASTLZ", COUCHBASE_COMPRESSION_FASTLZ, CONST_PERSISTENT | CONST_CS);
 	REGISTER_LONG_CONSTANT("COUCHBASE_COMPRESSION_ZLIB", COUCHBASE_COMPRESSION_ZLIB, CONST_PERSISTENT | CONST_CS);
 
+	REGISTER_LONG_CONSTANT("COUCHBASE_GET_PRESERVE_ORDER", COUCHBASE_GET_PRESERVE_ORDER, CONST_PERSISTENT | CONST_CS);
+
 	le_couchbase = zend_register_list_destructors_ex(php_couchbase_res_dtor, NULL, PHP_COUCHBASE_RESOURCE, module_number);
 	le_pcouchbase = zend_register_list_destructors_ex(NULL, php_couchbase_pres_dtor, PHP_COUCHBASE_PERSISTENT_RESOURCE, module_number);
 
@@ -2889,6 +2897,8 @@ PHP_MINIT_FUNCTION(couchbase) {
 	zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SERIALIZER_PHP"), COUCHBASE_SERIALIZER_PHP TSRMLS_CC);
 	zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SERIALIZER_JSON"), COUCHBASE_SERIALIZER_JSON TSRMLS_CC);
 	zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("SERIALIZER_JSON_ARRAY"), COUCHBASE_SERIALIZER_JSON_ARRAY TSRMLS_CC);
+
+	zend_declare_class_constant_long(couchbase_ce, ZEND_STRL("GET_PRESERVE_ORDER"), COUCHBASE_GET_PRESERVE_ORDER TSRMLS_CC);
 
 	zend_declare_property_null(couchbase_ce, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), ZEND_ACC_PRIVATE TSRMLS_CC);
 
