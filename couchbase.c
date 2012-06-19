@@ -1269,7 +1269,7 @@ create_new_link:
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
 						"Failed to connect libcouchbase to server: %s", libcouchbase_strerror(handle, retval));
 				libcouchbase_destroy(handle);
-				efree(couchbase_res);
+				pefree(couchbase_res, persistent);
 				efree(ctx);
 				RETURN_FALSE;
 			}
