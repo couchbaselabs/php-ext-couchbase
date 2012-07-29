@@ -633,7 +633,12 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 				break;
 			 case COUCHBASE_COMPRESSION_ZLIB:
 #ifdef HAVE_COMPRESSION_ZLIB
-				compress_status = (compress((Bytef *)payload_comp, &payload_comp_len, (Bytef *)buf.c, buf.len) == Z_OK);
+			 	{
+			 		uLongf tmp_ulen;
+					compress_status = (compress((Bytef *)payload_comp, &tmp_ulen, (Bytef *)buf.c, buf.len) == Z_OK);
+					/* sync with payload_comp_len */
+					payload_comp_len = tmp_ulen;
+				}
 #else
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not compress value, no zlib lib support");
 				return NULL;
@@ -719,24 +724,27 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 				break;
 			case COUCHBASE_COMPRESSION_ZLIB:
 #ifdef HAVE_COMPRESSION_ZLIB
-				decompress_status = (uncompress((Bytef *)buffer, &length, (Bytef *)payload, payload_len) == Z_OK);
-				/* Fall back to 'old style decompression' */
-				if (!decompress_status) {
-					unsigned int factor = 1, maxfactor = 16;
-					int status;
+				{
+					uLongf ulength = length;
+					decompress_status = (uncompress((Bytef *)buffer, &ulength, (Bytef *)payload, payload_len) == Z_OK);
+					/* Fall back to 'old style decompression' */
+					if (!decompress_status) {
+						unsigned int factor = 1, maxfactor = 16;
+						int status;
 
-					do {
-						length = (unsigned long)payload_len * (1 << factor++);
-						buffer = erealloc(buffer, length + 1);
-						memset(buffer, 0, length + 1);
-						status = uncompress((Bytef *)buffer, (uLongf *)&length, (const Bytef *)payload, payload_len);
-					} while ((status == Z_BUF_ERROR) && (factor < maxfactor));
+						do {
+							length = (unsigned long)payload_len * (1 << factor++);
+							buffer = erealloc(buffer, length + 1);
+							memset(buffer, 0, length + 1);
+							status = uncompress((Bytef *)buffer, &ulength, (const Bytef *)payload, payload_len);
+						} while ((status == Z_BUF_ERROR) && (factor < maxfactor));
 
-					if (status == Z_OK) {
-						decompress_status = 1;
+						if (status == Z_OK) {
+							decompress_status = 1;
+						}
 					}
+					length = ulength;
 				}
-
 #else
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not decompress value, no zlib lib support");
 				return 0;
@@ -1156,7 +1164,7 @@ php_couchbase_stat_callback(libcouchbase_t handle,
 
 /* {{{ static void php_couchbase_complete_callback(...)
 */
-static void php_couchbase_complete_callback(libcouchbase_couch_request_t request,
+static void php_couchbase_complete_callback(libcouchbase_http_request_t request,
 		libcouchbase_t instance,
 		const void *cookie,
 		libcouchbase_error_t error,
