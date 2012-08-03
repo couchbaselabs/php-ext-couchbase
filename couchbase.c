@@ -2546,10 +2546,12 @@ static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 			RETURN_FALSE;
 		}
 
-		if (view_name_len == 0) {
-			uri_len = spprintf(&uri, 0, "/%s", doc_name);
+		if(strcmp(doc_name, "_all_docs") == 0) {
+			uri_len = spprintf(&uri, 0, "/%s%s", doc_name, view_name);
+		} else if (view_name_len == 0) {
+			uri_len = spprintf(&uri, 0, "/_design/%s", doc_name);
 		} else {
-			uri_len = spprintf(&uri, 0, "/%s/%s", doc_name, view_name);
+			uri_len = spprintf(&uri, 0, "/_design/%s/_view/%s", doc_name, view_name);
 		}
 
 		ctx.res = couchbase_res;
@@ -2581,6 +2583,7 @@ static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 		}
 
 		couchbase_res->io->run_event_loop(couchbase_res->io);
+
 		if (LIBCOUCHBASE_SUCCESS == ctx.res->rc) {
 #ifdef HAVE_JSON_API
 			char *json_str = Z_STRVAL_P(return_value);
