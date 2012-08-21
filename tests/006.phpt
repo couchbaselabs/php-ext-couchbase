@@ -1,7 +1,7 @@
 --TEST--
 Check for couchbase_flush
 --SKIPIF--
-<?php include "skipif.inc" ?>
+<?php print("skip because flush command currently isn't accessible") ?>
 --FILE--
 <?php
 include "couchbase.inc";

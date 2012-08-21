@@ -7,10 +7,14 @@ Check for couchbase_view with query parameters
 include "couchbase.inc";
 $handle = couchbase_connect(COUCHBASE_CONFIG_HOST, COUCHBASE_CONFIG_USER, COUCHBASE_CONFIG_PASSWD, COUCHBASE_CONFIG_BUCKET);
 
+sleep(3);
+
 $result = couchbase_view($handle, "_all_docs", "");
 foreach ($result["rows"] as $key => $value) {
     couchbase_delete($handle, $value["key"]);
 }
+
+sleep(1);
 
 $contents = array(
      "foo" => '{"value":"fooval"}',
@@ -18,7 +22,9 @@ $contents = array(
 );
 
 couchbase_set_multi($handle, $contents);
-sleep(1);
+
+sleep(3);
+
 $result = couchbase_view($handle, "_all_docs?include_docs=true", "");
 foreach ($result["rows"] as $key => $value) {
     print_r($value);
@@ -38,16 +44,24 @@ Array
     [key] => bar
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
     [doc] => Array
         (
-            [_id] => bar
-            [_rev] => 1-%s
-            [$flags] => 0
-            [$expiration] => 0
-            [value] => barval
+            [meta] => Array
+                (
+                    [id] => bar
+                    [rev] => %s
+                    [expiration] => 0
+                    [flags] => 0
+                )
+
+            [json] => Array
+                (
+                    [value] => barval
+                )
+
         )
 
 )
@@ -57,16 +71,24 @@ Array
     [key] => foo
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
     [doc] => Array
         (
-            [_id] => foo
-            [_rev] => 1-%s
-            [$flags] => 0
-            [$expiration] => 0
-            [value] => fooval
+            [meta] => Array
+                (
+                    [id] => foo
+                    [rev] => %s
+                    [expiration] => 0
+                    [flags] => 0
+                )
+
+            [json] => Array
+                (
+                    [value] => fooval
+                )
+
         )
 
 )
@@ -76,16 +98,24 @@ Array
     [key] => bar
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
     [doc] => Array
         (
-            [_id] => bar
-            [_rev] => 1-%s
-            [$flags] => 0
-            [$expiration] => 0
-            [value] => barval
+            [meta] => Array
+                (
+                    [id] => bar
+                    [rev] => %s
+                    [expiration] => 0
+                    [flags] => 0
+                )
+
+            [json] => Array
+                (
+                    [value] => barval
+                )
+
         )
 
 )
@@ -95,16 +125,24 @@ Array
     [key] => foo
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
     [doc] => Array
         (
-            [_id] => foo
-            [_rev] => 1-%s
-            [$flags] => 0
-            [$expiration] => 0
-            [value] => fooval
+            [meta] => Array
+                (
+                    [id] => foo
+                    [rev] => %s
+                    [expiration] => 0
+                    [flags] => 0
+                )
+
+            [json] => Array
+                (
+                    [value] => fooval
+                )
+
         )
 
 )

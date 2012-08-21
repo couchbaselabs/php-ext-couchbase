@@ -7,15 +7,19 @@ Check for couchbase_view
 include "couchbase.inc";
 $handle = couchbase_connect(COUCHBASE_CONFIG_HOST, COUCHBASE_CONFIG_USER, COUCHBASE_CONFIG_PASSWD, COUCHBASE_CONFIG_BUCKET);
 
+sleep(3);
+
 $result = couchbase_view($handle, "_all_docs", "");
 foreach ($result["rows"] as $key => $value) {
     couchbase_delete($handle, $value["key"]);
 }
 
+sleep(1);
+
 couchbase_set($handle, "foo", '{"value":"fooval"}');
 couchbase_set($handle, "bar", '{"value":"barval"}');
 
-sleep(1);
+sleep(3);
 
 $result = couchbase_view($handle, "_all_docs", "");
 foreach ($result["rows"] as $key => $value) {
@@ -36,7 +40,7 @@ Array
     [key] => bar
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
 )
@@ -46,7 +50,7 @@ Array
     [key] => foo
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
 )
@@ -56,7 +60,7 @@ Array
     [key] => bar
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
 )
@@ -66,7 +70,7 @@ Array
     [key] => foo
     [value] => Array
         (
-            [rev] => 1-%s
+            [rev] => %s
         )
 
 )
