@@ -27,6 +27,12 @@ function do_test()
 
 	$v = couchbase_get_multi($handle, array_keys($keys), $cas1);
 
+	// PCBC-97: Make sure the results are ordered the same.
+	ksort($v);
+	ksort($keys);
+	ksort($cas);
+	ksort($cas1);
+
 	var_dump(serialize($v) == serialize($keys));
 	var_dump(serialize($cas) == serialize($cas1));
 
