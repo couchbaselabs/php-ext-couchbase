@@ -2523,8 +2523,11 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 		couchbase_res->seqno += 1;
 		couchbase_res->io->run_event_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Failed to %s value in server: %s", (op == '+')? "increment" : "decrement", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+			// Just return false and don't print a warning when no key is present and create is false
+			if(!(LCB_KEY_ENOENT == ctx->res->rc && create == 0)) {
+				php_error_docref(NULL TSRMLS_CC, E_WARNING,
+						"Failed to %s value in server: %s", (op == '+')? "increment" : "decrement", libcouchbase_strerror(couchbase_res->handle, ctx->res->rc));
+			}
 			efree(ctx);
 			RETURN_FALSE;
 		}

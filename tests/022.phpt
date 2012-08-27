@@ -20,6 +20,4 @@ couchbase_delete($handle, $key);
 --EXPECTF--
 int(2)
 int(0)
-
-Warning: couchbase_decrement(): Failed to decrement value in server: No such key in %s022.php on line %d
 bool(false)
