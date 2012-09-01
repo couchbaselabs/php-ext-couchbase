@@ -99,15 +99,15 @@ extern zend_class_entry *couchbase_ce;
 
 
 typedef struct _php_couchbase_res {
-	libcouchbase_t handle;
-	libcouchbase_io_opt_t *io;
+	lcb_t handle;
+	lcb_io_opt_t io;
 	long seqno;
 	char async;
 	char serializer;
 	char compressor;
 	char *prefix_key;
 	int prefix_key_len;
-	libcouchbase_error_t rc; /* returned code */
+	lcb_error_t rc; /* returned code */
 } php_couchbase_res;
 
 typedef struct _php_couchbase_ctx {

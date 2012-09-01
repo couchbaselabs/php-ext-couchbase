@@ -41,7 +41,7 @@ if test "$PHP_COUCHBASE" != "no"; then
   PHP_ADD_INCLUDE($COUCHBASE_DIR/include/)
 
   LIBNAME=couchbase # you may want to change this
-  LIBSYMBOL=libcouchbase_connect # you most likely want to change this
+  LIBSYMBOL=lcb_connect # you most likely want to change this
 
   PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
   [
