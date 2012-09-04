@@ -11,17 +11,22 @@ libcouchbase
     $ phpize
     $ ./configure
     $ make
-    $ make test # assumes a Couchbase Server 1.8 or later running on 127.0.0.1:8091
+    $ make test
     $ make install
 
-If you are using a webserver installation of PHP, you might need to restart your webserver.
+Running make test assumes that you have a Couchbase server listening
+on port 127.0.0.1:8091
+
+If you are using a webserver installation of PHP, you might need to
+restart your webserver.
 
 ## First Step
 
 Create a new script `test.php`:
 
     <?php
-    $cb = new Couchbase("127.0.0.1:8091", "Administrator", "password", "default");
+    $cb = new Couchbase("127.0.0.1:8091", "Administrator",
+                        "password", "default");
     $cb->set("a", 1);
     $a = $cb->get("a");
     echo $a;
