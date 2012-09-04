@@ -1308,7 +1308,7 @@ static int _append_host_port(char *oldstr, char **newstr,
     }
 }
 
-static int php_couchbase_make_params(struct php_couchbase_connparams_st *cparams)
+static void php_couchbase_make_params(struct php_couchbase_connparams_st *cparams)
 {
     struct php_couchbase_nodeinfo_st *ni;
     char *curstr = NULL;
