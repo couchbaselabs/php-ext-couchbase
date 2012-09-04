@@ -4,7 +4,7 @@ Contents:
 
   ./
   ./README.md       This file.
-  ./memcached.so    The PHP extension as a shared library.
+  ./couchbase.so    The PHP extension as a shared library.
 
 
 ## Installation
@@ -26,14 +26,14 @@ Run this test script:
     $cb->set("a", 1);
     var_dump($cb->get("a"));
 
-Make sure you have started your Couchbase server. Adjust the hostname, port, user
-name and password as needed.
+Make sure you have started your Couchbase server. Adjust the hostname,
+port, user name and password as needed.
 
 
 ## Support
 
-If you have an questions, problems or suggestions, please let us know on the
-Couchbase SDK forums:
+If you have an questions, problems or suggestions, please let us know
+on the Couchbase SDK forums:
 
 http://www.couchbase.org/forums/sdks/sdks
 
