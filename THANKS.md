@@ -1,1 +1,0 @@
-- David Coallier <davidc@php.net>
