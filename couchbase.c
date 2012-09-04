@@ -1064,19 +1064,29 @@ php_couchbase_store_callback(lcb_t instance,
 	if (error != LCB_SUCCESS && error != LCB_AUTH_CONTINUE) {
 		if (IS_ARRAY == Z_TYPE_P(ctx->rv)) {
 			zval *rv;
+			char *string_key = emalloc(nkey + 1);
+			memcpy(string_key, key, nkey);
+			string_key[nkey] = '\0';
+
 			MAKE_STD_ZVAL(rv);
 			ZVAL_FALSE(rv);
-			zend_hash_update(Z_ARRVAL_P(ctx->rv), (char *)key, nkey + 1, (void **)&rv, sizeof(zval *), NULL);
+			zend_hash_update(Z_ARRVAL_P(ctx->rv), string_key, nkey + 1, (void **)&rv, sizeof(zval *), NULL);
+			efree(string_key);
 		}
 		return;
 	}
 
 	if (IS_ARRAY == Z_TYPE_P(ctx->rv)) {
 		zval *rv;
+		char *string_key = emalloc(nkey + 1);
+		memcpy(string_key, key, nkey);
+		string_key[nkey] = '\0';
+
 		MAKE_STD_ZVAL(rv);
 		Z_TYPE_P(rv) = IS_STRING;
 		Z_STRLEN_P(rv) = spprintf(&(Z_STRVAL_P(rv)), 0, "%llu", cas);
-		zend_hash_update(Z_ARRVAL_P(ctx->rv), (char *)key, nkey + 1, (void **)&rv, sizeof(zval *), NULL);
+		zend_hash_update(Z_ARRVAL_P(ctx->rv), string_key, nkey + 1, (void **)&rv, sizeof(zval *), NULL);
+		efree(string_key);
 	} else {
 		Z_TYPE_P(ctx->rv) = IS_STRING;
 		Z_STRLEN_P(ctx->rv) = spprintf(&(Z_STRVAL_P(ctx->rv)), 0, "%llu", cas);
