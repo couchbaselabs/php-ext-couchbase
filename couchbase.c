@@ -2845,6 +2845,7 @@ static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 	long doc_name_len = 0, view_name_len = 0, uri_len, query_len = 0;
 	smart_str buf = {0};
     lcb_error_t retval;
+    lcb_http_request_t htreq;
     php_couchbase_res *couchbase_res;
     php_couchbase_ctx ctx = {0};
     lcb_http_cmd_t cmd = {0};
@@ -2909,8 +2910,8 @@ static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
     cmd.v.v0.nbody = query ? strlen(cmd.v.v0.body) : 0;
     cmd.v.v0.method = query ? LCB_HTTP_METHOD_POST:LCB_HTTP_METHOD_GET;
     cmd.v.v0.content_type = "application/json";
-    lcb_make_http_request(couchbase_res->handle, (const void *)&ctx,
-                          LCB_HTTP_TYPE_VIEW, &cmd, &retval);
+    retval = lcb_make_http_request(couchbase_res->handle, (const void *)&ctx,
+                          LCB_HTTP_TYPE_VIEW, &cmd, &htreq);
     efree(uri);
     smart_str_free(&buf);
 
