@@ -57,6 +57,7 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_OPT_SERIALIZER			1
 #define COUCHBASE_OPT_COMPRESSION			 2
 #define COUCHBASE_OPT_PREFIX_KEY			3
+#define COUCHBASE_OPT_IGNOREFLAGS			4
 
 #define COUCHBASE_SERIALIZER_PHP			0
 #define COUCHBASE_SERIALIZER_DEFAULT		COUCHBASE_SERIALIZER_PHP
@@ -77,8 +78,11 @@ extern zend_class_entry *couchbase_ce;
 
 #define COUCHBASE_COMPRESSION_MASK			 224 /* 7 << 5 */
 #define COUCHBASE_COMPRESSION_NONE			 0
-#define COUCHBASE_COMPRESSION_FASTLZ		 1
-#define COUCHBASE_COMPRESSION_ZLIB			 2
+#define COUCHBASE_COMPRESSION_ZLIB			 1
+#define COUCHBASE_COMPRESSION_FASTLZ		 2
+
+/* pecl-memcached requires this bit be set as well */
+#define COUCHBASE_COMPRESSION_MCISCOMPRESSED (1<<4)
 
 #define COUCHBASE_GET_COMPRESSION(f)		 ((f) >> 5)
 #define COUCHBASE_SET_COMPRESSION(f, c)		 ((f) = ((f) & ~COUCHBASE_COMPRESSION_MASK) | (c) << 5)
@@ -101,6 +105,7 @@ typedef struct _php_couchbase_res {
 	char async;
 	char serializer;
 	char compressor;
+	char ignoreflags;
 	char *prefix_key;
 	int prefix_key_len;
 	lcb_error_t rc; /* returned code */
@@ -271,6 +276,62 @@ PHP_COUCHBASE_LOCAL
 extern void usleep(unsigned long);
 #endif /* WIN32 */
 
+
+/**
+ * See https://github.com/php-memcached-dev/php-memcached/blob/1416a09d1d0e78cea5fec227744c1fe7b352017b/php_memcached.c#L2728
+ * - pecl-memcached uses a raw unconverted (i.e. no htonl) for determining the
+ * expanded payload size.
+ */
+typedef uint32_t pcbc_payload_len_t;
+
+typedef struct {
+
+	const char *orig;
+	const char *compressed;
+
+	char *expanded;
+	size_t compressed_len;
+	size_t expanded_len;
+	size_t orig_len;
+
+} php_couchbase_decomp;
+
+typedef struct {
+	char *_base;
+	char *data;
+	size_t compressed_len;
+	size_t alloc;
+} php_couchbase_comp;
+
+
+PHP_COUCHBASE_LOCAL
+void cbcomp_free(php_couchbase_comp *str);
+
+PHP_COUCHBASE_LOCAL
+int cbcomp_dcmp_init(const char *data, size_t len,
+                     php_couchbase_decomp *info);
+
+PHP_COUCHBASE_LOCAL
+void cbcomp_dcmp_free(php_couchbase_decomp *info);
+
+PHP_COUCHBASE_LOCAL
+int php_couchbase_compress_zlib(const smart_str *input,
+                                php_couchbase_comp *output);
+
+PHP_COUCHBASE_LOCAL
+int php_couchbase_compress_fastlz(const smart_str *input,
+		php_couchbase_comp *output);
+
+PHP_COUCHBASE_LOCAL
+int php_couchbase_decompress_zlib(php_couchbase_decomp *info);
+
+PHP_COUCHBASE_LOCAL
+int php_couchbase_decompress_fastlz(php_couchbase_decomp *info);
+
+
+
+PHP_COUCHBASE_LOCAL
+void cbcomp_deploy(php_couchbase_comp *str);
 
 
 #endif	  /* PHP_COUCHBASE_H */

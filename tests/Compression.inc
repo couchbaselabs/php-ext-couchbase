@@ -2,6 +2,42 @@
 require_once 'Common.inc';
 
 class Compression extends CouchbaseTestCommon {
+
+    function _comp_common($comptype) {
+        if (!$this->atLeastVersion(array(1,1))) {
+            $this->markTestSkipped("Compression broken on older versions");
+        }
+
+        $h = make_handle();
+        $hnc = make_handle();
+        couchbase_set_option($h, COUCHBASE_OPT_COMPRESSION,
+                             $comptype);
+
+        couchbase_set_option($hnc, COUCHBASE_OPT_IGNOREFLAGS, 1);
+
+        $inikey = "couchbase.compression_threshold";
+        $this->assertGreaterThan(0, (int)ini_get($inikey));
+        $this->assertTrue((bool)ini_alter($inikey,"10"));
+        $this->assertEquals(10, (int)ini_get($inikey));
+
+        # Set a compressed value
+        $v = str_repeat("long_value", 500);
+        $ol = strlen($v);
+
+        $key = $this->mk_key();
+
+        $rv = couchbase_set($h, $key, $v);
+        $this->assertNotEmpty($rv);
+
+        $ret = couchbase_get($hnc, $key);
+        $this->assertNotNull($ret);
+        $this->assertLessThan($ol, strlen($ret));
+
+        $ret = couchbase_get($h, $key);
+        $this->assertEquals($ret, $v);
+    }
+
+
     # Ideally we'd want to see the value actually compressed server-side, but
     # since there's no option to disable *de*-compression, there's nothing we
     # can do here.
@@ -33,8 +69,14 @@ class Compression extends CouchbaseTestCommon {
 
     }
 
+
     /**
-     * @test Compression Functionality
+     * @_test Compression Functionality
+     *
+     * This is actually documentation for @see _comp_common but apparently
+     * PHPUnit doesn't like something about this documentation and things we're
+     * flagging it as a test.
+     *
      * @pre
      * Create a new handle  @c $h and set it to Zlib compression. Modify the
      * @c ini setting to make the compression threshold to 10 bytes.
@@ -46,9 +88,8 @@ class Compression extends CouchbaseTestCommon {
      * Store a long value (5kb) to the server with the handle @c $h.
      * Retrieve it with the @c $hnc handle.
      *
-     * @post Fetch it with the @c $hnc handle. The value should be equal to the
-     * original (because we autoinflate no matter if compression is enabled
-     * or not.
+     * @post Length of value retrieved is less than that of the value stored.
+     * This means data has been compressed
      *
      * @post Fetch it with the @c $h handle. The value should be equal to the
      * original
@@ -57,42 +98,17 @@ class Compression extends CouchbaseTestCommon {
      *
      * @test_plans{6.1, 6.3}
      */
-    function testCompression() {
+    function testCompressionZlib() {
         if (!extension_loaded('zlib')) {
             $this->markTestSkipped("Need Zlib extension");
         }
+        $this->_comp_common(COUCHBASE::COMPRESSION_ZLIB);
+    }
 
-        if (!$this->atLeastVersion(array(1,1))) {
-            $this->markTestSkipped("Compression broken on older versions");
+    function testCompressionFastLZ() {
+        if (!extension_loaded('fastlz')) {
+            $this->markTestSkipped("Need fastlz extension");
         }
-
-        $h = make_handle();
-        $hnc = make_handle();
-        couchbase_set_option($h, COUCHBASE_OPT_COMPRESSION,
-                             COUCHBASE_COMPRESSION_ZLIB);
-
-        /* couchbase_set_option($hnc, COUCHBASE_OPT_IGNOREFLAGS, 1); */
-
-        $inikey = "couchbase.compression_threshold";
-        $this->assertGreaterThan(0, (int)ini_get($inikey));
-        $this->assertTrue((bool)ini_alter($inikey,"10"));
-        $this->assertEquals(10, (int)ini_get($inikey));
-
-        # Set a compressed value
-        $v = str_repeat("long_value", 500);
-        $ol = strlen($v);
-
-        $key = $this->mk_key();
-
-        $rv = couchbase_set($h, $key, $v);
-        $this->assertNotEmpty($rv);
-
-        $ret = couchbase_get($hnc, $key);
-        $this->assertNotNull($ret);
-        $this->assertEquals($ol, strlen($ret));
-        $this->assertEquals($ret, $v);
-
-        $ret = couchbase_get($h, $key);
-        $this->assertEquals($ret, $v);
+        $this->_comp_common(COUCHBASE::COMPRESSION_FASTLZ);
     }
 }
