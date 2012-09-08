@@ -33,6 +33,7 @@
 #include "ext/standard/info.h"
 #include "ext/standard/url.h"
 #include "ext/standard/php_smart_str.h"
+#include "ext/standard/php_var.h"
 #ifdef HAVE_JSON_API
 # include "ext/json/php_json.h"
 #endif
@@ -160,11 +161,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_fetch_all, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
-ZEND_BEGIN_ARG_INFO_EX(arginfo_view, 0, 0, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_view, 0, 0, 2)
 	ZEND_ARG_INFO(0, resource)
 	ZEND_ARG_INFO(0, doc_name)
 	ZEND_ARG_INFO(0, view_name)
 	ZEND_ARG_ARRAY_INFO(0, options, 0)
+	ZEND_ARG_INFO(0, return_errors)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -330,10 +332,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_fetchall, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
-ZEND_BEGIN_ARG_INFO_EX(arginfo_m_view, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_view, 0, 0, 1)
 	ZEND_ARG_INFO(0, doc_name)
 	ZEND_ARG_INFO(0, view_name)
 	ZEND_ARG_ARRAY_INFO(0, options, 0)
+	ZEND_ARG_INFO(0, return_errors)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -542,6 +545,11 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("couchbase.compression_threshold", "2000",	PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
 PHP_INI_END()
 /* }}} */
+
+/**
+ * Include helper source files
+ */
+#include "views.c"
 
 static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned int *flags, int serializer, int compressor TSRMLS_DC) /* {{{ */ {
 	char *payload;
@@ -1211,32 +1219,6 @@ static void php_couchbase_stat_callback(lcb_t handle,
 		zend_hash_add(Z_ARRVAL_P(node), string_key, nkey + 1, (void **)&val, sizeof(zval *), NULL);
 		efree(string_key);
 	}
-}
-/* }}} */
-
-
-/* {{{ static void php_couchbase_complete_callback(...)
-*/
-static void php_couchbase_complete_callback(lcb_http_request_t request,
-											lcb_t instance,
-											const void *cookie,
-											lcb_error_t error,
-											const lcb_http_resp_t *resp) {
-	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
-
-	ctx->res->io->stop_event_loop(ctx->res->io);
-
-	ctx->res->rc = error;
-	if (LCB_SUCCESS != error) {
-		return;
-	}
-
-	if (resp->version != 0) {
-		ctx->res->rc = LCB_ERROR;
-	}
-
-	// @todo shouldn't we check the resp status code?
-	ZVAL_STRINGL(ctx->rv, (char *)resp->v.v0.bytes, resp->v.v0.nbytes, 1);
 }
 /* }}} */
 
@@ -2952,109 +2934,6 @@ static void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, 
 }
 /* }}} */
 
-static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
-	zval *res, *options = NULL;
-	char *doc_name, *view_name, *uri, *query = NULL;
-	long doc_name_len = 0, view_name_len = 0, uri_len, query_len = 0;
-	smart_str buf = {0};
-    lcb_error_t retval;
-    lcb_http_request_t htreq;
-    php_couchbase_res *couchbase_res;
-    php_couchbase_ctx ctx = {0};
-    lcb_http_cmd_t cmd = {0};
-
-	if (oo) {
-		zval *self = getThis();
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|a", &doc_name,
-                                  &doc_name_len, &view_name, &view_name_len,
-                                  &options) == FAILURE) {
-			return;
-		}
-		res = zend_read_property(couchbase_ce, self,
-                                 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
-                                 1 TSRMLS_CC);
-		if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "unintilized couchbase");
-			RETURN_FALSE;
-		}
-	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rss|a", &res,
-                                  &doc_name, &doc_name_len, &view_name,
-                                  &view_name_len, &options) == FAILURE) {
-			return;
-		}
-	}
-
-    ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1,
-                         PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
-    if (couchbase_res->async) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                         "there are some results should be fetched before do any sync request");
-        RETURN_FALSE;
-    }
-
-    if (strcmp(doc_name, "_all_docs") == 0) {
-        uri_len = spprintf(&uri, 0, "/%s%s", doc_name, view_name);
-    } else if (view_name_len == 0) {
-        uri_len = spprintf(&uri, 0, "/_design/%s", doc_name);
-    } else {
-        uri_len = spprintf(&uri, 0, "/_design/%s/_view/%s", doc_name, view_name);
-    }
-
-    ctx.res = couchbase_res;
-    ctx.rv = return_value;
-
-    if (options) {
-#ifdef HAVE_JSON_API
-# if HAVE_JSON_API_5_2
-        php_json_encode(&buf, options TSRMLS_CC);
-# elif HAVE_JSON_API_5_3
-        php_json_encode(&buf, options, 0 TSRMLS_CC); /* options */
-# endif
-        buf.c[buf.len] = 0;
-        query = buf.c;
-        query_len = buf.len;
-#endif
-    }
-
-    cmd.v.v0.path = uri;
-    cmd.v.v0.npath = uri ? strlen(cmd.v.v0.path) : 0;
-    cmd.v.v0.body = query;
-    cmd.v.v0.nbody = query ? strlen(cmd.v.v0.body) : 0;
-    cmd.v.v0.method = query ? LCB_HTTP_METHOD_POST:LCB_HTTP_METHOD_GET;
-    cmd.v.v0.content_type = "application/json";
-    retval = lcb_make_http_request(couchbase_res->handle, (const void *)&ctx,
-                          LCB_HTTP_TYPE_VIEW, &cmd, &htreq);
-    efree(uri);
-    smart_str_free(&buf);
-
-    if (LCB_SUCCESS != retval) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                         "Failed to schedule couch request: %s", lcb_strerror(couchbase_res->handle, retval));
-        RETURN_FALSE;
-    }
-
-    couchbase_res->io->run_event_loop(couchbase_res->io);
-
-    if (LCB_SUCCESS == ctx.res->rc) {
-#ifdef HAVE_JSON_API
-        char *json_str = Z_STRVAL_P(return_value);
-# if HAVE_JSON_API_5_2
-        php_json_decode(return_value, json_str, Z_STRLEN_P(return_value), 1 TSRMLS_CC);
-# elif HAVE_JSON_API_5_3
-        php_json_decode(return_value, json_str, Z_STRLEN_P(return_value), 1, 512 TSRMLS_CC);
-# endif
-        efree(json_str);
-#endif
-        return;
-    } else {
-        zval_dtor(return_value);
-        ZVAL_FALSE(return_value);
-        php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                         "Failed to execute view: %s", lcb_strerror(couchbase_res->handle, ctx.res->rc));
-    }
-}
-/* }}} */
 
 /* OO style APIs */
 /* {{{ proto Couchbase::__construct(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
