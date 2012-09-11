@@ -1248,7 +1248,7 @@ struct php_couchbase_connparams_st {
 
 static int php_couchbase_parse_host(const char *host,
                                        size_t host_len,
-                                       struct php_couchbase_connparams_st *cparams)
+                                       struct php_couchbase_connparams_st *cparams TSRMLS_DC)
 {
     php_url *url = NULL;
     struct php_couchbase_nodeinfo_st *curnode;
@@ -1420,7 +1420,7 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 
 		if (Z_TYPE_P(zvhosts) == IS_STRING) {
 		    if (!php_couchbase_parse_host(
-		            Z_STRVAL_P(zvhosts), Z_STRLEN_P(zvhosts), &cparams)) {
+		            Z_STRVAL_P(zvhosts), Z_STRLEN_P(zvhosts), &cparams TSRMLS_CC)) {
 		        php_couchbase_free_connparams(&cparams);
 		        RETURN_FALSE;
 		    }
@@ -1445,7 +1445,7 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 		        }
 		        if (!php_couchbase_parse_host(Z_STRVAL_PP(curzv),
 		                                      Z_STRLEN_PP(curzv),
-		                                      &cparams)) {
+		                                      &cparams TSRMLS_CC)) {
 		            php_couchbase_free_connparams(&cparams);
 		            RETURN_FALSE;
 		        }
