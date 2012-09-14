@@ -158,6 +158,7 @@ PHP_METHOD(couchbase, getResultMessage);
 PHP_METHOD(couchbase, setOption);
 PHP_METHOD(couchbase, getOption);
 PHP_METHOD(couchbase, getVersion);
+PHP_METHOD(couchbase, getClientVersion);
 
 PHP_FUNCTION(couchbase_connect);
 PHP_FUNCTION(couchbase_add);
@@ -183,6 +184,7 @@ PHP_FUNCTION(couchbase_get_result_message);
 PHP_FUNCTION(couchbase_set_option);
 PHP_FUNCTION(couchbase_get_option);
 PHP_FUNCTION(couchbase_get_version);
+PHP_FUNCTION(couchbase_get_client_version);
 
 #endif	  /* PHP_COUCHBASE_H */
 
