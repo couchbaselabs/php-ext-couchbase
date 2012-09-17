@@ -1384,7 +1384,6 @@ static void php_couchbase_make_params(struct php_couchbase_connparams_st *cparam
         }
         curstr = newstr;
     }
-
     cparams->host_string = curstr;
 }
 
@@ -1416,11 +1415,11 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 	int host_len = 0, user_len = 0, passwd_len = 0, bucket_len = 0;
 	zend_bool persistent = 0;
 	zval *zvhosts = NULL;
-	struct php_couchbase_connparams_st cparams;
+	struct php_couchbase_connparams_st cparams = { NULL };
 
 	memset(&cparams, 0, sizeof(cparams));
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|sssb",
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zsssb",
 				&zvhosts,
 				&user, &user_len,
 				&passwd, &passwd_len,
@@ -1447,8 +1446,12 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 		        cparams.password = passwd;
 		    }
 		}
+		if (zvhosts == NULL) {
+			char host_localhost[] = "127.0.0.1";
+			php_couchbase_parse_host(host_localhost, sizeof(host_localhost)-1,
+					&cparams TSRMLS_CC);
 
-		if (Z_TYPE_P(zvhosts) == IS_STRING) {
+		} else if (Z_TYPE_P(zvhosts) == IS_STRING) {
 		    if (!php_couchbase_parse_host(
 		            Z_STRVAL_P(zvhosts), Z_STRLEN_P(zvhosts), &cparams TSRMLS_CC)) {
 		        php_couchbase_free_connparams(&cparams);
