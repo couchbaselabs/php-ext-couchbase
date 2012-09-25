@@ -134,6 +134,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get, 0, 0, 2)
 	ZEND_ARG_INFO(0, cache_cb)
 	ZEND_ARG_INFO(1, cas_token)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -142,6 +143,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_multi, 0, 0, 2)
 	ZEND_ARG_ARRAY_INFO(0, keys, 0)
 	ZEND_ARG_ARRAY_INFO(1, cas_tokens, 1)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -151,6 +153,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_delayed, 0, 0, 2)
 	ZEND_ARG_INFO(0, with_cas)
 	ZEND_ARG_INFO(0, cb)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -326,6 +329,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_get, 0, 0, 1)
 	ZEND_ARG_INFO(0, cache_cb)
 	ZEND_ARG_INFO(1, cas_token)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -333,6 +337,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getmulti, 0, 0, 1)
 	ZEND_ARG_ARRAY_INFO(0, keys, 0)
 	ZEND_ARG_ARRAY_INFO(1, cas_tokens, 1)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -341,6 +346,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getdelayed, 0, 0, 1)
 	ZEND_ARG_INFO(0, with_cas)
 	ZEND_ARG_INFO(0, cb)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -1687,6 +1693,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 	lcb_time_t exp = {0};
 	long expiry = 0;
 	zval *res, *cas_token = NULL;
+	zend_bool lock = 0;
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
 	zend_fcall_info fci = {0};
 	zend_fcall_info_cache fci_cache;
@@ -1703,7 +1710,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 		zend_bool preserve_order;
 		int i;
 		if (oo) {
-			if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|zll", &akeys, &cas_token, &flag, &expiry) == FAILURE) {
+			if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|zllb", &akeys, &cas_token, &flag, &expiry, &lock) == FAILURE) {
 				return;
 			}
 			res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -1712,7 +1719,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 				RETURN_FALSE;
 			}
 		} else {
-			if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|zll", &res, &akeys, &cas_token, &flag, &expiry) == FAILURE) {
+			if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|zllb", &res, &akeys, &cas_token, &flag, &expiry, &lock) == FAILURE) {
 				return;
 			}
 		}
@@ -1772,9 +1779,9 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 	} else {
 		if (oo) {
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|f!zl", &key, &klen, &fci, &fci_cache, &cas_token, &expiry) == FAILURE)
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|f!zlb", &key, &klen, &fci, &fci_cache, &cas_token, &expiry, &lock) == FAILURE)
 #else
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|zzl", &key, &klen, &callback, &cas_token, &expiry) == FAILURE)
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|zzlb", &key, &klen, &callback, &cas_token, &expiry, &lock) == FAILURE)
 #endif
 			{
 			   return;
@@ -1786,9 +1793,9 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 			}
 		} else {
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|f!zl", &res, &key, &klen, &fci, &fci_cache, &cas_token, &expiry) == FAILURE)
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|f!zlb", &res, &key, &klen, &fci, &fci_cache, &cas_token, &expiry, &lock) == FAILURE)
 #else
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|zzl", &res, &key, &klen, &callback, &cas_token, &expiry) == FAILURE)
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|zzlb", &res, &key, &klen, &callback, &cas_token, &expiry, &lock) == FAILURE)
 #endif
 			{
 			   return;
@@ -1835,6 +1842,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 			commands[ii] = cmd;
 			cmd->v.v0.key = keys[ii];
 			cmd->v.v0.nkey = klens[ii];
+			cmd->v.v0.lock = (int)lock;
 			cmd->v.v0.exptime = exp; /* NB: this assumes sizeof(lcb_time_t) == sizeof(long) */
 		}
 
@@ -1951,12 +1959,14 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	long with_cas = 0;
 	lcb_time_t exp = {0};
 	long expiry = 0;
+	zend_bool lock = 0;
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
 	zend_fcall_info fci = {0};
 	zend_fcall_info_cache fci_cache;
+
 	if (oo) {
 		zval *self = getThis();
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|lf!l", &akeys, &with_cas, &fci, &fci_cache, &expiry) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|lf!lb", &akeys, &with_cas, &fci, &fci_cache, &expiry, &lock) == FAILURE) {
 			return;
 		}
 		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -1965,7 +1975,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			RETURN_FALSE;
 		}
 	} else {
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lf!l", &res, &akeys, &with_cas, &fci, &fci_cache, &expiry) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lf!lb", &res, &akeys, &with_cas, &fci, &fci_cache, &expiry, &lock) == FAILURE) {
 			return;
 		}
 	}
@@ -1973,7 +1983,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	zval *callback = NULL;
 	if (oo) {
 		zval *self = getThis();
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|lzl", &akeys, &with_cas, &callback, &expiry) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|lzlb", &akeys, &with_cas, &callback, &expiry, &lock) == FAILURE) {
 			return;
 		}
 		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -1982,7 +1992,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			RETURN_FALSE;
 		}
 	} else {
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lzl", &res, &akeys, &with_cas, &callback, &expiry) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|lzlb", &res, &akeys, &with_cas, &callback, &expiry, &lock) == FAILURE) {
 			return;
 		}
 	}
@@ -2055,6 +2065,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 				commands[ii] = cmd;
 				cmd->v.v0.key = keys[ii];
 				cmd->v.v0.nkey = klens[ii];
+				cmd->v.v0.lock = (int)lock;
 				cmd->v.v0.exptime = exp; /* NB: this assumes that sizeof(lcb_time_t) == sizeof(long) */
 			}
 
@@ -3226,14 +3237,14 @@ PHP_METHOD(couchbase, __construct) {
 }
 /* }}} */
 
-/* {{{ proto Couchbase::get(string $key[, callback $cache_cb[, string &$cas_tokey[, int $expiry]]])
+/* {{{ proto Couchbase::get(string $key[, callback $cache_cb[, string &$cas_tokey[, int $expiry[, bool $lock]]]])
  */
 PHP_METHOD(couchbase, get) {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
 }
 /* }}} */
 
-/* {{{ proto Couchbase::getMulti(array $keys[, array &cas[, int $flag[, int $expiry]]])
+/* {{{ proto Couchbase::getMulti(array $keys[, array &cas[, int $flag[, int $expiry[, bool $lock]]]])
  */
 PHP_METHOD(couchbase, getMulti) {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
@@ -3324,7 +3335,7 @@ PHP_METHOD(couchbase, getStats) {
 }
 /* }}} */
 
-/* {{{ proto Couchbase::getDelayed(array $keys[, bool $with_cas[, callback $value_cb[, int $expiry]]])
+/* {{{ proto Couchbase::getDelayed(array $keys[, bool $with_cas[, callback $value_cb[, int $expiry[, bool $locking]]]])
  */
 PHP_METHOD(couchbase, getDelayed) {
 	php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
@@ -3426,14 +3437,14 @@ PHP_FUNCTION(couchbase_connect) {
 }
 /* }}} */
 
-/* {{{ proto couchbase_get(resource $couchbase, string $key[, callback $cache_cb[, string &$cas_tokey[, int $expiry]]])
+/* {{{ proto couchbase_get(resource $couchbase, string $key[, callback $cache_cb[, string &$cas_tokey[, int $expiry[, bool $lock]]]])
  */
 PHP_FUNCTION(couchbase_get) {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
 }
 /* }}} */
 
-/* {{{ proto couchbase_get_multi(resource $couchbase, array $keys[, array &cas[, int $flag[, int $expiry]]])
+/* {{{ proto couchbase_get_multi(resource $couchbase, array $keys[, array &cas[, int $flag[, int $expiry[, bool $lock]]]])
  */
 PHP_FUNCTION(couchbase_get_multi) {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
@@ -3524,7 +3535,7 @@ PHP_FUNCTION(couchbase_get_stats) {
 }
 /* }}} */
 
-/* {{{ proto couchbase_get_delayed(resource $couchbase, array $keys[, bool $with_cas[, callback $value_cb[, int $expiry]]])
+/* {{{ proto couchbase_get_delayed(resource $couchbase, array $keys[, bool $with_cas[, callback $value_cb[, int $expiry[, bool $lock]]]])
  */
 PHP_FUNCTION(couchbase_get_delayed) {
 	php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
