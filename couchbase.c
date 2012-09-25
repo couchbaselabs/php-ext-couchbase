@@ -142,6 +142,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_multi, 0, 0, 2)
 	ZEND_ARG_INFO(0, resource)
 	ZEND_ARG_ARRAY_INFO(0, keys, 0)
 	ZEND_ARG_ARRAY_INFO(1, cas_tokens, 1)
+	ZEND_ARG_INFO(0, flags)
 	ZEND_ARG_INFO(0, expiry)
 	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
@@ -336,6 +337,7 @@ COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getmulti, 0, 0, 1)
 	ZEND_ARG_ARRAY_INFO(0, keys, 0)
 	ZEND_ARG_ARRAY_INFO(1, cas_tokens, 1)
+	ZEND_ARG_INFO(0, flags)
 	ZEND_ARG_INFO(0, expiry)
 	ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
@@ -1415,6 +1417,13 @@ static int _append_host_port(char *oldstr, char **newstr,
     }
 }
 
+static long _check_expiry(long expiry) {
+	if (expiry < 0) {
+		php_error(E_ERROR, "Expiry must not be negative (%d given).", expiry);
+	}
+	return expiry;
+}
+
 static void php_couchbase_make_params(struct php_couchbase_connparams_st *cparams)
 {
     struct php_couchbase_nodeinfo_st *ni;
@@ -1834,7 +1843,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 		int ii;
 
 		if (expiry) {
-			exp = expiry;
+			exp = _check_expiry(expiry);
 		}
 
 		for (ii = 0; ii < nkey; ++ii) {
@@ -2057,7 +2066,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			int ii;
 
 			if (expiry) {
-				exp = expiry;
+				exp = _check_expiry(expiry);
 			}
 
 			for (ii = 0; ii < nkey; ++ii) {
@@ -2220,7 +2229,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 			}
 
 			/* set keyname => false in the return array (will get set to true in the touch callback when/if keyname seen) */
-            zend_hash_add(Z_ARRVAL_P(ctx->rv), keys[i], keyslens[i] + 1, (void **)&fv, sizeof(zval *), NULL);
+            zend_hash_add(Z_ARRVAL_P(return_value), keys[i], keyslens[i] + 1, (void **)&fv, sizeof(zval *), NULL);
 		}
 
 		if (!nkey) {
@@ -2260,6 +2269,9 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		}
 		keys = &key;
 		keyslens = &nkey;
+
+		/* set return value false, will get set to true in the touch callback when/if the operation succeeds */
+		ZVAL_FALSE(return_value);
 	}
 
 	/* main action */
@@ -2269,7 +2281,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		int ii;
 
 		if (expiry) {
-			exp = expiry;
+			exp = _check_expiry(expiry);
 		}
 
 		for (ii = 0; ii < nkeys; ++ii) {
@@ -2463,7 +2475,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 		couchbase_res->seqno += 1;
 
 		if (expire) {
-			exp = expire;
+			exp = _check_expiry(expire);
 		}
 
 		if (cas) {
@@ -2532,7 +2544,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 		array_init(ctx->rv);
 
 		if (expire) {
-			exp = expire;
+			exp = _check_expiry(expire);
 		}
 
 		for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
@@ -2819,7 +2831,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 		}
 
 		if (expire) {
-			exp = expire;
+			exp = _check_expiry(expire);
 		}
 
 		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
@@ -3017,7 +3029,7 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 		ctx->rv = return_value;
 
 		if (expire) {
-			exp = expire;
+			exp = _check_expiry(expire);
 		}
 
 		if (cas) {
