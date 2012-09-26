@@ -1,0 +1,8 @@
+--TEST--
+Connection - ConnectBasic
+--FILE--
+<?php
+include dirname(__FILE__)."/../../cbtestframework/cbtest-phpt-loader.inc";
+couchbase_phpt_runtest("Connection", "testConnectBasic");
+--EXPECT--
+PHP_COUCHBASE_OK

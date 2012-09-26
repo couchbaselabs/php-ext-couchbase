@@ -1,0 +1,10 @@
+_extdir_tmp
+tmp_test.ini
+*.swp
+phpt/*/*.diff
+phpt/*/*.log
+phpt/*/*.out
+phpt/*/*.php
+phpt/*/*.exp
+phpt/*/*.sh
+
