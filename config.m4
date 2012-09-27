@@ -42,13 +42,29 @@ if test "$PHP_COUCHBASE" != "no"; then
 
   LIBNAME=couchbase # you may want to change this
   LIBSYMBOL=lcb_connect # you most likely want to change this
+  BADSYMBOL=libcouchbase_connect
+  ERRMSG="
+        It appears you are using libcouchbase 1.x
+        This DP version of the php extension supports libcouchbase-2.0.0beta
+        or higher. Either use a stable 1.0 version of the php extension,
+        upgrade your libcouchbase, or specify the location of a
+        libcouchbase-2.0.0 installation with --with-couchbase"
+
+  PHP_CHECK_LIBRARY($LIBNAME, $BADSYMBOL,
+  [
+    PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $COUCHBASE_DIR/lib, COUCHBASE_SHARED_LIBADD)
+    HAVE_VERSION_MISMATCH="yes"
+  ], [])
 
   PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
   [
     PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $COUCHBASE_DIR/lib, COUCHBASE_SHARED_LIBADD)
     AC_DEFINE(HAVE_COUCHBASELIB,1,[ ])
   ],[
-    AC_MSG_ERROR([wrong couchbase lib version or lib not found])
+    if test -n "$HAVE_VERSION_MISMATCH"; then
+      AC_MSG_ERROR([$ERRMSG])
+    fi
+    AC_MSG_ERROR([libcouchbase not found])
   ],[
     -L$COUCHBASE_DIR/lib -l$LIBNAME
   ])
