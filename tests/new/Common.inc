@@ -85,6 +85,65 @@ abstract class CouchbaseTestCommon extends CBTestFramework
         $curval = intval($curval);
         return ($wantval <= $curval);
     }
+
+    /**
+     * Invoke a function in a 'safe' context and capture any fatals
+     *
+     * @param func the function to call
+     * @param args the arguments to pass to the function
+     * @param expr a regular expression the output should match
+     */
+    protected function
+    assertFatalRegexp($func, $args, $expr, $maxwait = 10, $msg = "") {
+
+        $tmpfile = tempnam("", "php_couchbase_tests-");
+        $pid = pcntl_fork();
+
+        if (!$pid) {
+            fclose(STDOUT);
+            global $STDOUT;
+            global $STDERR;
+
+            $STDERR = fopen($tmpfile, "a");
+            $STDOUT = STDERR;
+
+            pcntl_alarm($maxwait);
+            call_user_func_array($func, $args);
+
+            exit(0);
+        }
+
+        pcntl_waitpid($pid, $status);
+        $lines = file($tmpfile);
+        $txt = join(" ", $lines);
+
+        $found_match = preg_match($expr, $txt) > 0;
+        unlink($tmpfile);
+        $this->assertRegExp($expr, $txt, $msg);
+        return true;
+    }
+
+    /**
+     * Invoke a function in a 'safe' context and assert that the exception's
+     * message matches the regular expression
+     *
+     * @param func the function to invoke
+     * @param args the arguments to pass
+     * @param expr a regular expression the output should match
+     */
+    protected function
+    assertExceptionRegexp($func, $args, $expr, $msg = "") {
+        $errmsg = NULL;
+        try {
+            call_user_func_array($func, $args);
+        } catch (Exception $exc) {
+            $errmsg = $exc->getMessage();
+        }
+
+        $this->assertNotNull($errmsg);
+        $this->assertRegExp($expr, $errmsg, $msg);
+        return true;
+    }
 }
 
 ?>

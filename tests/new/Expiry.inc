@@ -93,25 +93,4 @@ class Expiry extends CouchbaseTestCommon {
     function testArithmeticExpiry() {
         $this->markTestIncomplete("Waiting for docs");
     }
-
-    /**
-     * @test Test negative expiry
-     * @pre Set a key with a negative expiry
-     * @post Error is raised
-     * @test_plans{2.9.3}
-     */
-    function testNegativeExpirySet() {
-        $oo = $this->getPersistOO();
-        $k = $this->mk_key();
-        $v = "a value";
-
-        $msg = NULL;
-        try {
-            $rv = $oo->set($k, $v, -1);
-        } catch (Exception $e) {
-            $msg = $exc->getMessage();
-        }
-        $this->assertNotNull($msg);
-        $this->markTestIncomplete("Need to figure out the right message here");
-    }
 }

@@ -19,6 +19,7 @@
             <file>Prefix.inc</file>
             <file>Compression.inc</file>
             <file>NonASCII.inc</file>
+            <file>NegativeExpiry.inc</file>
         </testsuite>
     </testsuites>
 </phpunit>
