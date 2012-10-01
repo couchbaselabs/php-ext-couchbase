@@ -4,6 +4,14 @@ require_once 'Common.inc';
 class NegativeExpiry extends CouchbaseTestCommon {
 
     static $expiryRegexp = "/Expiry must not be negative/";
+
+    function skipALL() {
+        parent::skipALL();
+        if (!function_exists("pcntl_fork")) {
+            $this->markTestSkipped("need pcntl");
+        }
+    }
+
     /**
      * @test Test negative expiry
      * @pre Set a key with a negative expiry

@@ -33,15 +33,22 @@ foreach ($lines as $line) {
         $fname = "$clspath/$test_base.phpt";
         $fp = fopen($fname, "w");
 
+        $inc_line = 'include dirname(__FILE__).';
+        $inc_line .= '"/../../cbtestframework/cbtest-phpt-loader.inc";';
 
         // Boilerplate:
-
         fprintf($fp, <<<EOF
 --TEST--
 $clsname - $test_base
+
+--SKIPIF--
+<?php
+$inc_line
+couchbase_phpt_skipif("$clsname", "$name");
+
 --FILE--
 <?php
-include dirname(__FILE__)."/../../cbtestframework/cbtest-phpt-loader.inc";
+$inc_line
 couchbase_phpt_runtest("$clsname", "$name");
 --EXPECT--
 PHP_COUCHBASE_OK

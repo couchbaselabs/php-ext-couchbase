@@ -14,9 +14,14 @@ abstract class CouchbaseTestCommon extends CBTestFramework
     static $_handle = NULL;
     static $_oo = NULL;
 
+    function skipALL() {
+
+    }
+
     protected function setUp() {
         $this->handle = make_handle();
         $this->oo = make_handle_oo();
+        $this->skipALL();
     }
 
     /**

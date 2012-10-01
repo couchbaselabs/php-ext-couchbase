@@ -1,5 +1,11 @@
 --TEST--
 MutateBasic - Flush
+
+--SKIPIF--
+<?php
+include dirname(__FILE__)."/../../cbtestframework/cbtest-phpt-loader.inc";
+couchbase_phpt_skipif("MutateBasic", "testFlush");
+
 --FILE--
 <?php
 include dirname(__FILE__)."/../../cbtestframework/cbtest-phpt-loader.inc";
