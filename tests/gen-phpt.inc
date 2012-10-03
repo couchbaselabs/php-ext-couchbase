@@ -1,5 +1,4 @@
-#!/usr/bin/php
-
+#!/usr/bin/env php
 <?php
 
 $OUTPUT = "phpt";
@@ -10,6 +9,8 @@ class CBTestFramework { }
 
 system("rm -rf $OUTPUT");
 mkdir($OUTPUT);
+
+print "Building phpt's for:\n";
 
 foreach ($lines as $line) {
     $line = chop($line);
@@ -54,5 +55,8 @@ couchbase_phpt_runtest("$clsname", "$name");
 PHP_COUCHBASE_OK
 EOF
 );
-    }
+	}
+	print "  * $line\n";
 }
+
+print "done\n";

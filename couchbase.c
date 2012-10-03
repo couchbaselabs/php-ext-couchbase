@@ -1419,7 +1419,7 @@ static int _append_host_port(char *oldstr, char **newstr,
 
 static long _check_expiry(long expiry) {
 	if (expiry < 0) {
-		php_error(E_ERROR, "Expiry must not be negative (%d given).", expiry);
+		php_error(E_RECOVERABLE_ERROR, "Expiry must not be negative (%d given).", expiry);
 	}
 	return expiry;
 }

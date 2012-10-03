@@ -120,10 +120,10 @@ abstract class CouchbaseTestCommon extends CBTestFramework
 
         pcntl_waitpid($pid, $status);
         $lines = file($tmpfile);
+		die("line count: ".count($lines));
         $txt = join(" ", $lines);
 
         $found_match = preg_match($expr, $txt) > 0;
-        unlink($tmpfile);
         $this->assertRegExp($expr, $txt, $msg);
         return true;
     }

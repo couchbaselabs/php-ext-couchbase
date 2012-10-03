@@ -1,3 +1,4 @@
+Extension
 Connection
 MutateBasic
 Arithmetic
@@ -7,6 +8,8 @@ Expiry
 Errors
 Delete
 AppendPrepend
+Store
+Get
 GetMulti
 Delay
 ServerStats
@@ -18,4 +21,5 @@ MissCB
 Replace
 NonASCII
 ViewSimple
+Flush
 NegativeExpiry

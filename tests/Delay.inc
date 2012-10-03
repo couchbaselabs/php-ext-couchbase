@@ -204,6 +204,7 @@ class Delay extends CouchbaseTestCommon {
         $rv = couchbase_get_delayed($h, array_keys($keys), false);
         $this->assertTrue($rv);
 
+		if (!is_array($values)) { $values = array(); }
         while ($row = couchbase_fetch($h)) {
             array_push($values, $row);
         }

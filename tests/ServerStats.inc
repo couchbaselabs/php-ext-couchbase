@@ -21,9 +21,9 @@ class ServerStats extends CouchbaseTestCommon {
 
     function testIssue115() {
         $stats = $this->getPersistOO()->getStats();
-        /** @todo this shouldl also test for PCBC-115 */
         foreach ($stats as $endpoint => $hash) {
             $this->assertArrayHasKey($endpoint, $stats);
+			$this->assertArrayHasKey('ep_version', $hash); // PCBC-115
 
             foreach ($hash as $sname => $sval) {
                 $this->assertArrayHasKey($sname, $hash);

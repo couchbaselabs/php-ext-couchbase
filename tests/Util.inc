@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__).'/../couchbase.inc';
+require_once dirname(__FILE__).'/couchbase.inc';
 function make_handle() {
     $handle = couchbase_connect(COUCHBASE_CONFIG_HOST,
                                COUCHBASE_CONFIG_USER,

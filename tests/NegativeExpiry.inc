@@ -3,7 +3,7 @@ require_once 'Common.inc';
 
 class NegativeExpiry extends CouchbaseTestCommon {
 
-    static $expiryRegexp = "/Expiry must not be negative/";
+    static $expiryRegexp = "/^Expiry must not be negative.+/";
 
     function skipALL() {
         parent::skipALL();
@@ -20,7 +20,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
      * @bug PCBC-117
      */
     function testAdd() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->add("key", "value", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -28,7 +28,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testSet() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo','$oo->set("key", "value", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -36,7 +36,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testReplace() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->replace("key", "value", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -44,7 +44,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testAppend() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->append("key", "value", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -53,7 +53,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
 
     function testSetMulti() {
         $kv = array("k1" => "v1", "k2" => "v2");
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo, $kv', '$oo->setMulti($kv, -1);'),
             array($this->getPersistOO(), $kv),
             self::$expiryRegexp
@@ -61,7 +61,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testCas() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->cas("123456", "key", "value", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -69,7 +69,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testIncrement() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->increment("key", 1, false, -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -77,7 +77,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testGetAndTouch() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->get("key", NULL, $ignored, -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -89,7 +89,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
 
         $this->getPersistOO()->setMulti($kv);
 
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo,$kv',
                             'var_dump($oo->getMulti($kv, $casary, NULL, -1));'),
 
@@ -99,7 +99,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     }
 
     function testTouch() {
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo', '$oo->touch("key", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
@@ -108,7 +108,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
 
     function testTouchMulti() {
         $kv = array("k1" => "v1", "k2" => "v2");
-        $this->assertFatalRegexp(
+        $this->assertExceptionRegexp(
             create_function('$oo, $kv', '$oo->touchMulti($kv, -1);'),
             array($this->getPersistOO(), $kv),
             self::$expiryRegexp

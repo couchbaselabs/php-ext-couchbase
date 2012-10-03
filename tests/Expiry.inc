@@ -50,13 +50,9 @@ class Expiry extends CouchbaseTestCommon {
      *
      * This is like @ref testExpirySetOO
      *
-     * @todo Not implemented in the client
-     * @warning This feature is not implemented in the client
-     *
      * @group slow
      */
     function testExpiryTouch() {
-        $this->markTestSkipped("Touch not implemented");
         $oo = $this->oo;
         $key = $this->mk_key();
         $oo->set($key, "foo");
@@ -65,8 +61,10 @@ class Expiry extends CouchbaseTestCommon {
         $this->assertEquals("foo",
                             $oo->get($key),
                             "Key exists");
-        sleep(2);
-        $this->assertNull($o->get($key));
+
+		sleep(2);
+
+        $this->assertNull($oo->get($key));
     }
 
     /**
@@ -75,22 +73,78 @@ class Expiry extends CouchbaseTestCommon {
      * @group slow
      */
     function textExpiryTouchZero() {
-        $this->markTestSkipped("Touch not implemented");
         $oo = $this->oo;
         $key = $this->mk_key();
         $oo->set($key, "foo");
         $oo->touch($key, 0);
-        # what happens here?
-        sleep(2);
+
+		sleep(2);
+
         $this->assertEquals("foo", $oo->get($key));
     }
 
     /**
-     * test Expiry (arithmetic)
-     * @todo Document this function
-     * @todo Implement this!
+     * @test Expiry (arithmetic)
+     * 
+	 * Tests setting expiry time as part of increment/decrement operations on a numeric key.
+	 *
+	 * @group slow
      */
     function testArithmeticExpiry() {
-        $this->markTestIncomplete("Waiting for docs");
+		$oo = $this->oo;
+		$key = $this->mk_key();
+		
+		$oo->set($key, 42);
+		
+		$oo->increment(1, 1);
+		$oo->decrement(1, 1);
+
+		sleep(2);
+
+		$this->assertNull($oo->get($key));
+    }
+
+	/**
+	 * @test Touch-Multi (expiry)
+	 * 
+	 * This tests touching multiple items at once to set an expiry time.
+	 *
+	 * @group slow
+	 */
+	function testExpiryTouchMulti() {
+		$oo = $this->oo;
+		$keys = $this->makeKvPairs();
+
+		foreach ($keys as $k => $v) {
+			$oo->set($k, $v);
+		}
+
+		$oo->touchMulti(array_keys($keys), 1);
+
+		sleep(2);
+
+		$values = $oo->getMulti(array_keys($keys));
+
+		$this->assertTrue(sizeof($values) == 0);
+	}
+
+    /**
+     * @test Test negative expiry
+     * @pre Set a key with a negative expiry
+     * @post Error is raised
+     * @test_plans{2.9.3}
+     */
+    function testNegativeExpirySet() {
+        $oo = $this->getPersistOO();
+        $k = $this->mk_key();
+        $v = "a value";
+
+        $msg = NULL;
+        try {
+            $rv = $oo->set($k, $v, -1);
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+        }
+        $this->assertRegExp('/^Expiry must not be negative.+/',$msg);
     }
 }
