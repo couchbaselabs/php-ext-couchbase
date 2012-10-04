@@ -1269,6 +1269,7 @@ static void php_couchbase_stat_callback(lcb_t handle,
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
     const char* server_endpoint = resp->v.v0.server_endpoint;
     const void* key = resp->v.v0.key;
+	char* string_key;
     size_t nkey = resp->v.v0.nkey;
     const void* bytes = resp->v.v0.bytes;
     size_t nbytes = resp->v.v0.nbytes;
@@ -1295,14 +1296,12 @@ static void php_couchbase_stat_callback(lcb_t handle,
 			zend_hash_add(Z_ARRVAL_P(ctx->rv), (char *)server_endpoint, strlen(server_endpoint) + 1, (void **)&node, sizeof(zval *), NULL);
 		}
 
-		char *string_key = emalloc(nkey + 1);
+		string_key = emalloc(nkey + 1);
 		memcpy(string_key, key, nkey);
 		string_key[nkey] = '\0';
 
-		MAKE_STD_ZVAL(val);
-		ZVAL_STRINGL(val, (char *)bytes, nbytes, 1);
+		add_assoc_string(node, string_key, (char *)bytes, 1);
 
-		zend_hash_add(Z_ARRVAL_P(node), string_key, nkey + 1, (void **)&val, sizeof(zval *), NULL);
 		efree(string_key);
 	}
 }
