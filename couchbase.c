@@ -1103,6 +1103,8 @@ php_couchbase_touch_callback(lcb_t handle,
     php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
     const char* key = (char *)resp->v.v0.key;
     lcb_size_t nkey = resp->v.v0.nkey;
+	char *string_key;
+
     // TODO: is cas needed? existing php docs don't say anything about it being used, but it's in the resp struct...
     // lcb_cas_t cas = resp->v.v0.cas;
 
@@ -1117,10 +1119,13 @@ php_couchbase_touch_callback(lcb_t handle,
     } else if (nkey > 0) {
         if (IS_ARRAY == Z_TYPE_P(ctx->rv)) {
             // set (key name => true) within return value associative array (we did touch it)
-            zval *v;
-            MAKE_STD_ZVAL(v);
-            ZVAL_BOOL(v, 1);
-            zend_hash_update(Z_ARRVAL_P(ctx->rv), key, nkey + 1, (void **)&v, sizeof(zval *), NULL);
+		    string_key = emalloc(nkey + 1);
+			memcpy(string_key, key, nkey);
+			string_key[nkey] = '\0';
+
+            add_assoc_bool(ctx->rv, string_key, (zend_bool)1);
+
+			efree(string_key);
         } else {
             // set return val to true (we touched the one thing we set out to touch)
             ZVAL_BOOL(ctx->rv, 1);
@@ -2201,8 +2206,6 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		keyslens = ecalloc(nkeys, sizeof(long));
 
 		array_init(return_value);
-		MAKE_STD_ZVAL(fv);
-		ZVAL_BOOL(fv, 0);
 
 		for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(arr_keys));
 				zend_hash_has_more_elements(Z_ARRVAL_P(arr_keys)) == SUCCESS;
@@ -2229,7 +2232,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 			}
 
 			/* set keyname => false in the return array (will get set to true in the touch callback when/if keyname seen) */
-            zend_hash_add(Z_ARRVAL_P(return_value), keys[i], keyslens[i] + 1, (void **)&fv, sizeof(zval *), NULL);
+            add_assoc_bool(return_value, keys[i], (zend_bool)0);
 		}
 
 		if (!nkey) {
@@ -2343,7 +2346,6 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		if (multi) {
 			efree(keys);
 			efree(keyslens);
-			zval_dtor(return_value);
 		}
 	}
 }
