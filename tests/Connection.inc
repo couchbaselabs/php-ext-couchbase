@@ -44,31 +44,55 @@ class Connection extends CouchbaseTestCommon
      *
      * @post
      * Appropriate error message
+     * - pure functional api: E_WARNING raised, false returned
+     * - OO: E_WARNING raised, object handle can have getResultCode/Message() called
+     *
+     * @variants
+     * pure functional, OO
      *
      * @test_plans{1.3}
      */
     function testConnectBad() {
-        $handle = NULL;
+        // first, make sure the warning gets raised:
+        // (the default error handler from CBTestFramework will turn it into an exception)
         try {
             $handle = couchbase_connect(COUCHBASE_CONFIG_HOST,
                                         'bad_username',
                                         'bad_password',
                                         COUCHBASE_CONFIG_BUCKET);
-        } catch (Exception $exc) {
-            $this->assertRegExp("/auth/i", $exc->getMessage());
+        } catch (Exception $e) {
+            $this->assertRegexp('/failed/i', $e->getMessage());
         }
-
-        $this->assertNull($handle, "Bad connection parameters makes NULL handle");
 
         try {
             $handle = couchbase_connect(COUCHBASE_CONFIG_HOST,
                                         COUCHBASE_CONFIG_USER,
                                         COUCHBASE_CONFIG_PASSWD,
                                         "non-existent-bucket....blah...");
-        } catch (Exception $exc) {
-
+        } catch (Exception $e) {
+            $this->assertRegexp('/failed/i', $e->getMessage());
         }
-        $this->assertNull($handle, "Invalid bucket OK");
+
+        // now, make sure the value would be false:
+        $this->setErrorsRaiseException(false);
+
+        $handle = couchbase_connect(COUCHBASE_CONFIG_HOST,
+                                    'bad_username',
+                                    'bad_password',
+                                    COUCHBASE_CONFIG_BUCKET);
+
+        $this->assertFalse($handle,
+                           "Invalid auth credentials make for a false ".
+                           "connection handle");
+
+        $handle = couchbase_connect(COUCHBASE_CONFIG_HOST,
+                                    COUCHBASE_CONFIG_USER,
+                                    COUCHBASE_CONFIG_PASSWD,
+                                    "non-existent-bucket....blah...");
+        $this->assertFalse($handle,
+                           "Invalid bucket makes for a false connection handle");
+
+        $this->setErrorsRaiseException(true);
     }
 
     /** @test_plans{1.1} */
@@ -80,13 +104,43 @@ class Connection extends CouchbaseTestCommon
         $this->assertInstanceOf('Couchbase', $handle, 'Item is a Couchbase (OO)');
     }
 
+    /**
+     * @test testConnectBadOO
+     * @see testConnectBad
+     */
+    function testConnectBadOO() {
+        // first, check that warning is thrown (see comments in testConnectBad)
+        try {
+            $oo = new Couchbase('http://999.999.999.999:9999',
+                                'bad-user',
+                                'bad-password',
+                                'does-not-exist');
+
+        } catch (Exception $e) {
+            $this->assertRegExp('/failed/i', $e->getMessage());
+        }
+
+        // now, make sure the object would support the given operations:
+        $this->setErrorsRaiseException(false);
+
+        $oo = new Couchbase('http://999.999.999.999:9999',
+                            'bad-user',
+                            'bad-password',
+                            'does-not-exist');
+
+        $this->assertGreaterThan(0, $oo->getResultCode());
+        $this->assertNotNull($oo->getResultMessage());
+        $this->assertNotEquals("", $oo->getResultMessage());
+
+        $this->setErrorsRaiseException(true);
+    }
 
     function testConnectUri() {
         $url = sprintf("htTp://%s:%s@%s/%s",
-                        COUCHBASE_CONFIG_USER,
-                        COUCHBASE_CONFIG_PASSWD,
-                        COUCHBASE_CONFIG_HOST,
-                        COUCHBASE_CONFIG_BUCKET);
+                       COUCHBASE_CONFIG_USER,
+                       COUCHBASE_CONFIG_PASSWD,
+                       COUCHBASE_CONFIG_HOST,
+                       COUCHBASE_CONFIG_BUCKET);
         $handle = couchbase_connect($url);
         $this->assertInternalType('resource', $handle);
         $handle = new Couchbase($url);
@@ -112,40 +166,50 @@ class Connection extends CouchbaseTestCommon
     function testConnectBadUri() {
         # PCBC-74
         $url = "http://127.0.0.1:1";
-        $exmsg = NULL;
-        try {
-            $o = new Couchbase($url);
-        } catch (Exception $exc) {
-            $exmsg = $exc->getMessage();
-        }
-        # No segfaults? we're good!
-        $this->assertNotNull($exmsg);
-        $this->assertContains('Failed to connect', $exmsg);
+        $this->assertExceptionRegexp(function ($u) { return couchbase_connect($u);},
+                                     array($url),
+                                     "/failed/i");
+
+        $this->assertExceptionRegexp(function ($u) { return new Couchbase($u); },
+                                     array($url),
+                                     "/failed/i");
+
+        $this->setErrorsRaiseException(false); // disable exception-raising error handler
+
+        $h = couchbase_connect($url);
+        $this->assertFalse($h);
+
+        $o = new Couchbase($url);
+        $this->assertEquals(23, $o->getResultCode()); // 23 = 0x17 = LCB_CONNECT_ERROR
+        $this->assertContains('Connection', $o->getResultMessage());
 
         # Try with a malformed uri
-        $exmsg = NULL;
-        try {
-            $url = "http://";
-            $o = new Couchbase($url);
-        } catch (Exception $exc) {
-            $exmsg = $exc->getMessage();
-        }
-        $this->assertNotNull($exmsg);
-        $this->assertContains('malformed', $exmsg);
+        $this->setErrorsRaiseException(true);
+        $url = "http://";
+        $this->assertExceptionRegexp(function ($u) { return couchbase_connect($u); },
+                                     array($url),
+                                     "/malformed/i");
 
-        # try with an array.
+        $this->assertExceptionRegexp(function($u) { return new Couchbase($u); },
+                                     array($url),
+                                     "/malformed/i");
+
+        $this->setErrorsRaiseException(false); // then disable again
+        
+        # try with an array. (not sure if we need to check for connection
+        # warnings yet again here,
+        # as it'd all be going through the same C code path re: connection...)
         if ($this->atLeastVersion(array(1,0,5))) {
-            $exmsg = NULL;
-            try {
-                $o = new Couchbase(
-                    array("http://127.0.0.1:1")
-                );
-            } catch (Exception $exc) {
-                $exmsg = $exc->getMessage();
-            }
-            $this->assertNotNull($exmsg);
-            $this->assertContains('Failed to connect', $exmsg);
+            $hosts = array("http://127.0.0.1:1");
+
+            $h = couchbase_connect($hosts);
+            $this->assertFalse($h);
+
+            $o = new Couchbase($hosts);
+            $this->assertEquals(23, $o->getResultCode()); // see note above re: 23
+            $this->assertContains('Connection', $o->getResultMessage());
         }
+
     }
 
     /**
@@ -214,11 +278,11 @@ class Connection extends CouchbaseTestCommon
      */
     function testPersistentConnection() {
         for ($ii = 0; $ii < 2; $ii++) {
-            $o =  couchbase_connect(COUCHBASE_CONFIG_HOST,
-                                COUCHBASE_CONFIG_USER,
-                                COUCHBASE_CONFIG_PASSWD,
-                                COUCHBASE_CONFIG_BUCKET,
-                                true);
+            $o = couchbase_connect(COUCHBASE_CONFIG_HOST,
+                                   COUCHBASE_CONFIG_USER,
+                                   COUCHBASE_CONFIG_PASSWD,
+                                   COUCHBASE_CONFIG_BUCKET,
+                                   true);
             $obj[$ii] = $o;
         }
 
@@ -228,11 +292,9 @@ class Connection extends CouchbaseTestCommon
             "No way of verifying the objects are indentical");
 
         $this->assertEquals($obj[0], $obj[1],
-                            "Persistent connection returns ".
-                            "same resource object");
+            "Persistent connection returns ".
+            "same resource object");
     }
 }
-
-
 
 ?>

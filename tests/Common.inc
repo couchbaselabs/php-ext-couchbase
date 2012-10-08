@@ -19,6 +19,7 @@ abstract class CouchbaseTestCommon extends CBTestFramework
     }
 
     protected function setUp() {
+        $this->setErrorsRaiseException(true);
         $this->handle = make_handle();
         $this->oo = make_handle_oo();
         $this->skipALL();
@@ -89,6 +90,29 @@ abstract class CouchbaseTestCommon extends CBTestFramework
         $wantval = intval($wantval);
         $curval = intval($curval);
         return ($wantval <= $curval);
+    }
+
+    /**
+     * Make all warnings raise an error exception. This is the
+     * default, but might help to do so explicitly.
+     *
+     * @param $b boolean, whether to raise an ErrorException for the
+     * error handler
+     *
+     * @return the old error handler
+     */
+    protected function setErrorsRaiseException($b = true) {
+        $ret = NULL;
+        if ($b) {
+            $ret = set_error_handler(
+                function ($errno,$errstr,$errfile,$errline,$errctx) {
+                    throw new ErrorException(
+                        $errstr, $errno, $errno, $errfile, $errline);
+                });
+        } else {
+            $ret = set_error_handler(function() { });
+        }
+        return $ret;
     }
 
     /**

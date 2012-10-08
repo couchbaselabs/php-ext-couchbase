@@ -221,6 +221,10 @@ static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 
 	ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1,
 						 PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
+	if (!couchbase_res->is_connected) {
+		php_error(E_WARNING, "There is no active connection to couchbase.");
+		RETURN_FALSE;
+	}
 	if (couchbase_res->async) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
 				"there are some results should be fetched "

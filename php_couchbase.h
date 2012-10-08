@@ -108,6 +108,7 @@ typedef struct _php_couchbase_res {
 	char *prefix_key;
 	int prefix_key_len;
 	lcb_error_t rc; /* returned code */
+    unsigned char is_connected;
 } php_couchbase_res;
 
 typedef struct _php_couchbase_ctx {
