@@ -948,7 +948,7 @@ static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const 
 	 * like a apache server, process will be hanged by event_loop
 	 */
 	if (ctx && ctx->res->seqno < 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 }
 /* }}} */
@@ -974,7 +974,7 @@ php_couchbase_get_callback(lcb_t instance,
 	php_ignore_value(instance);
 
 	if (--ctx->res->seqno == 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 
 	if (resp->version != 0) {
@@ -990,7 +990,7 @@ php_couchbase_get_callback(lcb_t instance,
 
 	ctx->res->rc = error;
 	if (LCB_SUCCESS != error && LCB_KEY_ENOENT != error) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 		return;
 	}
 
@@ -1109,7 +1109,7 @@ php_couchbase_touch_callback(lcb_t handle,
     // lcb_cas_t cas = resp->v.v0.cas;
 
 	if (--ctx->res->seqno == 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 
 	ctx->res->rc = error;
@@ -1150,7 +1150,7 @@ php_couchbase_store_callback(lcb_t instance,
 	php_ignore_value(operation);
 
 	if (--ctx->res->seqno == 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 
 	if (resp->version != 0) {
@@ -1206,7 +1206,7 @@ php_couchbase_remove_callback(lcb_t instance,
 	php_ignore_value(resp);
 
 	if (--ctx->res->seqno == 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 
 	ctx->res->rc = error;
@@ -1223,7 +1223,7 @@ static void php_couchbase_flush_callback(lcb_t handle,
 	php_ignore_value(handle);
 
 	if (--ctx->res->seqno == 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 
 	if (server_endpoint) {
@@ -1244,7 +1244,7 @@ php_couchbase_arithmetic_callback(lcb_t instance,
 	php_ignore_value(instance);
 
 	if (--ctx->res->seqno == 0) {
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 	}
 
 	ctx->res->rc = error;
@@ -1279,7 +1279,7 @@ static void php_couchbase_stat_callback(lcb_t handle,
 	ctx->res->rc = error;
 	if (LCB_SUCCESS != error || nkey == 0) {
 		--ctx->res->seqno;
-		ctx->res->io->stop_event_loop(ctx->res->io);
+		stop_loop(ctx->res->io);
 		return;
 	} else if (nkey > 0) {
 		zval *node, *val;
@@ -1322,7 +1322,7 @@ php_couchbase_version_callback(lcb_t handle,
     ctx->res->rc = error;
     if (LCB_SUCCESS != error || nversion_string == 0 || server_endpoint == NULL) {
         --ctx->res->seqno;
-        ctx->res->io->stop_event_loop(ctx->res->io);
+        stop_loop(ctx->res->io);
         return;
     } else if (nversion_string > 0) {
         zval *v;
@@ -1901,7 +1901,7 @@ static void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int 
 		}
 
 		couchbase_res->seqno += nkey;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			if (LCB_KEY_ENOENT == ctx->res->rc) {
 				if (
@@ -2142,7 +2142,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			MAKE_STD_ZVAL(result);
 			array_init(result);
 			ctx->rv = result;
-			couchbase_res->io->run_event_loop(couchbase_res->io);
+			run_loop(couchbase_res->io);
 			couchbase_res->async = 0;
 			for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(result));
 					zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
@@ -2347,7 +2347,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		}
 
 		couchbase_res->seqno += keycount;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed touch request: %s",
 					lcb_strerror(couchbase_res->handle, ctx->res->rc));
@@ -2424,7 +2424,7 @@ fetch_one:
 		array_init(return_value);
 		ctx->rv = return_value;
 
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (!multi) {
 			zval *stash;
 			MAKE_STD_ZVAL(stash);
@@ -2647,7 +2647,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 		couchbase_res->seqno += nkey;
 	}
 	{
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (IS_ARRAY != Z_TYPE_P(return_value)) {
 			if (LCB_SUCCESS != ctx->res->rc) {
 				RETVAL_FALSE;
@@ -2742,7 +2742,7 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 		}
 
 		couchbase_res->seqno += 1;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS == ctx->res->rc) {
 			if (oo) {
 				RETVAL_ZVAL(getThis(), 1, 0);
@@ -2812,7 +2812,7 @@ static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		}
 
 		couchbase_res->seqno += 1;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			if(ctx->extended_value) {
 				efree(ctx->extended_value);
@@ -2904,7 +2904,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 		}
 
 		couchbase_res->seqno += 1;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			// Just return false and don't print a warning when no key is present and create is false
 			if(!(LCB_KEY_ENOENT == ctx->res->rc && create == 0)) {
@@ -2968,7 +2968,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		}
 
 		couchbase_res->seqno += 1;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
 					"Failed to stat: %s",ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
@@ -3029,7 +3029,7 @@ static void php_couchbase_version_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* 
         }
 
         couchbase_res->seqno += 1;
-        couchbase_res->io->run_event_loop(couchbase_res->io);
+        run_loop(couchbase_res->io);
         if (LCB_SUCCESS != ctx->res->rc) {
             php_error_docref(NULL TSRMLS_CC, E_WARNING,
                     "Failed to fetch server version (%u): %s", ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
@@ -3130,7 +3130,7 @@ static void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 		}
 
 		++couchbase_res->seqno;
-		couchbase_res->io->run_event_loop(couchbase_res->io);
+		run_loop(couchbase_res->io);
 		zval_dtor(return_value);
 		if (LCB_SUCCESS == ctx->res->rc) {
 			ZVAL_TRUE(return_value);
@@ -3841,6 +3841,30 @@ PHP_MINFO_FUNCTION(couchbase)
 	DISPLAY_INI_ENTRIES();
 }
 /* }}} */
+
+void stop_loop(struct lcb_io_opt_st *io)
+{
+	switch (io->version) {
+	case 0:
+		io->v.v0.stop_event_loop(io);
+		break;
+	default:
+		/* do nothing */
+		return;
+	}
+}
+
+void run_loop(struct lcb_io_opt_st *io)
+{
+	switch (io->version) {
+	case 0:
+		io->v.v0.run_event_loop(io);
+		break;
+	default:
+		/* do nothing */
+		return;
+	}
+}
 
 /*
  * Local variables:

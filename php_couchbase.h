@@ -119,6 +119,9 @@ typedef struct _php_couchbase_ctx {
 	void *extended_value;
 } php_couchbase_ctx;
 
+void stop_loop(struct lcb_io_opt_st *io);
+void run_loop(struct lcb_io_opt_st *io);
+
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
 	char serializer_real;
 	char *serializer;
