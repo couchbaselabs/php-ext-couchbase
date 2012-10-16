@@ -189,5 +189,5 @@ if test "$PHP_COUCHBASE" != "no"; then
   dnl PHP_ADD_LIBRARY(event, 1, COUCHBASE_SHARED_LIBADD)
   PHP_SUBST(COUCHBASE_SHARED_LIBADD)
 
-  PHP_NEW_EXTENSION(couchbase, couchbase.c views.c, $ext_shared)
+  PHP_NEW_EXTENSION(couchbase, couchbase.c views.c observe.c ht.c resmgr.c misc.c, $ext_shared)
 fi

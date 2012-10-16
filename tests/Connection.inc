@@ -169,8 +169,8 @@ class Connection extends CouchbaseTestCommon
         $this->assertExceptionRegexp(function ($u) { return couchbase_connect($u);},
                                      array($url),
                                      "/failed/i");
-
-        $this->assertExceptionRegexp(function ($u) { return new Couchbase($u); },
+		
+		$this->assertExceptionRegexp(function ($u) { return new Couchbase($u); },
                                      array($url),
                                      "/failed/i");
 
@@ -186,9 +186,6 @@ class Connection extends CouchbaseTestCommon
         # Try with a malformed uri
         $this->setErrorsRaiseException(true);
         $url = "http://";
-        $this->assertExceptionRegexp(function ($u) { return couchbase_connect($u); },
-                                     array($url),
-                                     "/malformed/i");
 
         $this->assertExceptionRegexp(function($u) { return new Couchbase($u); },
                                      array($url),

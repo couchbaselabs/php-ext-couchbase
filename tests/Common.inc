@@ -13,6 +13,7 @@ abstract class CouchbaseTestCommon extends CBTestFramework
 {
     static $_handle = NULL;
     static $_oo = NULL;
+    private $old_eh = NULL;
 
     function skipALL() {
 
@@ -110,8 +111,35 @@ abstract class CouchbaseTestCommon extends CBTestFramework
                         $errstr, $errno, $errno, $errfile, $errline);
                 });
         } else {
+
             $ret = set_error_handler(function() { });
         }
+
+        $this->old_eh = $ret;
+        return $ret;
+    }
+
+    /**
+     * Should be called when wishing to restore default behavior
+     */
+    protected function restoreErrorHandler() {
+        set_error_handler($this->old_eh);
+    }
+
+    /**
+     * Capture errors, warnings etc. and append them to the variable
+     * @param str a string which is appended to
+     * @return the old error handler
+     */
+    protected function setCaptureError(&$str) {
+        $ret = set_error_handler(
+            function($errno, $errstr, $errfile, $errline, $errctx)
+            use (&$str) {
+                $str .= $errstr;
+            }
+        );
+
+        $this->old_eh = $ret;
         return $ret;
     }
 

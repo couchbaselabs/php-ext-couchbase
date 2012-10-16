@@ -96,6 +96,11 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_SET_COMPRESSION(f, c)		 ((f) = ((f) & ~COUCHBASE_COMPRESSION_MASK) | (c) << 5)
 #define COUCHBASE_GET_PRESERVE_ORDER		(1<<0)
 
+#define COUCHBASE_MIN_PERSIST 0
+#define COUCHBASE_MAX_PERSIST 4
+#define COUCHBASE_MIN_REPLICATE 0
+#define COUCHBASE_MAX_REPLICATE 3
+
 #ifndef Z_ADDREF_P
 #define Z_ADDREF_P	ZVAL_ADDREF
 #endif
@@ -122,6 +127,7 @@ typedef struct _php_couchbase_ctx {
 	void *extended_value;
 } php_couchbase_ctx;
 
+
 void stop_loop(struct lcb_io_opt_st *io);
 void run_loop(struct lcb_io_opt_st *io);
 
@@ -132,6 +138,8 @@ ZEND_BEGIN_MODULE_GLOBALS(couchbase)
 	char *compressor;
 	long compression_threshold;
 	double compression_factor;
+    long durability_default_poll_interval;
+    long durability_default_timeout;
 ZEND_END_MODULE_GLOBALS(couchbase)
 
 PHP_GINIT_FUNCTION(couchbase);
@@ -168,6 +176,12 @@ PHP_METHOD(couchbase, setOption);
 PHP_METHOD(couchbase, getOption);
 PHP_METHOD(couchbase, getVersion);
 PHP_METHOD(couchbase, getClientVersion);
+PHP_METHOD(couchbase, getNumReplicas);
+PHP_METHOD(couchbase, getServers);
+PHP_METHOD(couchbase, observe);
+PHP_METHOD(couchbase, observeMulti);
+PHP_METHOD(couchbase, keyDurability);
+PHP_METHOD(couchbase, keyDurabilityMulti);
 
 PHP_FUNCTION(couchbase_connect);
 PHP_FUNCTION(couchbase_add);
@@ -196,6 +210,26 @@ PHP_FUNCTION(couchbase_set_option);
 PHP_FUNCTION(couchbase_get_option);
 PHP_FUNCTION(couchbase_get_version);
 PHP_FUNCTION(couchbase_get_client_version);
+PHP_FUNCTION(couchbase_get_num_replicas);
+PHP_FUNCTION(couchbase_get_servers);
+PHP_FUNCTION(couchbase_observe);
+PHP_FUNCTION(couchbase_observe_multi);
+PHP_FUNCTION(couchbase_key_durability);
+PHP_FUNCTION(couchbase_key_durability_multi);
+
+/**
+ * INI Entries
+ * TODO: migrate all ini entries here..
+ */
+#define PCBC_INIENT_OBS_INTERVAL "couchbase.durability_default_poll_interval"
+#define PCBC_INIENT_OBS_TIMEOUT "couchbase.durability_default_timeout"
+
+
+/**
+ * Hash table manipulation functions.
+ */
+#include "ht.h"
+#include "resget.h"
 
 PHP_COUCHBASE_LOCAL
 extern void php_couchbase_complete_callback(lcb_http_request_t request,
@@ -208,10 +242,46 @@ PHP_COUCHBASE_LOCAL
 extern void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
+extern void php_couchbase_observe_impl(
+		INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int poll);
+
+PHP_COUCHBASE_LOCAL
+extern void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS,
+		int style);
+
+PHP_COUCHBASE_LOCAL
+extern void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
+		int style);
+
+
+
+PHP_COUCHBASE_LOCAL
+extern void php_couchbase_observe_callback(
+		lcb_t, const void*, lcb_error_t, const lcb_observe_resp_t*);
+
+PHP_COUCHBASE_LOCAL
+extern void observe_polling_internal(
+		php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
+
+
+
+PHP_COUCHBASE_LOCAL
 extern int le_couchbase;
 
 PHP_COUCHBASE_LOCAL
 extern int le_pcouchbase;
+
+/**
+ * Prototype gettimeofday and usleep for win32
+ * TODO: This should ideally be moved to its own file
+ */
+#ifdef WIN32
+PHP_COUCHBASE_LOCAL
+extern int gettimeofday(struct timeval*, struct timezone*);
+
+PHP_COUCHBASE_LOCAL
+extern void usleep(unsigned long);
+#endif /* WIN32 */
 
 
 

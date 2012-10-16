@@ -33,4 +33,5 @@ tests/phpt/*/*.out
 tests/phpt/*/*.php
 tests/phpt/*/*.sh
 tests/couchbase.local.inc
-views.lo
+*.lo
+*.o

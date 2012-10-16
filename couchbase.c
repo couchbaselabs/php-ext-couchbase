@@ -1,4 +1,5 @@
 /*
+
   +----------------------------------------------------------------------+
   | PHP Version 5														 |
   +----------------------------------------------------------------------+
@@ -75,6 +76,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_add, 0, 0, 3)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -84,6 +86,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_set, 0, 0, 3)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -91,6 +94,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_set_multi, 0, 0, 2)
 	ZEND_ARG_INFO(0, resource)
 	ZEND_ARG_ARRAY_INFO(0, values, 0)
 	ZEND_ARG_INFO(0, expiration)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -100,6 +104,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_replace, 0, 0, 3)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -109,6 +114,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_append, 0, 0, 3)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -118,6 +124,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_prepend, 0, 0, 3)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -127,6 +134,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_cas, 0, 0, 4)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -164,6 +172,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_touch, 0, 0, 3)
 	ZEND_ARG_INFO(0, resource)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -171,6 +180,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_touch_multi, 0, 0, 3)
 	ZEND_ARG_INFO(0, resource)
 	ZEND_ARG_ARRAY_INFO(0, keys, 0)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -200,6 +210,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_increment, 0, 0, 2)
 	ZEND_ARG_INFO(0, create)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, initial)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -210,6 +221,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_decrement, 0, 0, 2)
 	ZEND_ARG_INFO(0, create)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, initial)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -217,6 +229,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_delete, 0, 0, 2)
 	ZEND_ARG_INFO(0, resource)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -253,12 +266,52 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_get_option, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_servers, 0, 0, 1)
+	ZEND_ARG_INFO(0, resource)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_num_replicas, 0, 0, 1)
+	ZEND_ARG_INFO(0, resource)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_version, 0, 0, 1)
     ZEND_ARG_INFO(0, resource)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_client_version, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_observe, 0, 0, 3)
+	ZEND_ARG_INFO(0, resource)
+	ZEND_ARG_INFO(0, key)
+	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_INFO(1, details)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_observe_multi, 0, 0, 2)
+	ZEND_ARG_INFO(0, resource)
+	ZEND_ARG_ARRAY_INFO(0, key_to_cas, 0)
+	ZEND_ARG_INFO(1, details)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_key_durability, 0, 0, 4)
+	ZEND_ARG_INFO(0, resource)
+	ZEND_ARG_INFO(0, key)
+	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_key_durability_multi, 0, 0, 3)
+	ZEND_ARG_INFO(0, resource)
+	ZEND_ARG_ARRAY_INFO(0, key_to_cas, 0)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -278,6 +331,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_add, 0, 0, 2)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -286,12 +340,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_set, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_setmulti, 0, 0, 1)
 	ZEND_ARG_ARRAY_INFO(0, values, 0)
 	ZEND_ARG_INFO(0, expiration)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -300,6 +356,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_replace, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -308,6 +365,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_append, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -316,6 +374,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_prepend, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -324,6 +383,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_cas, 0, 0, 3)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, value)
 	ZEND_ARG_INFO(0, expiration)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -357,12 +417,14 @@ COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_touch, 0, 0, 2)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_touchmulti, 0, 0, 2)
 	ZEND_ARG_ARRAY_INFO(0, keys, 0)
 	ZEND_ARG_INFO(0, expiry)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -388,6 +450,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_increment, 0, 0, 1)
 	ZEND_ARG_INFO(0, create)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, initial)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -397,12 +460,14 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_decrement, 0, 0, 1)
 	ZEND_ARG_INFO(0, create)
 	ZEND_ARG_INFO(0, expiration)
 	ZEND_ARG_INFO(0, initial)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_delete, 0, 0, 1)
 	ZEND_ARG_INFO(0, key)
 	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -430,6 +495,41 @@ ZEND_END_ARG_INFO()
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getoption, 0, 0, 1)
 	ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_numreplicas, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getservers, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_observe, 0, 0, 2)
+	ZEND_ARG_INFO(0, key)
+	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_INFO(1, details)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_observe_multi, 0, 0, 1)
+	ZEND_ARG_ARRAY_INFO(0, key_to_cas, 0)
+	ZEND_ARG_INFO(1, details)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_key_durability, 0, 0, 3)
+	ZEND_ARG_INFO(0, key)
+	ZEND_ARG_INFO(0, cas)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_key_durability_multi, 0, 0, 2)
+	ZEND_ARG_ARRAY_INFO(0, key_to_cas, 0)
+	ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -461,8 +561,14 @@ static zend_function_entry couchbase_functions[] = {
 	PHP_FE(couchbase_get_result_message, arginfo_result_message)
 	PHP_FE(couchbase_set_option, arginfo_set_option)
 	PHP_FE(couchbase_get_option, arginfo_get_option)
+	PHP_FE(couchbase_get_servers, arginfo_get_servers)
+	PHP_FE(couchbase_get_num_replicas, arginfo_num_replicas)
 	PHP_FE(couchbase_get_version, arginfo_get_version)
 	PHP_FE(couchbase_get_client_version, arginfo_get_client_version)
+	PHP_FE(couchbase_observe, arginfo_observe)
+	PHP_FE(couchbase_observe_multi, arginfo_observe_multi)
+	PHP_FE(couchbase_key_durability, arginfo_key_durability)
+	PHP_FE(couchbase_key_durability_multi, arginfo_key_durability_multi)
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -497,6 +603,12 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, getOption, arginfo_m_getoption, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getVersion, arginfo_get_version, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getClientVersion, arginfo_get_client_version, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, getNumReplicas, arginfo_m_numreplicas, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, getServers, arginfo_m_getservers, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, observe, arginfo_m_observe, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, observeMulti, arginfo_m_observe_multi, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, keyDurability, arginfo_m_key_durability, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, keyDurabilityMulti, arginfo_m_key_durability_multi, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -589,6 +701,8 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("couchbase.compressor", "none",	 PHP_INI_ALL, OnUpdateCompressor, compressor, zend_couchbase_globals, couchbase_globals)
 	STD_PHP_INI_ENTRY("couchbase.compression_factor", "1.3",	PHP_INI_ALL, OnUpdateReal, compression_factor, zend_couchbase_globals, couchbase_globals)
 	STD_PHP_INI_ENTRY("couchbase.compression_threshold", "2000",	PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
+	STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_INTERVAL, "100000", PHP_INI_ALL, OnUpdateLong, durability_default_poll_interval, zend_couchbase_globals, couchbase_globals) /* units of microseconds, 100k = a tenth of a second */
+	STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_TIMEOUT, "4000000", PHP_INI_ALL, OnUpdateLong, durability_default_timeout, zend_couchbase_globals, couchbase_globals) /* also units of microseconds, 40M = 40sec */
 PHP_INI_END()
 /* }}} */
 
@@ -1101,6 +1215,7 @@ php_couchbase_touch_callback(lcb_t handle,
     php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
     const char* key = (char *)resp->v.v0.key;
     lcb_size_t nkey = resp->v.v0.nkey;
+    lcb_cas_t cas = resp->v.v0.cas;
 	char *string_key;
     php_ignore_value(handle);
 
@@ -1643,6 +1758,7 @@ create_new_link:
 			php_ignore_value(lcb_set_version_callback(handle, php_couchbase_version_callback));
 			php_ignore_value(lcb_set_http_complete_callback(handle, php_couchbase_complete_callback));
 			php_ignore_value(lcb_set_touch_callback(handle, php_couchbase_touch_callback));
+			php_ignore_value(lcb_set_observe_callback(handle, php_couchbase_observe_callback));
 
 			couchbase_res = pecalloc(1, sizeof(php_couchbase_res), persistent);
 			couchbase_res->handle = handle;
@@ -2185,7 +2301,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 	lcb_time_t exp = {0}; /* how long to set expiry. */
 	long expiry; /* used for parameter passing */
 	/* note that by server's behavior, anything longer than 30 days (60*60*24*30) is an epoch time to expire at */
-	zval *res;
+	zval *res, *adurability = NULL;
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx *ctx;
 
@@ -2197,7 +2313,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		int i;
 
 		if (oo) {
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "al", &arr_keys, &expiry) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "al|a", &arr_keys, &expiry, &adurability) == FAILURE) {
 				return;
 			}
 			res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -2206,7 +2322,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 				RETURN_FALSE;
 			}
 		} else { /* multi-and-not-oo */
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ral", &res, &arr_keys, &expiry) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ral|a", &res, &arr_keys, &expiry, &adurability) == FAILURE) {
 				return;
 			}
 		}
@@ -2262,7 +2378,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		}
 	} else { /* single-valued */
 		if (oo) {
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &single_key, &single_nkey, &expiry) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl|a", &single_key, &single_nkey, &expiry, &adurability) == FAILURE) {
 				return;
 			}
 			res = zend_read_property(couchbase_ce, getThis(), ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -2271,7 +2387,7 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 				RETURN_FALSE;
 			}
 		} else { /* single-valued-and-not-oo */
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsl", &res, &single_key, &single_nkey, &expiry) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsl|a", &res, &single_key, &single_nkey, &expiry, &adurability) == FAILURE) {
 				return;
 			}
 		}
@@ -2353,6 +2469,38 @@ static void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed touch request: %s",
 					lcb_strerror(couchbase_res->handle, ctx->res->rc));
+		}
+
+		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
+		 * fulfill that spec by using polling observe internal:
+		 */
+		if (adurability != NULL) {
+			zval *akc;
+			array_init(akc);
+
+			if (IS_ARRAY == Z_TYPE_P(return_value)) { /* multi */
+				ulong curr_idx;
+				char *curr_key;
+				uint curr_key_len;
+				zval **curr_cas;
+
+				for (pcbc_ht_iter_init(return_value); pcbc_ht_iter_remaining(return_value); pcbc_ht_iter_next(return_value)) {
+					zend_hash_get_current_key_ex(Z_ARRVAL_P(return_value), (char**)&curr_key, &curr_key_len, &curr_idx, 0, NULL);
+					zend_hash_get_current_data(Z_ARRVAL_P(return_value), (void**)&curr_cas);
+					if (Z_BVAL_PP(curr_cas)) {
+						add_assoc_long(akc, curr_key, Z_LVAL_PP(curr_cas));
+					}
+				}
+				pcbc_ht_iter_init(return_value);
+			} else { /* not multi */
+				if (Z_BVAL_P(return_value)) {
+					add_assoc_long(akc, multi_keys[0], Z_LVAL_P(return_value));
+				}
+			}
+
+			ctx->cas = akc;
+
+			observe_polling_internal(ctx, adurability, 0);
 		}
 
 		efree(ctx);
@@ -2444,7 +2592,7 @@ fetch_one:
 /* }}} */
 
 static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, int multi, int oo) /* {{{ */ {
-	zval *res, *self;
+	zval *res, *self, *akc, *adurability = NULL;
 	lcb_error_t retval;
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx *ctx;
@@ -2454,6 +2602,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 	size_t payload_len = 0;
 	unsigned long long cas_v = 0;
 	long expire = 0, cas_len = 0;
+	char *key;
 
 	self = getThis();
 	if (!multi) {
@@ -2462,7 +2611,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 		long klen = 0;
 
 		if (oo) {
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz|ls", &key, &klen, &value, &expire, &cas, &cas_len) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz|lsa", &key, &klen, &value, &expire, &cas, &cas_len, &adurability) == FAILURE) {
 				return;
 			}
 			res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -2471,7 +2620,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 				RETURN_FALSE;
 			}
 		} else {
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsz|ls", &res, &key, &klen, &value, &expire, &cas, &cas_len) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsz|lsa", &res, &key, &klen, &value, &expire, &cas, &cas_len, &adurability) == FAILURE) {
 				return;
 			}
 		}
@@ -2540,7 +2689,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 			RETURN_FALSE;
 		}
 
-	} else {
+	} else { /* multi */
 		zval *akeys, **ppzval;
 		char *key;
 		uint klen = 0;
@@ -2548,7 +2697,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 		int key_type, nkey = 0;
 
 		if (oo) {
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|l", &akeys, &expire) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|la", &akeys, &expire, &adurability) == FAILURE) {
 				return;
 			}
 			res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -2557,7 +2706,7 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 				RETURN_FALSE;
 			}
 		} else {
-			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|l", &res, &akeys, &expire) == FAILURE) {
+			if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ra|la", &res, &akeys, &expire, &adurability) == FAILURE) {
 				return;
 			}
 		}
@@ -2678,20 +2827,54 @@ static void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t
 				}
 			}
 		}
+
+		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
+		 * fulfill that spec by using polling observe internal:
+		 */
+		if (adurability != NULL) {
+			array_init(akc);
+
+			if (IS_ARRAY == Z_TYPE_P(return_value)) { /* multi */
+				ulong curr_idx;
+				char *curr_key;
+				uint curr_key_len;
+				zval **curr_cas;
+
+				for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(return_value));
+				     zend_hash_has_more_elements(Z_ARRVAL_P(return_value)) == SUCCESS;
+					 zend_hash_move_forward(Z_ARRVAL_P(return_value))) {
+					zend_hash_get_current_key_ex(Z_ARRVAL_P(return_value), (char**)&curr_key, &curr_key_len, &curr_idx, 0, NULL);
+					zend_hash_get_current_data(Z_ARRVAL_P(return_value), (void**)&curr_cas);
+					if (Z_BVAL_PP(curr_cas)) {
+						add_assoc_long(akc, curr_key, Z_LVAL_PP(curr_cas));
+					}
+				}
+				zend_hash_internal_pointer_reset(Z_ARRVAL_P(return_value));
+			} else { /* not multi */
+				if (Z_BVAL_P(return_value)) { /* it claims to have stored */
+					add_assoc_long(akc, key, Z_LVAL_P(return_value));
+				}
+			}
+
+			ctx->cas = akc;
+
+			observe_polling_internal(ctx, adurability, 0);
+		}
+
 		efree(ctx);
 	}
 }
 /* }}} */
 
 static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
-	zval *res;
+	zval *res, *akc, *adurability = NULL;
 	char *key, *cas = NULL;
 	long klen = 0, cas_len = 0;
 	unsigned long long cas_v = 0;
 
 	if (oo) {
 		zval *self = getThis();
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &key, &klen, &cas, &cas_len) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sa", &key, &klen, &cas, &cas_len, &adurability) == FAILURE) {
 			return;
 		}
 		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -2700,7 +2883,7 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 			RETURN_FALSE;
 		}
 	} else {
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|s", &res, &key, &klen, &cas, &cas_len) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|sa", &res, &key, &klen, &cas, &cas_len, &adurability) == FAILURE) {
 			return;
 		}
 	}
@@ -2759,6 +2942,19 @@ static void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 					"Failed to remove a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			RETVAL_FALSE;
 		}
+
+		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
+		 * fulfill that spec by using polling observe internal:
+		 */
+		if (adurability != NULL) {
+			array_init(akc);
+			add_assoc_long(akc, key, cas_v);
+
+			ctx->cas = akc;
+
+			observe_polling_internal(ctx, adurability, 0);
+		}
+
 		efree(ctx);
 	}
 }
@@ -2839,7 +3035,7 @@ static void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 /* }}} */
 
 static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo) /* {{{ */ {
-	zval *res;
+	zval *res, *akc, *adurability = NULL;
 	char *key;
 	time_t exp = {0};
 	long klen = 0, offset = 1, expire = 0;
@@ -2847,7 +3043,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 
 	if (oo) {
 		zval *self = getThis();
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|llll", &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|lllla", &key, &klen, &offset, &create, &expire, &initial, &adurability) == FAILURE) {
 			return;
 		}
 		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
@@ -2856,7 +3052,7 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 			RETURN_FALSE;
 		}
 	} else {
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|llll", &res, &key, &klen, &offset, &create, &expire, &initial) == FAILURE) {
+		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|lllla", &res, &key, &klen, &offset, &create, &expire, &initial, &adurability) == FAILURE) {
 			return;
 		}
 	}
@@ -2916,6 +3112,19 @@ static void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op,
 			efree(ctx);
 			RETURN_FALSE;
 		}
+
+		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
+		 * fulfill that spec by using polling observe internal:
+		 */
+		if (adurability != NULL) {
+			array_init(akc);
+			add_assoc_long(akc, key, Z_LVAL_P(ctx->cas));
+
+			zval_dtor(ctx->cas);
+			ctx->cas = akc;
+
+			observe_polling_internal(ctx, adurability, 0);
+		}
 		efree(ctx);
 	}
 }
@@ -2965,7 +3174,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Failed to schedule stat request: %d (%s)", retval, lcb_strerror(couchbase_res->handle, retval));
+					"Failed to schedule stat request: %s", retval, lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -2973,8 +3182,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-                             "Failed to stat: %d (%s)",ctx->res->rc,
-                             lcb_strerror(couchbase_res->handle, ctx->res->rc));
+					"Failed to stat: %s",ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			efree(ctx);
 			RETURN_FALSE;
 		}
@@ -3500,6 +3708,44 @@ PHP_METHOD(couchbase, getClientVersion) {
 }
 /* }}} */
 
+PHP_METHOD(couchbase, getNumReplicas) {
+	php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
+			PHP_COUCHBASE_ARG_F_OO);
+}
+
+PHP_METHOD(couchbase, getServers) {
+	php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
+			PHP_COUCHBASE_ARG_F_OO);
+}
+
+/* {{{ proto Couchbase::observe(string $key, string $cas, &$details) 
+ */
+PHP_METHOD(couchbase, observe) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0); /* multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto Couchbase::observeMulti(array $key_to_cas, &$details) 
+ */
+PHP_METHOD(couchbase, observeMulti) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0); /* multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto Couchbase::keyDurability(string $key, string $cas, array $durability)
+ */
+PHP_METHOD(couchbase, keyDurability) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 1); /* multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto Couchbase::keyDurability(array $key_to_cas, array $durability)
+ */
+PHP_METHOD(couchbase, keyDurabilityMulti) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 1); /* multi, oo, poll */
+}
+/* }}} */
+
 /* procedural APIs*/
 /* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
 */
@@ -3696,6 +3942,53 @@ PHP_FUNCTION(couchbase_get_version) {
 PHP_FUNCTION(couchbase_get_client_version) {
 	RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
 }
+/* }}} */
+
+
+/* {{ proto couchbase_get_num_replicas(void)
+ */
+PHP_FUNCTION(couchbase_get_num_replicas) {
+	php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
+			PHP_COUCHBASE_ARG_F_FUNCTIONAL);
+}
+/* }}} */
+
+
+/* {{{ proto couchbase_get_servers(void)
+ */
+PHP_FUNCTION(couchbase_get_servers) {
+	php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
+			PHP_COUCHBASE_ARG_F_FUNCTIONAL);
+}
+/* }}} */
+
+/* {{{ proto couchbase_observe(resource $couchbase, string $key, string $cas, &$details) 
+ */
+PHP_FUNCTION(couchbase_observe) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0); /* multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto couchbase_observe_multi(resource $couchbase, array $key_to_cas, &$details) 
+ */
+PHP_FUNCTION(couchbase_observe_multi) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0); /* multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto couchbase_key_durability(resource $couchbase, string $key, string $cas, array $durability)
+ */
+PHP_FUNCTION(couchbase_key_durability) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 1); /* multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto couchbase_key_durability_multi(resource $couchbase, string $key_to_cas, array $durability)
+ */
+PHP_FUNCTION(couchbase_key_durability_multi) {
+	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 1); /*multi, oo, poll */ 
+}
+/* }}} */
 
 /* module functions */
 /* {{{ PHP_GINIT_FUNCTION
