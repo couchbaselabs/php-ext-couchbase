@@ -1423,7 +1423,7 @@ static int _append_host_port(char *oldstr, char **newstr,
 
 static long _check_expiry(long expiry) {
 	if (expiry < 0) {
-		php_error(E_RECOVERABLE_ERROR, "Expiry must not be negative (%d given).", expiry);
+		php_error(E_RECOVERABLE_ERROR, "Expiry must not be negative (%ld given).", expiry);
 	}
 	return expiry;
 }
@@ -2963,7 +2963,7 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Failed to schedule stat request: %s", retval, lcb_strerror(couchbase_res->handle, retval));
+					"Failed to schedule stat request: %d (%s)", retval, lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -2971,7 +2971,8 @@ static void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{
 		run_loop(couchbase_res->io);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Failed to stat: %s",ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
+                             "Failed to stat: %d (%s)",ctx->res->rc,
+                             lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			efree(ctx);
 			RETURN_FALSE;
 		}
