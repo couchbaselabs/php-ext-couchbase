@@ -1641,7 +1641,7 @@ create_new_link:
 			php_ignore_value(lcb_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
 			php_ignore_value(lcb_set_stat_callback(handle, php_couchbase_stat_callback));
 			php_ignore_value(lcb_set_version_callback(handle, php_couchbase_version_callback));
-			php_ignore_value(lcb_set_view_complete_callback(handle, php_couchbase_complete_callback));
+			php_ignore_value(lcb_set_http_complete_callback(handle, php_couchbase_complete_callback));
 			php_ignore_value(lcb_set_touch_callback(handle, php_couchbase_touch_callback));
 
 			couchbase_res = pecalloc(1, sizeof(php_couchbase_res), persistent);
