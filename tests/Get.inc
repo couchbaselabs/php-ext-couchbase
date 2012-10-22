@@ -12,7 +12,7 @@ class Get extends CouchbaseTestCommon {
 
 		$key = $this->mk_key();
 		$val = uniqid('couchbase-value-');
-		
+
 		$cas = $oo->set($key, $val);
 
 		return array($oo, $key, $val, $cas);
@@ -31,6 +31,12 @@ class Get extends CouchbaseTestCommon {
 		return array($h, $key, $val, $cas);
 	}
 
+    function _v11_feature() {
+        if (!$this->atLeastVersion(array(1,1))) {
+            $this->markTestSkipped("Need v1.1 or higher");
+        }
+    }
+
 	/**
 	 * @test
 	 * Get (plain)
@@ -43,7 +49,7 @@ class Get extends CouchbaseTestCommon {
 	 *
 	 * @remark
 	 * Variants: OO, plain
-	 */	
+	 */
 	function testPlain() {
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
@@ -72,7 +78,7 @@ class Get extends CouchbaseTestCommon {
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
 		$valGet = $oo->get($key, NULL, $casGet);
-		
+
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $casGet);
 
@@ -82,10 +88,10 @@ class Get extends CouchbaseTestCommon {
 	/**
 	 * @test get non-existent key (oo)
 	 *
-	 * @pre 
+	 * @pre
 	 * Setup run
 	 *
-	 * @post 
+	 * @post
 	 * Get on non-existent key returns null.
 	 *
 	 * @variants
@@ -171,25 +177,29 @@ class Get extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * gets with callback do the appropriate things
-	 * 
+	 *
 	 * @variants
 	 * OO, plain
 	 */
 	function testGetMissingWithCallback() {
-		$this->markTestSkipped("Callbacks with missing keys seem to have a known error condition at the moment.");
+		$this->skipGetMissingWithCallback();
 
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 		couchbase_delete($h, $key); // since we don't actually want the key to exist for this test
 
 		// value is 'from db' and cas is null for NE key & true callback ret
 		$cb = function ($k, &$v) { $v = 'from db'; return true; };
-		$this->assertEquals('from db', couchbase_get($h, $key, $cb, $casGet)); 
-		$this->assertNull($casGet);		
-		
+		$this->assertEquals('from db', couchbase_get($h, $key, $cb, $casGet));
+		$this->assertNull($casGet);
+
 		// value and cas are null for NE key & false callback ret
-		$cb = function ($k, &$v) { $v = 'from db'; return false; }; 
+		$cb = function ($k, &$v) { $v = 'from db'; return false; };
 		$this->assertNull(couchbase_get($h, $key, $cb, $casGet));
 		$this->assertNull($casGet);
+	}
+
+	function skipGetMissingWithCallback() {
+		$this->markTestSkipped("Callbacks with missing keys seem to have a known error condition at the moment.");
 	}
 
 
@@ -201,28 +211,30 @@ class Get extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * gets with callback do the appropriate things
-	 * 
+	 *
 	 * @variants
 	 * OO, plain
 	 */
 	function testGetMissingWithCallbackOO() {
-		$this->markTestSkipped("Callbacks with missing keys seem to have a known error condition at the moment.");
-
+		$this->skipGetMissingWithCallbackOO();
 		list($oo, $key, $val, $cas) = $this->_test_setup_common();
 		$oo->delete($oo, $key); // since we don't actually want the key to exist for this test
 
 		// value is 'from db' and cas is null for NE key & true callback ret
 		$cb = function ($k, &$v) { $v = 'from db'; return true; };
-		$this->assertEquals('from db', $oo->get($key, $cb, $casGet)); 
-		$this->assertNull($casGet);		
-		
+		$this->assertEquals('from db', $oo->get($key, $cb, $casGet));
+		$this->assertNull($casGet);
+
 		// value and cas are null for NE key & false callback ret
-		$cb = function ($k, &$v) { $v = 'from db'; return false; }; 
+		$cb = function ($k, &$v) { $v = 'from db'; return false; };
 		$this->assertNull($oo->get($key, $cb, $casGet));
 		$this->assertNull($casGet);
 	}
+	function skipGetMissingWithCallbackOO() {
+		$this->markTestSkipped("Callbacks with missing keys seem to have a known error condition at the moment.");
+	}
 
-	/** 
+	/**
 	 * @test get-with-touch
 	 * @group slow
 	 *
@@ -233,6 +245,8 @@ class Get extends CouchbaseTestCommon {
 	 * cas unchanged with touch, key is null after expiry
 	 */
 	function testGetWithTouch() {
+		$this->skipGetWithTouch();
+
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
 		$valGet = couchbase_get($h, $key, NULL, $expCAS, 1);
@@ -244,8 +258,10 @@ class Get extends CouchbaseTestCommon {
 
 		$this->assertNull(couchbase_get($h, $key));
 	}
-	
-	/** 
+
+	function skipGetWithTouch() { $this->_v11_feature(); }
+
+	/**
 	 * @test get-with-touch OO
 	 * @group slow
 	 *
@@ -256,6 +272,8 @@ class Get extends CouchbaseTestCommon {
 	 * cas unchanged with touch, key is null after expiry
 	 */
 	function testGetWithTouchOO() {
+		$this->skipGetWithTouchOO();
+
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
 		$valGet = $oo->get($key, NULL, $expCAS, 1);
@@ -267,6 +285,9 @@ class Get extends CouchbaseTestCommon {
 
 		$this->assertNull($oo->get($key));
 	}
+
+	function skipGetWithTouchOO() { $this->_v11_feature(); }
+
 	/**
 	 * @test get-with-lock (oo)
 	 * @group slow
@@ -278,6 +299,8 @@ class Get extends CouchbaseTestCommon {
 	 * cas changed with lock, key deletable after lock expires
 	 */
 	function testGetWithLockOO() {
+		$this->skipGetWithLockOO();
+
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
 		$valGet = $oo->get($key, NULL, $lockCAS, 1, true);
@@ -290,6 +313,8 @@ class Get extends CouchbaseTestCommon {
 		$this->assertEquals($oo, $oo->delete($key)); // oddly, oo delete returns itself rather than true on success
 	}
 
+	function skipGetWithLockOO() { $this->_v11_feature(); }
+
 	/**
 	 * @test get-with-lock
 	 * @group slow
@@ -301,6 +326,8 @@ class Get extends CouchbaseTestCommon {
 	 * cas changed with lock, key deletable after lock expires
 	 */
 	function testGetWithLock() {
+		$this->skipGetWithLock();
+
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
 		$valGet = couchbase_get($h, $key, NULL, $lockCAS, 1, true);
@@ -312,5 +339,6 @@ class Get extends CouchbaseTestCommon {
 
 		$this->assertTrue(couchbase_delete($h, $key));
 	}
+	function skipGetWithLock() { $this->_v11_feature(); }
 }
 ?>

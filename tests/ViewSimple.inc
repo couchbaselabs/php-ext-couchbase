@@ -2,6 +2,11 @@
 
 require_once 'ViewBase.inc';
 class ViewSimple extends CouchbaseViewTestCommon {
+    function skipALL() {
+        if (!$this->atLeastVersion(array(1,1))) {
+            $this->markTestSkipped("Views not implemented in this version");
+        }
+    }
     /**
      * @test Simple View Execution
      * @pre Create an object with the special @c testid__=php entry. Store it

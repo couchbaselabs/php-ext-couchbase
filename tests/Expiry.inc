@@ -4,6 +4,11 @@ class Expiry extends CouchbaseTestCommon {
 
 // The basic one replaces 009, the rest are new.
 
+	function _skip_touch_common() {
+		if (!$this->atLeastVersion(array(1,1))) {
+			$this->markTestSkipped("Touch implemented in ext >= v1.1");
+		}
+	}
 
     /**
      * @test Expiration
@@ -67,6 +72,10 @@ class Expiry extends CouchbaseTestCommon {
         $this->assertNull($oo->get($key));
     }
 
+	function skipExpiryTouch() {
+		$this->_skip_touch_common();
+	}
+
     /**
      * @test Touch (zero expiry)
      * This is like @ref testExpirySetZeroOO
@@ -112,6 +121,8 @@ class Expiry extends CouchbaseTestCommon {
 	 * @group slow
 	 */
 	function testExpiryTouchMulti() {
+		$this->skipExpiryTouchMulti();
+
 		$oo = $this->oo;
 		$keys = $this->makeKvPairs();
 
@@ -126,6 +137,10 @@ class Expiry extends CouchbaseTestCommon {
 		$values = $oo->getMulti(array_keys($keys));
 
 		$this->assertTrue(sizeof($values) == 0);
+	}
+
+	function skipExpiryTouchMulti() {
+		$this->_skip_touch_common();
 	}
 
     /**
