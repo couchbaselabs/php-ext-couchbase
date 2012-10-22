@@ -85,7 +85,7 @@ class Expiry extends CouchbaseTestCommon {
 
     /**
      * @test Expiry (arithmetic)
-     * 
+     *
 	 * Tests setting expiry time as part of increment/decrement operations on a numeric key.
 	 *
 	 * @group slow
@@ -93,11 +93,11 @@ class Expiry extends CouchbaseTestCommon {
     function testArithmeticExpiry() {
 		$oo = $this->oo;
 		$key = $this->mk_key();
-		
+
 		$oo->set($key, 42);
-		
-		$oo->increment(1, 1);
-		$oo->decrement(1, 1);
+
+		$oo->increment($key, 20, 0, 1, 0);
+		$oo->decrement($key, 10, 0, 1, 0);
 
 		sleep(2);
 
@@ -106,7 +106,7 @@ class Expiry extends CouchbaseTestCommon {
 
 	/**
 	 * @test Touch-Multi (expiry)
-	 * 
+	 *
 	 * This tests touching multiple items at once to set an expiry time.
 	 *
 	 * @group slow
