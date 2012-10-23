@@ -1,3 +1,5 @@
+# Keep the file sorted to minimize the risk for merge conflicts
+*~
 .deps
 .libs/
 Makefile
@@ -24,7 +26,6 @@ missing
 mkinstalldirs
 modules/
 run-tests.php
-*~
 tests/*.diff
 tests/*.exp
 tests/*.log
