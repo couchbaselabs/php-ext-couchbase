@@ -29,11 +29,14 @@ extern zend_class_entry *couchbase_ce;
 
 #ifdef PHP_WIN32
 #	 define PHP_COUCHBASE_API __declspec(dllexport)
+#    define PHP_COUCHBASE_LOCAL
 #	 define strtoull _strtoui64
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
+#    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
 #else
 #	 define PHP_COUCHBASE_API
+#    define PHP_COUCHBASE_LOCAL
 #endif
 
 #ifdef ZTS
@@ -193,6 +196,24 @@ PHP_FUNCTION(couchbase_set_option);
 PHP_FUNCTION(couchbase_get_option);
 PHP_FUNCTION(couchbase_get_version);
 PHP_FUNCTION(couchbase_get_client_version);
+
+PHP_COUCHBASE_LOCAL
+extern void php_couchbase_complete_callback(lcb_http_request_t request,
+                                            lcb_t instance,
+                                            const void *cookie,
+                                            lcb_error_t error,
+                                            const lcb_http_resp_t *resp);
+
+PHP_COUCHBASE_LOCAL
+extern void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
+
+PHP_COUCHBASE_LOCAL
+extern int le_couchbase;
+
+PHP_COUCHBASE_LOCAL
+extern int le_pcouchbase;
+
+
 
 #endif	  /* PHP_COUCHBASE_H */
 

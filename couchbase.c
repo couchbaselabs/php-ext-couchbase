@@ -52,8 +52,10 @@
 
 ZEND_DECLARE_MODULE_GLOBALS(couchbase)
 
-static int le_couchbase;
-static int le_pcouchbase;
+PHP_COUCHBASE_LOCAL
+int le_couchbase;
+PHP_COUCHBASE_LOCAL
+int le_pcouchbase;
 zend_class_entry *couchbase_ce;
 
 /* {{{ COUCHBASE_FUNCTIONS_ARG_INFO
@@ -589,11 +591,6 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("couchbase.compression_threshold", "2000",	PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
 PHP_INI_END()
 /* }}} */
-
-/**
- * Include helper source files
- */
-#include "views.c"
 
 static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned int *flags, int serializer, int compressor TSRMLS_DC) /* {{{ */ {
 	char *payload;

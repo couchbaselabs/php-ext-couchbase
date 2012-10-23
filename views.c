@@ -1,3 +1,33 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef PHP_WIN32
+# include "win32/php_stdint.h"
+#endif
+
+#include "php.h"
+#include "php_ini.h"
+#include "ext/standard/info.h"
+#include "ext/standard/url.h"
+#include "ext/standard/php_smart_str.h"
+#include "ext/standard/php_var.h"
+#ifdef HAVE_JSON_API
+# include "ext/json/php_json.h"
+#endif
+#include "ext/standard/php_var.h"
+#include <libcouchbase/couchbase.h>
+#include "php_couchbase.h"
+#ifdef HAVE_COMPRESSION_FASTLZ
+# include "fastlz.c"
+#endif
+#ifdef HAVE_COMPRESSION_ZLIB
+# include "zlib.h"
+#endif
+
+
+#include "Zend/zend_API.h"
+
 /* included by couchbase.c */
 
 /* {{{ static void php_couchbase_complete_callback(...)
@@ -14,7 +44,8 @@ typedef struct _php_couchbase_htinfo {
 } php_couchbase_htinfo;
 
 
-static void php_couchbase_complete_callback(lcb_http_request_t request,
+PHP_COUCHBASE_LOCAL
+void php_couchbase_complete_callback(lcb_http_request_t request,
 											lcb_t instance,
 											const void *cookie,
 											lcb_error_t error,
@@ -181,7 +212,8 @@ static char* php_couchbase_view_convert_to_error(zval *decoded,
 	return ret;
 }
 
-static void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
+PHP_COUCHBASE_LOCAL
+void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
 	zval *res, *options = NULL;
 	char *doc_name = NULL, *view_name = NULL;
 	long doc_name_len = 0, view_name_len = 0;
