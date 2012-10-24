@@ -23,8 +23,8 @@ if test "$PHP_COUCHBASE" != "no"; then
       AC_MSG_RESULT($PHP_COUCHBASE)
   else
     dnl # look in system dirs
-     AC_MSG_CHECKING([for libcouchbase files in default path])
-    for i in /usr /usr/local /opt/local; do
+    AC_MSG_CHECKING([for libcouchbase files in default path])
+    for i in /usr /usr/pkg /opt/local /usr/local; do
       if test -r "$i/include/libcouchbase/couchbase.h"; then
         COUCHBASE_DIR=$i
         AC_MSG_RESULT(found in $i)
@@ -148,7 +148,7 @@ if test "$PHP_COUCHBASE" != "no"; then
       AC_MSG_ERROR([Can't find ZLIB headers under "$PHP_ZLIB_DIR"])
     fi
   else
-    for i in /usr/local /usr; do
+    for i in /usr /usr/pkg /opt/local /usr/local; do
       if test -f "$i/include/zlib/zlib.h"; then
         PHP_ZLIB_DIR="$i"
         PHP_ZLIB_INCDIR="$i/include/zlib"
