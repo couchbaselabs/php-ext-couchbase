@@ -46,8 +46,9 @@ class Compression extends CouchbaseTestCommon {
      * Store a long value (5kb) to the server with the handle @c $h.
      * Retrieve it with the @c $hnc handle.
      *
-     * @post Length of value retrieved is less than that of the value stored.
-     * This means data has been compressed
+     * @post Fetch it with the @c $hnc handle. The value should be equal to the
+     * original (because we autoinflate no matter if compression is enabled
+     * or not.
      *
      * @post Fetch it with the @c $h handle. The value should be equal to the
      * original
@@ -70,12 +71,12 @@ class Compression extends CouchbaseTestCommon {
         couchbase_set_option($h, COUCHBASE_OPT_COMPRESSION,
                              COUCHBASE_COMPRESSION_ZLIB);
 
-        couchbase_set_option($hnc, COUCHBASE_OPT_IGNOREFLAGS, 1);
+        /* couchbase_set_option($hnc, COUCHBASE_OPT_IGNOREFLAGS, 1); */
 
         $inikey = "couchbase.compression_threshold";
-        $this->assertGreaterThan(0, ini_get($inikey));
+        $this->assertGreaterThan(0, (int)ini_get($inikey));
         $this->assertTrue((bool)ini_alter($inikey,"10"));
-        $this->assertEquals(10, ini_get($inikey));
+        $this->assertEquals(10, (int)ini_get($inikey));
 
         # Set a compressed value
         $v = str_repeat("long_value", 500);
@@ -88,7 +89,8 @@ class Compression extends CouchbaseTestCommon {
 
         $ret = couchbase_get($hnc, $key);
         $this->assertNotNull($ret);
-        $this->assertLessThan($ol, strlen($ret));
+        $this->assertEquals($ol, strlen($ret));
+        $this->assertEquals($ret, $v);
 
         $ret = couchbase_get($h, $key);
         $this->assertEquals($ret, $v);

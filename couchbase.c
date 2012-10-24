@@ -693,7 +693,7 @@ static char * php_couchbase_zval_to_payload(zval *value, size_t *payload_len, un
 			 case COUCHBASE_COMPRESSION_ZLIB:
 #ifdef HAVE_COMPRESSION_ZLIB
 				{
-					uLongf tmp_ulen;
+					uLongf tmp_ulen = payload_comp_len;
 					compress_status = (compress((Bytef *)payload_comp, &tmp_ulen, (Bytef *)buf.c, buf.len) == Z_OK);
 					/* sync with payload_comp_len */
 					payload_comp_len = tmp_ulen;
