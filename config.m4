@@ -9,11 +9,11 @@ PHP_ARG_ENABLE(couchbase-json, whether to enable json serializer support,
 [  --disable-couchbase-json Disable json serializer support], no)
 
 if test -z "$PHP_ZLIB_DIR"; then
-PHP_ARG_WITH(zlib-dir, for ZLIB,
+PHP_ARG_WITH(zlib-dir, if zlib directory specified,
 [  --with-zlib-dir[=DIR]   Set the path to ZLIB install prefix.], no, no)
 fi
 
-PHP_ARG_WITH(fastlz-src, for FastLZ,
+PHP_ARG_WITH(fastlz-src, if FastLZ directory specified,
 [  --with-fastlz-src[=DIR]   Set the path to FastLz src prefix.], no, no)
 
 if test "$PHP_COUCHBASE" != "no"; then
