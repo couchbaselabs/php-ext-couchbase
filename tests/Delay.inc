@@ -94,11 +94,9 @@ class Delay extends CouchbaseTestCommon {
         }
 
         $this->assertInternalType('array', $casvals);
-
+        $values = array();
         couchbase_get_delayed($h, array_keys($keys), false, "global_content_cb");
-
         $this->_xref_assert_common($casvals, $keys, false);
-
 
         $values = array();
         couchbase_get_delayed($h, array_keys($keys), true, "global_content_cb");

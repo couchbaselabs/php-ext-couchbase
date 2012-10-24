@@ -2163,7 +2163,9 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 #else
 				call_user_function_ex(EG(function_table), NULL, callback, &retval_ptr, 2, params, 0, NULL TSRMLS_CC);
 #endif
-				zval_ptr_dtor(&retval_ptr);
+				if (retval_ptr != NULL) {
+					zval_ptr_dtor(&retval_ptr);
+				}
 			}
 			zval_ptr_dtor(&result);
 			efree(ctx);
