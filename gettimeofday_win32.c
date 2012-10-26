@@ -28,35 +28,7 @@
 
 /* NB: modifications made to remove dep. on "c.h" from pg source */
 /* Standard include boilerplate */
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#ifdef PHP_WIN32
-# include "win32/php_stdint.h"
-#endif
-
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-#include "ext/standard/url.h"
-#include "ext/standard/php_smart_str.h"
-#include "ext/standard/php_var.h"
-#ifdef HAVE_JSON_API
-# include "ext/json/php_json.h"
-#endif
-#include "ext/standard/php_var.h"
-#include <libcouchbase/couchbase.h>
-#include "php_couchbase.h"
-#ifdef HAVE_COMPRESSION_FASTLZ
-# include "fastlz.c"
-#endif
-#ifdef HAVE_COMPRESSION_ZLIB
-# include "zlib.h"
-#endif
-
-#include "Zend/zend_API.h"
-
+#include "internal.h"
 #include <windows.h>
 
 /* FILETIME of Jan 1 1970 00:00:00. */
