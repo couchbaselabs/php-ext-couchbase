@@ -834,10 +834,11 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 		//case 0: /* see http://www.couchbase.com/issues/browse/PCBC-30 */
 		case COUCHBASE_VAL_IS_LONG:
 		{
+			long lval;
 			char *buf = emalloc(payload_len + sizeof(char));
 			memcpy(buf, payload, payload_len);
 			buf[payload_len] = '\0';
-			long lval = strtol(buf, NULL, 10);
+			lval = strtol(buf, NULL, 10);
 			efree(buf);
 			ZVAL_LONG(value, lval);
 			break;
@@ -845,10 +846,11 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 
 		case COUCHBASE_VAL_IS_DOUBLE:
 		{
+			double dval;
 			char *buf = emalloc(payload_len + sizeof(char));
 			memcpy(buf, payload, payload_len);
 			buf[payload_len] = '\0';
-			double dval = zend_strtod(payload, NULL);
+			dval = zend_strtod(payload, NULL);
 			efree(buf);
 			ZVAL_DOUBLE(value, dval);
 			break;
@@ -1096,11 +1098,11 @@ php_couchbase_touch_callback(lcb_t handle,
                            const void *cookie,
                            lcb_error_t error,
                            const lcb_touch_resp_t *resp) {
-    php_ignore_value(handle);
     php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
     const char* key = (char *)resp->v.v0.key;
     lcb_size_t nkey = resp->v.v0.nkey;
 	char *string_key;
+    php_ignore_value(handle);
 
     // TODO: is cas needed? existing php docs don't say anything about it being used, but it's in the resp struct...
     // lcb_cas_t cas = resp->v.v0.cas;

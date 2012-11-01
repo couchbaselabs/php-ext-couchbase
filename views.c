@@ -214,6 +214,7 @@ static char* php_couchbase_view_convert_to_error(zval *decoded,
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
+	lcb_http_request_t htreq;
 	zval *res, *options = NULL;
 	char *doc_name = NULL, *view_name = NULL;
 	long doc_name_len = 0, view_name_len = 0;
@@ -283,7 +284,6 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */ {
 	cmd.v.v0.method = LCB_HTTP_METHOD_GET;
 	cmd.v.v0.content_type = "application/json";
 
-	lcb_http_request_t htreq;
 	retval = lcb_make_http_request(couchbase_res->handle,
 			(const void *)&ctx,
 			LCB_HTTP_TYPE_VIEW,
