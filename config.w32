@@ -5,9 +5,7 @@ ARG_WITH("couchbase", "for couchbase support", "no");
 
 if (PHP_COUCHBASE != "no") {
 	if (CHECK_LIB("libcouchbase.lib", "couchbase", PHP_COUCHBASE) && 
-		  CHECK_LIB("libvbucket.lib", "couchbase", PHP_COUCHBASE) && 
-	    CHECK_HEADER_ADD_INCLUDE("couchbase.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libcouchbase") &&
-	    CHECK_HEADER_ADD_INCLUDE("vbucket.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libvbucket")) {
-		EXTENSION("couchbase", "couchbase.c");
+	    CHECK_HEADER_ADD_INCLUDE("couchbase.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libcouchbase")) {
+		EXTENSION("couchbase", "couchbase.c views.c");
 	}
 }
