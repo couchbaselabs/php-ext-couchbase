@@ -180,7 +180,7 @@ class Connection extends CouchbaseTestCommon
         $this->assertFalse($h);
 
         $o = new Couchbase($url);
-        $this->assertEquals(23, $o->getResultCode()); // 23 = 0x17 = LCB_CONNECT_ERROR
+        $this->assertEquals(24, $o->getResultCode()); // 24 = 0x18 = LCB_CONNECT_ERROR
         $this->assertContains('Connection', $o->getResultMessage());
 
         # Try with a malformed uri
@@ -206,7 +206,7 @@ class Connection extends CouchbaseTestCommon
             $this->assertFalse($h);
 
             $o = new Couchbase($hosts);
-            $this->assertEquals(23, $o->getResultCode()); // see note above re: 23
+            $this->assertEquals(24, $o->getResultCode()); // see note above re: 24
             $this->assertContains('Connection', $o->getResultMessage());
         }
 
