@@ -1606,8 +1606,7 @@ create_new_link:
 			    php_couchbase_free_connparams(&cparams);
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "failed to create IO instance");
 				RETURN_FALSE;
-			}
-
+            }
 			if (!cparams.bucket) {
 			    cparams.bucket = "default";
 			}
@@ -1618,6 +1617,8 @@ create_new_link:
             create_options.v.v0.passwd = cparams.password;
             create_options.v.v0.bucket = cparams.bucket;
             create_options.v.v0.io = iops;
+
+            iops->v.v0.need_cleanup = 1;
 
 			if (lcb_create(&handle, &create_options) != LCB_SUCCESS) {
 			    php_couchbase_free_connparams(&cparams);
