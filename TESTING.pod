@@ -1,0 +1,280 @@
+=head1 PHP Couchbase Testing
+
+Documentation for test running and writing
+
+=head2 Overview
+
+The tests are written in a customized xunit-like framework, with an API
+compatible with a subset of L<PHPUnit|http://www.phpunit.de>.
+
+They are designed and layed out in such a way to allow execution both under
+the C<phpt> format (i.e. C<make test>, C<run-tests.php>) as well as C<phpunit>.
+
+Additionally, the tests included can be run from any version of the extension
+under both C<phpunit> and C<phpt>. This means that older versions and/or
+releases of the PHP extension may be tested using the latest version of the
+tests.
+
+I'll try to outline various methods of running and/or writing the tests, as
+well as the test code layout itself.
+
+=head2 Clarifications
+
+Some mentions of "phpt tests" and "phpunit tests" will be made. These refer
+to the same exact tests; the difference being the test harness being used.
+I<phpt> tests refer to the tests as they are run under C<run-tests.php> whereas
+I<phpunit> tests refer to the tests as they are run under C<phpunit>.
+
+=head2 Running
+
+This will discuss running the actual tests
+
+=head3 Common Test Setup (IMPORTANT)
+
+The tests require a Couchbase server to connect to. By default these tests
+assume you have a server running on localhost with an unauthenticated C<default>
+bucket.
+
+If this is not the case, you need to tell the tests about your cluster setup.
+This can be done by create a C<tests/couchbase.local.inc> file.
+
+You can copy the template C<tests/couchbase.local.inc.dist> and modify the
+defaults as appropriate.
+
+=head3 PHPT Tests
+
+Note: all command line examples assume the current directory is the source
+root of the php extension
+
+The C<phpt> tests can be run simply by doing:
+
+    $ make test
+
+Which will run the entire test suite.
+
+You can run a portion of the tests by using the C<TESTS> C<Make> variable,
+like so
+
+    # Run only the observe tests
+    $ make test TESTS=tests/phpt/Observe
+
+Tests are largely organized under logical groups corresponding to the
+functionality they test (see L</Framework>).
+
+=head4 Running From A Different Version
+
+As shown, the C<TESTS> Make variable lets you specify an alternate test location.
+This can be used to test from other versions; for example:
+
+At the time of writing there are two branches of the PHP extension, one is
+'master' and the other is '1.0.x'. The new shiny tests feature in the master
+branch but not in the '1.0.x' branch. It is still possible to run the current
+tests against the 1.0.x branch:
+
+Assuming you are in a common top level directory containing C<ext-master> (
+which has the lastest 'master' branch) and C<ext-1.0.x> (which has a version
+of the stable 1.0.x release) you can do like so:
+
+    cd ext-1.0.x
+    make tests TESTS=$PWD/../ext-master/tests
+
+=head4 Helpful Information
+
+The running of C<make test> is rather cryptic. C<make test> itself merely
+wraps another script C<run-tests.php> (which is generated during the build
+process). While I haven't figured out how to run the script itself yet, the
+C<Makefile> passes it options.
+
+Passing arguments to C<run-tests> via C<make test> can be done through setting
+the environment variable C<TEST_PHP_ARGS>.
+
+For example, to run tests under valgrind, one may do
+
+    # This is going to take some time...
+    TEST_PHP_ARGS="-m" make test
+
+To view test output of a failed test, simply navigate to the direct parent
+directory of the C<phpt> file which was executed.
+
+If the phpt test was C<tests/phpt/Connect/ConnectBasic.phpt> then the test
+basename is C<ConnectBasic>. You will then find a C<ConnectBasic.out> (
+actual output of the test), C<ConnectBasic.php> (the script which was
+generated from the C<phpt> file). C<ConnectBasic.sh> (a shell script
+providing the correct incantation) and other such files providing information
+about the tests.
+
+It might be helpful to check C<dmesg> (on Linux) to see if a test is crashing :).
+
+
+=head3 PHPUnit Tests
+
+PHPUnit test invocation is a bit more involved but offers slightly more
+flexibility.
+
+
+For any C<phpunit> test to run, the environment variable C<EXTDIR> must be
+set to the source tree directory for the extension, so that there will be a
+C<$EXTDIR/modules/couchbase.so> after the module is built.
+
+Additionally, due to the various complexities in injecting commandline options,
+the C<phpunit> script itself is wrapped by a Perl script called C<runwrap.pl>
+(this is located in the C<tests> directory). This script passes all command
+line arguments verbatim to C<phpunit>
+
+The tests must be run from within the C<tests> directory as well.
+
+To run the entire suite one may do the following
+
+    export EXTDIR=$PWD
+    cd tests
+    ./runwrap.pl -c test.xml
+    # whoopie!
+
+=head4 Running Specific Tests
+
+The tests are divided into classes (C<.inc> files), and each test class contains
+multiple functions which comprise the specific test cases (these are actually
+generated into C<phpt> files, see L<Framework>).
+
+To run a single test category, one only need pass the C<.inc> file as an argument
+to the script; thus
+
+    ./runwrap.pl Expiry.inc
+    # Will run all the Expiry tests
+
+To run only a single test within the class:
+
+    ./runwrap.pl --filter ExpiryTouchMulti Expiry.inc
+
+=head4 Running Against Different Versions
+
+To run the test suite against a different version, simply modify the C<EXTDIR>
+environment variable to point to the source tree of the version being tested.
+The tests themselves must still be run from within the current C<tests>
+directory though
+
+=head4 Helpful Options and Information
+
+By default C<phpunit> does not create a new process for each test
+(unlike C<make test>). This means that bugs which cause silent memory corruption
+will end up causing other tests to fail. Ususally this is what you want.
+
+However if a specific test crashes it will cause the entire test suite to halt.
+C<phpunit> accepts the C<--process-isolation> option which will run each test
+in its own process.
+
+Additionally, the C<runwrap.pl> script understands a C<DEBUGGER> environment
+variable which it will place before the C<php> commandline. This is very useful
+for debugging and tracing the extension code:
+
+    # Try and reproduce a failing test, and debug it under gdb
+    $ DEBUGGER="gdb --args" ./runwrap.pl --filter ExpiryTouchMulti Expiry.inc
+    GNU gdb (GDB) 7.4.1-debian
+    # ....
+    (gdb) b lcb_connect
+    Function "lcb_connect" not defined.
+    Make breakpoint pending on future shared library load? (y or [n]) y
+
+    Breakpoint 1 (lcb_connect) pending.
+    (gdb) r
+    Starting program: /usr/bin/php /usr/bin/phpunit --filter ExpiryTouchMulti Expiry.inc
+    [Thread debugging using libthread_db enabled]
+    Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+    PHPUnit 3.6.12 by Sebastian Bergmann.
+
+    Breakpoint 1, lcb_connect (instance=0xf8dcb0) at src/instance.c:1108
+    1108        release_socket(instance);
+    (gdb)
+
+Or, run it under valgrind:
+
+    $ DEBUGGER="valgrind --leak-check=full" ./runwrap.pl --filter ExpiryTouchMulti Expiry.inc
+    ==16110== Memcheck, a memory error detector
+    ==16110== Copyright (C) 2002-2011, and GNU GPL'd, by Julian Seward et al.
+    ==16110== Using Valgrind-3.7.0 and LibVEX; rerun with -h for copyright info
+    ==16110== Command: php /usr/bin/phpunit --filter ExpiryTouchMulti Expiry.inc
+    ==16110==
+    PHPUnit 3.6.12 by Sebastian Bergmann.
+
+    .
+
+    Time: 5 seconds, Memory: 3.00Mb
+
+    OK (1 test, 1 assertion)
+    ==16110==
+    ==16110== HEAP SUMMARY:
+    ==16110==     in use at exit: 86,712 bytes in 2,582 blocks
+    ==16110==   total heap usage: 40,660 allocs, 38,078 frees, 8,168,871 bytes allocated
+    ==16110==
+    ==16110== LEAK SUMMARY:
+    ==16110==    definitely lost: 0 bytes in 0 blocks
+    ==16110==    indirectly lost: 0 bytes in 0 blocks
+    ==16110==      possibly lost: 0 bytes in 0 blocks
+    ==16110==    still reachable: 86,712 bytes in 2,582 blocks
+    ==16110==         suppressed: 0 bytes in 0 blocks
+    ==16110== Reachable blocks (those to which a pointer was found) are not shown.
+    ==16110== To see them, rerun with: --leak-check=full --show-reachable=yes
+    ==16110==
+    ==16110== For counts of detected and suppressed errors, rerun with: -v
+    ==16110== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 36 from 10)
+
+=head2 Framework
+
+This section discusses the testing framework and tests themselves.
+
+The test framework consists of several core support files:
+
+    cbtestframework/CBTestFramework.inc - xUnit/phpunit API
+
+    cbtestframework/cbtest-phpt-loader.inc - glue script to load tests under phpt
+
+    Common.inc - base class for all tests. Contains handy functions which
+        extensions to xunit
+
+    gen-phpt.inc - script to generate phpt files from the test classes
+
+    TEST_CLASSES a line delimited list of test classes from which phpt tests
+        should be generated
+
+
+The tests themselves are written in C<xunit/phpunit> style. They are generated
+into C<phpt> style by using the C<gen-phpt.inc> script. In a C<phpt> context,
+the harness spawns a script which in turn loads the test class itself and only
+executes the requested test.
+
+As per C<phpt>, failures and success depend on expected output, so it's important
+that any tests themselves do not output anything when there is no error.
+
+The framework itself will output the single line C<PHP_COUCHBASE_OK> at the
+completion of each test (only in C<phpt> context), and this is the output
+the phpt system will expect.
+
+As per C<phpunit>, tests will only be considered if they are public class
+members and their method names begin with C<test>. Therefore make sure not
+to name any function to start with C<test> unless it's actually a top level
+test.
+
+C<phpunit> also seems to have issues with some doxygen-style tags (specifically,
+any method documented with the C<@test> tag will also be considered a test).
+
+In short:
+
+=over
+
+=item * Don't output anything
+
+This will offend C<phpt>
+
+=item * Name your test methods as starting with C<test>
+
+Not doing so will offend C<phpunit>
+
+=back
+
+If you create a new test class, ensure that it is added to the C<TEST_CLASSES>
+file, and that you run C<gen-phpt.inc> thereafter to generate a test for it.
+
+Additionally, do not use any test method from C<phpt> which is not present in the
+C<CBTestFramework.inc> file. These tests will break under C<phpt>.
+
+
