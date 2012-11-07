@@ -1,4 +1,6 @@
 # Keep the file sorted to minimize the risk for merge conflicts
+*.lo
+*.o
 *~
 .deps
 .libs/
@@ -18,7 +20,6 @@ config.sub
 configure
 configure.in
 couchbase.la
-couchbase.lo
 install-sh
 libtool
 ltmain.sh
@@ -26,12 +27,10 @@ missing
 mkinstalldirs
 modules/
 run-tests.php
+tests/couchbase.local.inc
 tests/phpt/*/*.diff
 tests/phpt/*/*.exp
 tests/phpt/*/*.log
 tests/phpt/*/*.out
 tests/phpt/*/*.php
 tests/phpt/*/*.sh
-tests/couchbase.local.inc
-*.lo
-*.o
