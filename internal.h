@@ -24,6 +24,19 @@
 #include "config.h"
 #endif
 
+
+#ifdef PHP_WIN32
+#	 define PHP_COUCHBASE_API __declspec(dllexport)
+#    define PHP_COUCHBASE_LOCAL
+#	 define strtoull _strtoui64
+#elif defined(__GNUC__) && __GNUC__ >= 4
+#	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
+#    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
+#else
+#	 define PHP_COUCHBASE_API
+#    define PHP_COUCHBASE_LOCAL
+#endif
+
 #ifdef PHP_WIN32
 # include "win32/php_stdint.h"
 #endif
