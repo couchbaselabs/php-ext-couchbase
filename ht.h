@@ -13,8 +13,8 @@ typedef struct {
 } pcbc_ht_key;
 
 typedef struct {
-	pcbc_ht_key* key_info;
-	zval* data;
+	pcbc_ht_key *key_info;
+	zval *data;
 } pcbc_ht_entry;
 
 
@@ -49,13 +49,13 @@ PHP_COUCHBASE_LOCAL
 void pcbc_ht_iter_next(zval *assoc);
 
 PHP_COUCHBASE_LOCAL
-pcbc_ht_key* pcbc_ht_iter_key(zval *assoc);
+pcbc_ht_key *pcbc_ht_iter_key(zval *assoc);
 
 PHP_COUCHBASE_LOCAL
-zval* pcbc_ht_iter_value(zval *assoc);
+zval *pcbc_ht_iter_value(zval *assoc);
 
 PHP_COUCHBASE_LOCAL
-pcbc_ht_entry* pcbc_ht_iter_entry(zval *assoc);
+pcbc_ht_entry *pcbc_ht_iter_entry(zval *assoc);
 
 /**
  * Misc
@@ -76,13 +76,13 @@ PHP_COUCHBASE_LOCAL
 void pcbc_ht_del(zval *assoc, const char *key, unsigned int key_len);
 
 PHP_COUCHBASE_LOCAL
-zval* pcbc_ht_hkfind(zval *assoc, pcbc_ht_key *hk);
+zval *pcbc_ht_hkfind(zval *assoc, pcbc_ht_key *hk);
 
 PHP_COUCHBASE_LOCAL
-zval* pcbc_ht_find(zval *assoc, const char *key, int key_len);
+zval *pcbc_ht_find(zval *assoc, const char *key, int key_len);
 
 PHP_COUCHBASE_LOCAL
-zval* pcbc_ht_ifind(zval *assoc, unsigned long idx);
+zval *pcbc_ht_ifind(zval *assoc, unsigned long idx);
 
 PHP_COUCHBASE_LOCAL
 int pcbc_ht_exists(zval *assoc, const char *key, int key_len);
@@ -92,11 +92,11 @@ int pcbc_ht_iexists(zval *assoc, unsigned long idx);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_ht_hkstores(zval *assoc, pcbc_ht_key *hk,
-		const char *value, int nvalue);
+                      const char *value, int nvalue);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_ht_stores(zval *assoc,
-		const char *key, int nkey, const char *value, int nvalue);
+                    const char *key, int nkey, const char *value, int nvalue);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_ht_hkstoreb(zval *assoc, pcbc_ht_key *hk, zend_bool value);

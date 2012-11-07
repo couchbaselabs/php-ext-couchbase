@@ -41,7 +41,7 @@ static const uint64_t epoch = (uint64_t)116444736000000000;
  * elapsed_time().
  */
 PHP_COUCHBASE_LOCAL
-int gettimeofday(struct timeval * tp, struct timezone * tzp)
+int gettimeofday(struct timeval *tp, struct timezone *tzp)
 {
 	FILETIME	file_time;
 	SYSTEMTIME	system_time;
@@ -52,8 +52,8 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 	ularge.LowPart = file_time.dwLowDateTime;
 	ularge.HighPart = file_time.dwHighDateTime;
 
-	tp->tv_sec = (long) ((ularge.QuadPart - epoch) / 10000000L);
-	tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+	tp->tv_sec = (long)((ularge.QuadPart - epoch) / 10000000L);
+	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
 
 	return 0;
 }

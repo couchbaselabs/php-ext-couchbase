@@ -38,10 +38,10 @@ enum {
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_resource(zval *r_or_this, int oo,
-		int *ec,
-		php_couchbase_res **pres,
-		zval *return_value
-		TSRMLS_DC);
+                                int *ec,
+                                php_couchbase_res **pres,
+                                zval *return_value
+                                TSRMLS_DC);
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_res_ok(int ec TSRMLS_DC);

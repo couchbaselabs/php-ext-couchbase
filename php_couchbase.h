@@ -109,7 +109,7 @@ typedef struct _php_couchbase_res {
 	char *prefix_key;
 	int prefix_key_len;
 	lcb_error_t rc; /* returned code */
-    unsigned char is_connected;
+	unsigned char is_connected;
 } php_couchbase_res;
 
 typedef struct _php_couchbase_ctx {
@@ -125,14 +125,14 @@ void stop_loop(struct lcb_io_opt_st *io);
 void run_loop(struct lcb_io_opt_st *io);
 
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
-	char serializer_real;
-	char *serializer;
-	char compressor_real;
-	char *compressor;
-	long compression_threshold;
-	double compression_factor;
-    long durability_default_poll_interval;
-    long durability_default_timeout;
+char serializer_real;
+char *serializer;
+char compressor_real;
+char *compressor;
+long compression_threshold;
+double compression_factor;
+long durability_default_poll_interval;
+long durability_default_timeout;
 ZEND_END_MODULE_GLOBALS(couchbase)
 
 PHP_GINIT_FUNCTION(couchbase);
@@ -236,25 +236,25 @@ extern void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
 extern void php_couchbase_observe_impl(
-		INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int poll);
+    INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int poll);
 
 PHP_COUCHBASE_LOCAL
 extern void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS,
-		int style);
+                                           int style);
 
 PHP_COUCHBASE_LOCAL
 extern void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
-		int style);
+                                                int style);
 
 
 
 PHP_COUCHBASE_LOCAL
 extern void php_couchbase_observe_callback(
-		lcb_t, const void*, lcb_error_t, const lcb_observe_resp_t*);
+    lcb_t, const void *, lcb_error_t, const lcb_observe_resp_t *);
 
 PHP_COUCHBASE_LOCAL
 extern void observe_polling_internal(
-		php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
+    php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
 
 
 
@@ -270,7 +270,7 @@ extern int le_pcouchbase;
  */
 #ifdef WIN32
 PHP_COUCHBASE_LOCAL
-extern int gettimeofday(struct timeval*, struct timezone*);
+extern int gettimeofday(struct timeval *, struct timezone *);
 
 PHP_COUCHBASE_LOCAL
 extern void usleep(unsigned long);
@@ -320,7 +320,7 @@ int php_couchbase_compress_zlib(const smart_str *input,
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_compress_fastlz(const smart_str *input,
-		php_couchbase_comp *output);
+                                  php_couchbase_comp *output);
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_decompress_zlib(php_couchbase_decomp *info);

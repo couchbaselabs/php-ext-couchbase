@@ -32,8 +32,8 @@
 
 #define CBCOMPHDR_SANITY_MAX 0x40000000
 
-static char * cbcomp_new(php_couchbase_comp *str,
-		size_t cmpbuf_len, size_t origlen)
+static char *cbcomp_new(php_couchbase_comp *str,
+                        size_t cmpbuf_len, size_t origlen)
 {
 	str->alloc = cmpbuf_len;
 	str->_base = emalloc(str->alloc + sizeof(pcbc_payload_len_t));
@@ -42,14 +42,14 @@ static char * cbcomp_new(php_couchbase_comp *str,
 	}
 
 	str->data = str->_base + sizeof(pcbc_payload_len_t);
-	*(pcbc_payload_len_t*)str->_base = origlen;
+	*(pcbc_payload_len_t *)str->_base = origlen;
 	return str->data;
 }
 
 PHP_COUCHBASE_LOCAL
 void cbcomp_free(php_couchbase_comp *str)
 {
-	free (str->_base);
+	free(str->_base);
 	str->data = NULL;
 	str->_base = NULL;
 }
@@ -89,7 +89,7 @@ int cbcomp_dcmp_init(const char *data, size_t len,
 	info->compressed = data + sizeof(pcbc_payload_len_t);
 	info->compressed_len = len - sizeof(pcbc_payload_len_t);
 
-	info->expanded_len = *(pcbc_payload_len_t*)data;
+	info->expanded_len = *(pcbc_payload_len_t *)data;
 	info->expanded = NULL;
 
 	return 1;
@@ -113,8 +113,8 @@ int php_couchbase_compress_zlib(const smart_str *input,
 	cbcomp_new(output, compressBound(input->len), input->len);
 	uLongf tmp_ulen = output->alloc;
 	int status = compress(
-			(Bytef *)output->data, &tmp_ulen,
-			(Bytef *)input->c, input->len);
+	                 (Bytef *)output->data, &tmp_ulen,
+	                 (Bytef *)input->c, input->len);
 
 	if (status == Z_OK) {
 		output->compressed_len = tmp_ulen;
@@ -156,7 +156,7 @@ int php_couchbase_decompress_zlib(php_couchbase_decomp *info)
 
 	if (info->expanded_len < CBCOMPHDR_SANITY_MAX) {
 		status = uncompress((Bytef *)info->expanded, &dlen,
-				(Bytef *)info->compressed, info->orig_len);
+		                    (Bytef *)info->compressed, info->orig_len);
 	}
 
 	/* fall back to 'old-style' decompression */
@@ -167,11 +167,11 @@ int php_couchbase_decompress_zlib(php_couchbase_decomp *info)
 		dlen = n_alloc;
 
 		status = uncompress((Bytef *)info->expanded, &dlen,
-				(Bytef *)info->orig, info->orig_len);
+		                    (Bytef *)info->orig, info->orig_len);
 	}
 
 	if (status != Z_OK) {
-		efree (info->expanded);
+		efree(info->expanded);
 		info->expanded = NULL;
 	} else {
 		info->expanded_len = dlen;
@@ -184,14 +184,14 @@ int php_couchbase_decompress_zlib(php_couchbase_decomp *info)
 #ifdef HAVE_COMPRESSION_FASTLZ
 PHP_COUCHBASE_LOCAL
 int php_couchbase_compress_fastlz(const smart_str *input,
-		php_couchbase_comp *output)
+                                  php_couchbase_comp *output)
 {
 	cbcomp_new(output,
-			(size_t)((input->len * 1.05) + 1),
-			input->len);
+	           (size_t)((input->len * 1.05) + 1),
+	           input->len);
 
 	return (output->compressed_len =
-			(fastlz_compress(input->c, input->len, output->data)));
+	            (fastlz_compress(input->c, input->len, output->data)));
 }
 
 PHP_COUCHBASE_LOCAL
@@ -207,7 +207,7 @@ int php_couchbase_decompress_fastlz(php_couchbase_decomp *info)
 	}
 
 	info->expanded_len = fastlz_decompress(info->compressed,
-			info->compressed_len, info->expanded, info->expanded_len);
+	                                       info->compressed_len, info->expanded, info->expanded_len);
 
 	return info->expanded_len;
 }
