@@ -201,7 +201,6 @@ int php_couchbase_decompress_zlib(php_couchbase_decomp *info)
 }
 #endif /* HAVE_COMPRESSION_ZLIB */
 
-#ifdef HAVE_COMPRESSION_FASTLZ
 PHP_COUCHBASE_LOCAL
 int php_couchbase_compress_fastlz(const smart_str *input,
                                   php_couchbase_comp *output)
@@ -231,4 +230,3 @@ int php_couchbase_decompress_fastlz(php_couchbase_decomp *info)
 
 	return info->expanded_len;
 }
-#endif

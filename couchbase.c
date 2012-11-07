@@ -633,10 +633,8 @@ static PHP_INI_MH(OnUpdateCompressor)
 {
 	if (!new_value || !strcmp(new_value, "none")) {
 		COUCHBASE_G(compressor_real) = COUCHBASE_COMPRESSION_NONE;
-#ifdef HAVE_COMPRESSION_FASTLZ
 	} else if (!strcmp(new_value, "fastlz")) {
 		COUCHBASE_G(compressor_real) = COUCHBASE_COMPRESSION_FASTLZ;
-#endif
 #ifdef HAVE_COMPRESSION_ZLIB
 	} else if (!strcmp(new_value, "zlib")) {
 		COUCHBASE_G(compressor_real) = COUCHBASE_COMPRESSION_ZLIB;
@@ -754,7 +752,6 @@ static char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, uns
 		break;
 	}
 
-#ifdef HAVE_COMPRESSION
 	if ((COUCHBASE_GET_COMPRESSION(*flags)) && buf.len < COUCHBASE_G(compression_threshold)) {
 		COUCHBASE_SET_COMPRESSION(*flags, COUCHBASE_COMPRESSION_NONE);
 	}
@@ -766,12 +763,7 @@ static char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, uns
 		/* Additional 5% for the data (LZ) */
 		switch (compressor) {
 		case COUCHBASE_COMPRESSION_FASTLZ:
-#ifdef HAVE_COMPRESSION_FASTLZ
 			compress_status = php_couchbase_compress_fastlz(&buf, &cmpbuf);
-#else
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not compress value, no fastlz support");
-			return NULL;
-#endif
 			break;
 		case COUCHBASE_COMPRESSION_ZLIB:
 #ifdef HAVE_COMPRESSION_ZLIB
@@ -814,11 +806,6 @@ static char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, uns
 		*payload_len = buf.len;
 		payload = estrndup(buf.c, buf.len);
 	}
-#else
-	COUCHBASE_SET_COMPRESSION(*flags, COUCHBASE_COMPRESSION_NONE);
-	*payload_len = buf.len;
-	payload = estrndup(buf.c, buf.len);
-#endif
 
 	smart_str_free(&buf);
 	return payload;
@@ -849,7 +836,6 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 	}
 
 	if ((compressor = COUCHBASE_GET_COMPRESSION(flags))) {
-#ifdef HAVE_COMPRESSION
 
 		php_couchbase_decomp dcmp = { NULL };
 		zend_bool decompress_status = 0;
@@ -858,12 +844,7 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 
 		switch (compressor) {
 		case COUCHBASE_COMPRESSION_FASTLZ:
-#ifdef HAVE_COMPRESSION_FASTLZ
 			decompress_status = php_couchbase_decompress_fastlz(&dcmp);
-#else
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not decompress value, no fastlz support");
-			return 0;
-#endif
 			break;
 		case COUCHBASE_COMPRESSION_ZLIB:
 #ifdef HAVE_COMPRESSION_ZLIB
@@ -884,11 +865,6 @@ static int php_couchbase_zval_from_payload(zval *value, char *payload, size_t pa
 		payload = dcmp.expanded;
 		payload_len = dcmp.expanded_len;
 		payload_emalloc = 1;
-
-#else
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not decompress value, no decompressor found");
-		return 0;
-#endif
 	}
 
 	switch (COUCHBASE_VAL_GET_TYPE(flags)) {
@@ -4174,11 +4150,7 @@ PHP_MINFO_FUNCTION(couchbase)
 #else
 	php_info_print_table_row(2, "json support", "no");
 #endif
-#ifdef HAVE_COMPRESSION_FASTLZ
 	php_info_print_table_row(2, "fastlz support", "yes");
-#else
-	php_info_print_table_row(2, "fastlz support", "no");
-#endif
 
 #ifdef HAVE_COMPRESSION_ZLIB
 	php_info_print_table_row(2, "zlib support", "yes");

@@ -161,7 +161,6 @@ if test "$PHP_COUCHBASE" != "no"; then
   if test "$PHP_ZLIB_DIR" != "no" && test "$PHP_ZLIB_DIR" != "yes"; then
     PHP_ADD_LIBRARY_WITH_PATH(z, $PHP_ZLIB_DIR/$PHP_LIBDIR, COUCHBASE_SHARED_LIBADD)
     PHP_ADD_INCLUDE($PHP_ZLIB_INCDIR)
-    AC_DEFINE(HAVE_COMPRESSION,1,[Whether has a compresser])
     AC_DEFINE(HAVE_COMPRESSION_ZLIB,1,[Whether zlib lib is available])
   else
     AC_MSG_ERROR([couchbase support requires ZLIB. Use --with-zlib-dir=<DIR> to specify the prefix where ZLIB headers and library are located])
@@ -171,5 +170,5 @@ if test "$PHP_COUCHBASE" != "no"; then
   dnl PHP_ADD_LIBRARY(stdc++, 1, COUCHBASE_SHARED_LIBADD)
   dnl PHP_ADD_LIBRARY(event, 1, COUCHBASE_SHARED_LIBADD)
   PHP_SUBST(COUCHBASE_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(couchbase, compress.c couchbase.c views.c observe.c ht.c resmgr.c misc.c, $ext_shared)
+  PHP_NEW_EXTENSION(couchbase, compress.c couchbase.c views.c observe.c ht.c resmgr.c misc.c fastlz/fastlz.c, $ext_shared)
 fi

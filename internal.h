@@ -53,9 +53,8 @@
 #include "ext/standard/php_var.h"
 #include <libcouchbase/couchbase.h>
 #include "php_couchbase.h"
-#ifdef HAVE_COMPRESSION_FASTLZ
-# include "fastlz.c"
-#endif
+#include "fastlz/fastlz.h"
+
 #ifdef HAVE_COMPRESSION_ZLIB
 # include "zlib.h"
 #endif
