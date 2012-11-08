@@ -14,59 +14,28 @@
   | implied. See the License for the specific language governing		 |
   | permissions and limitations under the License.						 |
   +----------------------------------------------------------------------+
-  | Author: Trond Norbye	<trond.norbye@couchbase.com>				 |
+  | Author: Trond Norbye   <trond.norbye@couchbase.com>					 |
   +----------------------------------------------------------------------+
 */
-#ifndef COUCHBASE_INTERNAL_H
-#define COUCHBASE_INTERNAL_H 1
+#ifndef MANAGEMENT_EXCEPTIONS_H
+#define MANAGEMENT_EXCEPTIONS_H
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *ccm_exception;
 
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *ccm_illegal_key_exception;
 
-#ifdef PHP_WIN32
-#	 define PHP_COUCHBASE_API __declspec(dllexport)
-#    define PHP_COUCHBASE_LOCAL
-#	 define strtoull _strtoui64
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
-#    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
-#else
-#	 define PHP_COUCHBASE_API
-#    define PHP_COUCHBASE_LOCAL
-#endif
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *ccm_auth_exception;
 
-#ifdef PHP_WIN32
-# include "win32/php_stdint.h"
-#endif
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *ccm_lcb_exception;
 
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-#include "ext/standard/url.h"
-#include "ext/standard/php_smart_str.h"
-#include "ext/standard/php_var.h"
-#ifdef HAVE_JSON_API
-# include "ext/json/php_json.h"
-#endif
-#include "ext/standard/php_var.h"
-#include <libcouchbase/couchbase.h>
-#include "php_couchbase.h"
-#include "fastlz/fastlz.h"
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *ccm_server_exception;
 
-#ifdef HAVE_COMPRESSION_ZLIB
-# include "zlib.h"
-#endif
-
-#include "Zend/zend_API.h"
-#include <zend_exceptions.h>
-
-#include "timeout.h"
-#include "management/cluster.h"
-#include "management/exceptions.h"
-
-#endif
+#endif	  /* MANAGEMENT_EXCEPTION_H */
 
 /*
  * Local variables:

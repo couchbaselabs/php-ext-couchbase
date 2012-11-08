@@ -7,7 +7,15 @@ if (PHP_COUCHBASE != "no") {
 	if (CHECK_LIB("libcouchbase.lib", "couchbase", PHP_COUCHBASE) &&
 	    CHECK_HEADER_ADD_INCLUDE("couchbase.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libcouchbase")) {
 		EXTENSION("couchbase", "couchbase.c", PHP_COUCHBASE_SHARED, "");
-		ADD_SOURCES(configure_module_dirname, "views.c observe.c ht.c resmgr.c misc.c gettimeofday_win32.c compress.c timeout.c", "couchbase");
-        ADD_SOURCES(configure_module_dirname + "\\fastlz", "fastlz.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "compress.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "gettimeofday_win32.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "ht.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "misc.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "observe.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "resmgr.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "timeout.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "views.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname + "\\fastlz", "fastlz.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname + "\\management", "buckets.c instance.c management.c", "couchbase");
 	}
 }

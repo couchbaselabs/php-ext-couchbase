@@ -4170,6 +4170,8 @@ PHP_MINIT_FUNCTION(couchbase)
 
 	zend_declare_property_null(couchbase_ce, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), ZEND_ACC_PRIVATE TSRMLS_CC);
 
+	init_couchbase_cluster(module_number TSRMLS_CC);
+
 	return SUCCESS;
 }
 /* }}} */

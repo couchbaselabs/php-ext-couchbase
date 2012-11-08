@@ -292,7 +292,6 @@ PHP_COUCHBASE_LOCAL
 extern void usleep(unsigned long);
 #endif /* WIN32 */
 
-
 /**
  * See https://github.com/php-memcached-dev/php-memcached/blob/1416a09d1d0e78cea5fec227744c1fe7b352017b/php_memcached.c#L2728
  * - pecl-memcached uses a raw unconverted (i.e. no htonl) for determining the
