@@ -30,12 +30,16 @@ my $design = {
     }
 };
 
+my ($ehost,$eport) = split(/:/, $Host);
+$ehost = "$ehost:8092";
+
 my $ua = LWP::UserAgent->new();
-$ua->credentials($Host, "", $Username, $Password);
 my $req = HTTP::Request->new('PUT',
-                             "http://$Host:8092/$Bucket/_design/$DesignName");
+                             "http://$ehost/$Bucket/_design/$DesignName");
+$req->authorization_basic($Username, $Password);
 $req->content(encode_json($design));
 $req->header('content-type', 'application/json');
+
 my $resp = $ua->request($req);
 if (!$resp->is_success()) {
     print Dumper($resp);
