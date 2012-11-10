@@ -1009,13 +1009,13 @@ static void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{
 /* callbacks */
 static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const char *errinfo) /* {{{ */
 {
-	php_couchbase_ctx *ctx = (php_couchbase_ctx *)lcb_get_cookie(handle);
+	php_couchbase_res *res = (php_couchbase_res *)lcb_get_cookie(handle);
 	/**
 	 * @FIXME: when connect to a non-couchbase-server port (but the socket is valid)
 	 * like a apache server, process will be hanged by event_loop
 	 */
-	if (ctx && ctx->res->seqno < 0) {
-		stop_loop(ctx->res->io);
+	if (res && res->seqno < 0) {
+		stop_loop(res->io);
 	}
 }
 /* }}} */
@@ -1600,7 +1600,6 @@ static void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {
 		lcb_error_t retval;
 		lcb_io_opt_t iops;
 		php_couchbase_res *couchbase_res;
-		php_couchbase_ctx *ctx = NULL;
 		char *hashed_key;
 		uint hashed_key_len = 0;
 
@@ -1733,9 +1732,7 @@ create_new_link:
 			couchbase_res->compressor = COUCHBASE_G(compressor_real);
 			couchbase_res->ignoreflags = 0;
 
-			ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-			ctx->res = couchbase_res;
-			lcb_set_cookie(handle, (const void *)ctx);
+			lcb_set_cookie(handle, (const void *)couchbase_res);
 
 			/* wait for the connection established */
 			if (LCB_SUCCESS == retval) { /* earlier lcb_connect's retval */
@@ -1760,8 +1757,6 @@ create_new_link:
 					php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to store persistent link");
 				}
 				efree(hashed_key);
-				efree(ctx);
-				ctx = NULL;
 			}
 		}
 
@@ -1771,14 +1766,10 @@ create_new_link:
 			zend_update_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), return_value TSRMLS_CC);
 		} else if (!couchbase_res->is_connected) { /* !oo && !connected */
 			php_couchbase_free_connparams(&cparams);
-			efree(ctx);
 			RETURN_FALSE;
 		}
 
 		php_couchbase_free_connparams(&cparams);
-		if (ctx != NULL) {
-			efree(ctx);
-		}
 	}
 }
 /* }}} */
@@ -2203,7 +2194,7 @@ static void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			RETURN_FALSE;
 		}
 		couchbase_res->async = 1;
-		lcb_set_cookie(couchbase_res->handle, (const void *)ctx);
+		couchbase_res->async_ctx = ctx;
 		if (couchbase_res->prefix_key_len) {
 			int i;
 			for (i = 0; i < nkey; i++) {
@@ -2516,7 +2507,9 @@ static void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, in
 		if (!couchbase_res->async) {
 			RETURN_FALSE;
 		}
-		ctx = (php_couchbase_ctx *)lcb_get_cookie(couchbase_res->handle);
+
+		ctx = couchbase_res->async_ctx;
+
 		if (couchbase_res->async == 2) {
 fetch_one: {
 				char *key;
@@ -2528,6 +2521,7 @@ fetch_one: {
 					couchbase_res->async = 0;
 					zval_ptr_dtor(&stash);
 					efree(ctx);
+					couchbase_res->async_ctx = NULL;
 					RETURN_NULL();
 				}
 				zend_hash_internal_pointer_reset(Z_ARRVAL_P(stash));
@@ -2554,6 +2548,7 @@ fetch_one: {
 		} else {
 			efree(ctx);
 			couchbase_res->async = 0;
+			couchbase_res->async_ctx = NULL;
 		}
 	}
 }

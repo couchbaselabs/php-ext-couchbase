@@ -97,6 +97,7 @@ extern zend_class_entry *couchbase_ce;
 #define Z_ADDREF_P	ZVAL_ADDREF
 #endif
 
+struct _php_couchbase_ctx;
 
 typedef struct _php_couchbase_res {
 	lcb_t handle;
@@ -110,6 +111,9 @@ typedef struct _php_couchbase_res {
 	int prefix_key_len;
 	lcb_error_t rc; /* returned code */
 	unsigned char is_connected;
+
+	/* asynchronous context */
+	struct _php_couchbase_ctx *async_ctx;
 } php_couchbase_res;
 
 typedef struct _php_couchbase_ctx {
