@@ -698,12 +698,23 @@ static PHP_INI_MH(OnUpdateSerializer)
 /* {{{ PHP_INI
  */
 PHP_INI_BEGIN()
-STD_PHP_INI_ENTRY("couchbase.serializer", "php", PHP_INI_ALL, OnUpdateSerializer, serializer, zend_couchbase_globals, couchbase_globals)
-STD_PHP_INI_ENTRY("couchbase.compressor", "none",	 PHP_INI_ALL, OnUpdateCompressor, compressor, zend_couchbase_globals, couchbase_globals)
-STD_PHP_INI_ENTRY("couchbase.compression_factor", "1.3",	PHP_INI_ALL, OnUpdateReal, compression_factor, zend_couchbase_globals, couchbase_globals)
-STD_PHP_INI_ENTRY("couchbase.compression_threshold", "2000",	PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
-STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_INTERVAL, "100000", PHP_INI_ALL, OnUpdateLong, durability_default_poll_interval, zend_couchbase_globals, couchbase_globals) /* units of microseconds, 100k = a tenth of a second */
-STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_TIMEOUT, "4000000", PHP_INI_ALL, OnUpdateLong, durability_default_timeout, zend_couchbase_globals, couchbase_globals) /* also units of microseconds, 40M = 40sec */
+STD_PHP_INI_ENTRY(PCBC_INIENT_SERIALIZER, PCBC_INIDEFL_SERIALIZER,
+		PHP_INI_ALL, OnUpdateSerializer, serializer, zend_couchbase_globals, couchbase_globals)
+
+STD_PHP_INI_ENTRY(PCBC_INIENT_COMPALGO, PCBC_INIDEFL_COMPALGO,
+		PHP_INI_ALL, OnUpdateCompressor, compressor, zend_couchbase_globals, couchbase_globals)
+
+STD_PHP_INI_ENTRY(PCBC_INIENT_COMPFACTOR, PCBC_INIDEFL_COMPFACTOR,
+		PHP_INI_ALL, OnUpdateReal, compression_factor, zend_couchbase_globals, couchbase_globals)
+
+STD_PHP_INI_ENTRY(PCBC_INIENT_COMPTHRESH, PCBC_INIDEFL_COMPTHRESH,
+		PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
+
+STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_INTERVAL, PCBC_INIDEFL_OBS_INTERVAL,
+		PHP_INI_ALL, OnUpdateLong, durability_default_poll_interval, zend_couchbase_globals, couchbase_globals) /* units of microseconds, 100k = a tenth of a second */
+
+STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_TIMEOUT, PCBC_INIDEFL_OBS_TIMEOUT,
+		PHP_INI_ALL, OnUpdateLong, durability_default_timeout, zend_couchbase_globals, couchbase_globals) /* also units of microseconds, 40M = 40sec */
 PHP_INI_END()
 /* }}} */
 

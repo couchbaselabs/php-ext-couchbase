@@ -219,12 +219,25 @@ PHP_FUNCTION(couchbase_get_timeout);
 PHP_FUNCTION(couchbase_set_timeout);
 
 /**
- * INI Entries
- * TODO: migrate all ini entries here..
+ * INI Entries. The naming scheme here should be self-evident
  */
 #define PCBC_INIENT_OBS_INTERVAL "couchbase.durability_default_poll_interval"
-#define PCBC_INIENT_OBS_TIMEOUT "couchbase.durability_default_timeout"
+#define PCBC_INIDEFL_OBS_INTERVAL "100000"
 
+#define PCBC_INIENT_OBS_TIMEOUT "couchbase.durability_default_timeout"
+#define PCBC_INIDEFL_OBS_TIMEOUT "4000000"
+
+#define PCBC_INIENT_SERIALIZER "couchbase.serializer"
+#define PCBC_INIDEFL_SERIALIZER "php"
+
+#define PCBC_INIENT_COMPALGO "couchbase.compressor"
+#define PCBC_INIDEFL_COMPALGO "none"
+
+#define PCBC_INIENT_COMPFACTOR "couchbase.compression_factor"
+#define PCBC_INIDEFL_COMPFACTOR "1.3"
+
+#define PCBC_INIENT_COMPTHRESH "couchbase.compression_threshold"
+#define PCBC_INIDEFL_COMPTHRESH "2000"
 
 /**
  * Hash table manipulation functions.
