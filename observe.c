@@ -767,7 +767,6 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 		char *key = NULL;
 		long nkey = 0;
-
 		zval *cas;
 		zval *akc_dummy = NULL;
 
@@ -835,23 +834,37 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 			pcbc_ht_hkstoreb(akc_dummy, &dummy_hk, 0);
 		}
 
-		if (poll) {
-			if (-1 == oks_extract_durability(couchbase_res,
-			                                 &expect,
-			                                 &pollprefs,
-			                                 adurability)) {
+		/* Weird block right here to sanely free the structures allocated */
+		{
+			int have_failure = 0;
+			do {
 
+				if (poll) {
+					if (-1 == oks_extract_durability(couchbase_res,
+					                                 &expect,
+					                                 &pollprefs,
+					                                 adurability)) {
+						have_failure = 1;
+						break;
+					}
+				}
+
+				if (-1 == oks_build_context(
+				            couchbase_res, &ocoll, &expect, akc_dummy, 0)) {
+
+					have_failure = 1;
+					break;
+				}
+			} while (0);
+
+			/** >> CLEANUP HERE */
+			zval_ptr_dtor(&akc_dummy);
+			pcbc_ht_key_cleanup(&dummy_hk);
+
+			if (have_failure) {
 				RETURN_FALSE;
 			}
 		}
-
-		if (-1 == oks_build_context(
-		            couchbase_res, &ocoll, &expect, akc_dummy, 0)) {
-			RETURN_FALSE;
-		}
-
-		zval_dtor(akc_dummy);
-		pcbc_ht_key_cleanup(&dummy_hk);
 	}
 
 	if (adetails && Z_TYPE_P(adetails) != IS_ARRAY) {

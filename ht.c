@@ -356,7 +356,7 @@ void pcbc_ht_dispose(zval *assoc)
 		          "assoc_destroy given non-array zval, in couchbase php-ext");
 	}
 
-	zval_dtor(assoc);
+	zval_ptr_dtor(&assoc);
 }
 
 
