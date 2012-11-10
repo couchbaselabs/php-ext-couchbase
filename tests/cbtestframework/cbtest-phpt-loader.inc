@@ -6,6 +6,12 @@ require_once dirname(__FILE__).'/../Common.inc';
 function couchbase_phpt_runtest($clsname, $name) {
     require_once(dirname(__FILE__)."/../$clsname.inc");
     $reflector = new ReflectionClass($clsname);
+
+    if ($reflector->hasMethod("setUpBeforeClass")) {
+        $reflector->getMethod("setUpBeforeClass"
+                              )->invoke(NULL);
+    }
+
     $obj = $reflector->newInstance();
 
     # If any assertions fail here, PHPUnitCompat will fail the test

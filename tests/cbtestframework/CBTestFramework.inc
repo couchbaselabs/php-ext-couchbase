@@ -44,7 +44,7 @@ class CBTestFramework {
         );
 
         $tname = $type;
-        
+
         if (array_key_exists($type, $specialmap)) {
             $tname = $specialmap[$type];
         }
@@ -223,6 +223,11 @@ class CBTestFramework {
                 $this->runSingleTest($name);
             }
         }
+    }
+
+    // View tests use this
+    static function setUpBeforeClass() {
+
     }
 }
 
