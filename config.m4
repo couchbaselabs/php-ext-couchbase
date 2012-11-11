@@ -173,6 +173,7 @@ if test "$PHP_COUCHBASE" != "no"; then
   PHP_NEW_EXTENSION([couchbase],
                     [compress.c \
                      couchbase.c \
+                     create.c \
                      fastlz/fastlz.c \
                      ht.c \
                      management/buckets.c \

@@ -30,6 +30,9 @@
 #define COUCHBASE_APIDECL_H_
 
 PHP_COUCHBASE_LOCAL
+void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
+
+PHP_COUCHBASE_LOCAL
 void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 
 PHP_COUCHBASE_LOCAL
