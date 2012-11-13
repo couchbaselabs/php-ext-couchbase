@@ -7,7 +7,7 @@ if (PHP_COUCHBASE != "no") {
 	if (CHECK_LIB("libcouchbase.lib", "couchbase", PHP_COUCHBASE) &&
 	    CHECK_HEADER_ADD_INCLUDE("couchbase.h", "CFLAGS_COUCHBASE",  PHP_COUCHBASE+ ";" + PHP_PHP_BUILD + "\\include\\libcouchbase")) {
 		EXTENSION("couchbase", "couchbase.c", PHP_COUCHBASE_SHARED, "");
-		ADD_SOURCES(configure_module_dirname, "views.c observe.c ht.c resmgr.c misc.c gettimeofday_win32.c compress.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "views.c observe.c ht.c resmgr.c misc.c gettimeofday_win32.c compress.c timeout.c", "couchbase");
         ADD_SOURCES(configure_module_dirname + "\\fastlz", "fastlz.c", "couchbase");
 	}
 }

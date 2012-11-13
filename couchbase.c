@@ -283,6 +283,18 @@ ZEND_ARG_INFO(0, resource)
 ZEND_ARG_ARRAY_INFO(0, key_to_cas, 0)
 ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get_timeout, 0, 0, 1)
+ZEND_ARG_INFO(0, resource)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_set_timeout, 0, 0, 2)
+ZEND_ARG_INFO(0, resource)
+ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
+
 /* }}} */
 
 /* {{{ COUCHBASE_METHODS_ARG_INFO
@@ -501,6 +513,17 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_key_durability_multi, 0, 0, 2)
 ZEND_ARG_ARRAY_INFO(0, key_to_cas, 0)
 ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_get_timeout, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_set_timeout, 0, 0, 1)
+ZEND_ARG_INFO(0, timeout)
+ZEND_END_ARG_INFO()
+
+
 /* }}} */
 
 /* {{{ couchbase_functions[]
@@ -538,7 +561,9 @@ static zend_function_entry couchbase_functions[] = {
 	PHP_FE(couchbase_observe, arginfo_observe)
 	PHP_FE(couchbase_observe_multi, arginfo_observe_multi)
 	PHP_FE(couchbase_key_durability, arginfo_key_durability)
-	PHP_FE(couchbase_key_durability_multi, arginfo_key_durability_multi) {
+	PHP_FE(couchbase_key_durability_multi, arginfo_key_durability_multi)
+	PHP_FE(couchbase_get_timeout, arginfo_get_timeout)
+	PHP_FE(couchbase_set_timeout, arginfo_set_timeout) {
 		NULL, NULL, NULL
 	}
 };
@@ -579,7 +604,9 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, observe, arginfo_m_observe, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, observeMulti, arginfo_m_observe_multi, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, keyDurability, arginfo_m_key_durability, ZEND_ACC_PUBLIC)
-	PHP_ME(couchbase, keyDurabilityMulti, arginfo_m_key_durability_multi, ZEND_ACC_PUBLIC) {
+	PHP_ME(couchbase, keyDurabilityMulti, arginfo_m_key_durability_multi, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, getTimeout, arginfo_m_get_timeout, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, setTimeout, arginfo_m_set_timeout, ZEND_ACC_PUBLIC) {
 		NULL, NULL, NULL
 	}
 };
@@ -3735,6 +3762,20 @@ PHP_METHOD(couchbase, keyDurabilityMulti)
 }
 /* }}} */
 
+/* {{{ proto Couchbase::getTimeout() */
+PHP_METHOD(couchbase, getTimeout)
+{
+	php_couchbase_get_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
+/* {{{ proto Couchbase::setTimeout(int $timeout) */
+PHP_METHOD(couchbase, setTimeout)
+{
+	php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
+/* }}} */
+
 /* procedural APIs*/
 /* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
 */
@@ -4009,6 +4050,20 @@ PHP_FUNCTION(couchbase_key_durability)
 PHP_FUNCTION(couchbase_key_durability_multi)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 1); /*multi, oo, poll */
+}
+/* }}} */
+
+/* {{{ proto couchbase_get_timeout(resource $couchbase) */
+PHP_FUNCTION(couchbase_get_timeout)
+{
+	php_couchbase_get_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_set_timeout(resource $couchbase, int $timeout) */
+PHP_FUNCTION(couchbase_set_timeout)
+{
+	php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
 /* }}} */
 

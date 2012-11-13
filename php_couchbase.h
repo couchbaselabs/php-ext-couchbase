@@ -175,6 +175,8 @@ PHP_METHOD(couchbase, observe);
 PHP_METHOD(couchbase, observeMulti);
 PHP_METHOD(couchbase, keyDurability);
 PHP_METHOD(couchbase, keyDurabilityMulti);
+PHP_METHOD(couchbase, getTimeout);
+PHP_METHOD(couchbase, setTimeout);
 
 PHP_FUNCTION(couchbase_connect);
 PHP_FUNCTION(couchbase_add);
@@ -209,6 +211,8 @@ PHP_FUNCTION(couchbase_observe);
 PHP_FUNCTION(couchbase_observe_multi);
 PHP_FUNCTION(couchbase_key_durability);
 PHP_FUNCTION(couchbase_key_durability_multi);
+PHP_FUNCTION(couchbase_get_timeout);
+PHP_FUNCTION(couchbase_set_timeout);
 
 /**
  * INI Entries

@@ -49,4 +49,35 @@ class Info extends CouchbaseTestCommon {
             $this->assertInternalType('string', $srv);
         }
     }
+
+    /**
+     * Test that we may get and set the timeout values from
+     * libcouchbase. We don't try to test the actual timeout
+     * functionality in libcouchbase, but assume that if we're
+     * able to modify it its good enough for us (the actual
+     * timeout code in libcouchbase should be tested there).
+     *
+     * Test both the object oriented and the functional interface
+     */
+    function testGetSetTimeout() {
+        $h = $this->getPersistHandle();
+        $tmo = couchbase_get_timeout($h);
+	$next = $tmo + 1;
+	$this->assertTrue(couchbase_set_timeout($h, $next));
+	$this->assertEquals($next, couchbase_get_timeout($h));
+
+	// Restore original value
+	$this->assertTrue(couchbase_set_timeout($h, $tmo));
+    }
+
+    function testGetSetTimeoutOO() {
+        $oo = $this->getPersistOO();
+        $tmo = $oo->getTimeout();
+	$next = $tmo + 1;
+	$this->assertTrue($oo->setTimeout($next));
+	$this->assertEquals($next, $oo->getTimeout());
+
+	// Restore original value
+	$this->assertTrue($oo->setTimeout($tmo));
+    }
 }

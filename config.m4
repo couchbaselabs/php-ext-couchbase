@@ -170,5 +170,5 @@ if test "$PHP_COUCHBASE" != "no"; then
   dnl PHP_ADD_LIBRARY(stdc++, 1, COUCHBASE_SHARED_LIBADD)
   dnl PHP_ADD_LIBRARY(event, 1, COUCHBASE_SHARED_LIBADD)
   PHP_SUBST(COUCHBASE_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(couchbase, compress.c couchbase.c views.c observe.c ht.c resmgr.c misc.c fastlz/fastlz.c, $ext_shared)
+  PHP_NEW_EXTENSION(couchbase, compress.c couchbase.c views.c observe.c ht.c resmgr.c misc.c fastlz/fastlz.c timeout.c, $ext_shared)
 fi

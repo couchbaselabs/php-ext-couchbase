@@ -17,51 +17,15 @@
   | Author: Trond Norbye	<trond.norbye@couchbase.com>				 |
   +----------------------------------------------------------------------+
 */
-#ifndef COUCHBASE_INTERNAL_H
-#define COUCHBASE_INTERNAL_H 1
+#ifndef COUCHBASE_TIMEOUT_H
+#define COUCHBASE_TIMEOUT_H 1
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+PHP_COUCHBASE_LOCAL
+void php_couchbase_get_timeout_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
+PHP_COUCHBASE_LOCAL
+void php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
-#ifdef PHP_WIN32
-#	 define PHP_COUCHBASE_API __declspec(dllexport)
-#    define PHP_COUCHBASE_LOCAL
-#	 define strtoull _strtoui64
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
-#    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
-#else
-#	 define PHP_COUCHBASE_API
-#    define PHP_COUCHBASE_LOCAL
-#endif
-
-#ifdef PHP_WIN32
-# include "win32/php_stdint.h"
-#endif
-
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-#include "ext/standard/url.h"
-#include "ext/standard/php_smart_str.h"
-#include "ext/standard/php_var.h"
-#ifdef HAVE_JSON_API
-# include "ext/json/php_json.h"
-#endif
-#include "ext/standard/php_var.h"
-#include <libcouchbase/couchbase.h>
-#include "php_couchbase.h"
-#include "fastlz/fastlz.h"
-
-#ifdef HAVE_COMPRESSION_ZLIB
-# include "zlib.h"
-#endif
-
-#include "Zend/zend_API.h"
-
-#include "timeout.h"
 
 #endif
 
