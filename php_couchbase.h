@@ -101,7 +101,6 @@ struct _php_couchbase_ctx;
 
 typedef struct _php_couchbase_res {
 	lcb_t handle;
-	lcb_io_opt_t io;
 	long seqno;
 	char async;
 	char serializer;
@@ -123,10 +122,6 @@ typedef struct _php_couchbase_ctx {
 	unsigned char flags;
 	void *extended_value;
 } php_couchbase_ctx;
-
-
-void stop_loop(struct lcb_io_opt_st *io);
-void run_loop(struct lcb_io_opt_st *io);
 
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
 char serializer_real;
@@ -354,6 +349,19 @@ int php_couchbase_decompress_fastlz(php_couchbase_decomp *info);
 PHP_COUCHBASE_LOCAL
 void cbcomp_deploy(php_couchbase_comp *str);
 
+/*
+ * The following methods is an extra abstraction away from
+ * libcouchbase in case we'd want to do extra stuff
+ * around start / stopping of the io model.
+ *
+ * Ideally we'd like to use the synchronous mode in libcoucbase
+ * instead of these methods.
+ */
+PHP_COUCHBASE_LOCAL
+void pcbc_start_loop(struct _php_couchbase_res *res);
+
+PHP_COUCHBASE_LOCAL
+void pcbc_stop_loop(struct _php_couchbase_res *res);
 
 #endif	  /* PHP_COUCHBASE_H */
 

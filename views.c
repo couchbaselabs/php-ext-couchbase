@@ -44,7 +44,7 @@ void php_couchbase_complete_callback(lcb_http_request_t request,
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	php_couchbase_htinfo *hti;
 
-	stop_loop(ctx->res->io);
+	pcbc_stop_loop(ctx->res);
 
 	if (resp->version != 0) {
 		ctx->extended_value = NULL;
@@ -288,7 +288,7 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		RETURN_FALSE;
 	}
 
-	run_loop(couchbase_res->io);
+	pcbc_start_loop(couchbase_res);
 
 	if (ctx.extended_value) {
 		php_couchbase_htinfo *hti = ctx.extended_value;

@@ -526,7 +526,7 @@ static int observe_iterate(php_couchbase_res *res,
 	}
 
 	obs_debug("Waiting for %d commands\n", scheduled);
-	lcb_wait(res->handle);
+	pcbc_start_loop(res);
 
 	/**
 	 * Iterate again over the responses.
