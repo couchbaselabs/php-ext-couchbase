@@ -301,7 +301,7 @@ static int oks_extract_durability(php_couchbase_res *res,
 		if (tmplong < gt) { \
 			php_error(E_RECOVERABLE_ERROR, k " must be greater than %d", gt); \
 		} \
-	} \
+	}
 
 	_must_get_long(COUCHBASE_OBSERVE_PERSIST_TO_KEY, 0);
 	expectation->persist = tmplong;
