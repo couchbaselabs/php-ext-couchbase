@@ -34,5 +34,5 @@ astyle --mode=c \
        --add-brackets \
        --unpad-paren \
        --align-pointer=name \
-       `find $ROOT -name "*.[ch]"`
+       `find $ROOT -name "*.[ch]" | grep -v fastlz`
 
