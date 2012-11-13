@@ -26,6 +26,7 @@ ltmain.sh
 missing
 mkinstalldirs
 modules/
+package/php-ext-couchbase.tar.gz
 run-tests.php
 tests/couchbase.local.inc
 tests/phpt/*/*.diff
@@ -34,3 +35,4 @@ tests/phpt/*/*.log
 tests/phpt/*/*.out
 tests/phpt/*/*.php
 tests/phpt/*/*.sh
+tmp-php.ini

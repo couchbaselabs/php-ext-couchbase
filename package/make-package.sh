@@ -8,7 +8,11 @@
 # Creates ./package/php-ext-couchbase.tar.gz
 
 phpize
-./configure
+if [ -z "$1" ]; then
+  ./configure
+else
+  ./configure --with-couchbase=$1
+fi
 make clean
 make
 
