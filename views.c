@@ -52,13 +52,15 @@ void php_couchbase_complete_callback(lcb_http_request_t request,
 		return;
 	}
 
+	/** We have one extra byte in 'data' */
 	hti = emalloc(sizeof(*hti) + resp->v.v0.nbytes);
 	hti->ndata = resp->v.v0.nbytes;
-	memcpy(hti->data, resp->v.v0.bytes, hti->ndata + 1);
+
 	if (hti->ndata) {
-		hti->data[hti->ndata - 1] = '\0';
-		hti->ndata--;
+		memcpy(hti->data, resp->v.v0.bytes, hti->ndata);
 	}
+
+	hti->data[hti->ndata] = '\0';
 
 	ctx->res->rc = error;
 	ctx->extended_value = hti;
