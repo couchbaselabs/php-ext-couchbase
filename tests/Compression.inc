@@ -4,10 +4,6 @@ require_once 'Common.inc';
 class Compression extends CouchbaseTestCommon {
 
     function _comp_common($comptype) {
-        if (!$this->atLeastVersion(array(1,1))) {
-            $this->markTestSkipped("Compression broken on older versions");
-        }
-
         $h = make_handle();
         $hnc = make_handle();
         couchbase_set_option($h, COUCHBASE_OPT_COMPRESSION,
@@ -106,9 +102,6 @@ class Compression extends CouchbaseTestCommon {
     }
 
     function testCompressionFastLZ() {
-        if (!extension_loaded('fastlz')) {
-            $this->markTestSkipped("Need fastlz extension");
-        }
         $this->_comp_common(COUCHBASE::COMPRESSION_FASTLZ);
     }
 }
