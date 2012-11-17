@@ -190,6 +190,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      arithmetic.c \
                      remove.c \
                      touch.c \
+                     viewopts.c \
                      apidecl.c ],
                     [$ext_shared])
 fi

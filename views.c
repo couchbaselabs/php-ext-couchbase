@@ -19,6 +19,7 @@
 */
 
 #include "internal.h"
+#include "views.h"
 
 /* {{{ static void php_couchbase_complete_callback(...)
 */
@@ -66,11 +67,57 @@ static void php_couchbase_complete_callback(lcb_http_request_t request,
 
 	hti->htstatus = resp->v.v0.status;
 }
+
+
+static int append_view_option(php_couchbase_res *res,
+		smart_str *uri,
+		const char *vopt, int nvopt, zval *input TSRMLS_DC)
+{
+	view_param *curvp = NULL;
+	pcbc_sso_buf sso = { 0 };
+	int status;
+	char *error;
+
+	if (res->viewopts_passthrough == 0) {
+		curvp = pcbc_find_view_param(vopt, nvopt);
+		if (!curvp) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+					"Unrecognized view option '%*s'", nvopt, vopt);
+			return -1;
+		}
+
+		status = curvp->handler(curvp, input, &sso, &error TSRMLS_CC);
+		if (status == -1) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+					"Problem with value for parameter '%*s': %s",
+					nvopt, vopt, error);
+			return -1;
+		}
+
+	} else {
+		pcbc_vopt_generic_param_handler(NULL,
+				input, &sso, &error TSRMLS_CC);
+	}
+
+	/**
+	 * Otherwise, we have a string we can append..
+	 */
+	smart_str_appendl(uri, vopt, nvopt);
+	smart_str_appendc(uri, '=');
+	smart_str_appendl(uri, sso.str, sso.len);
+	smart_str_appendc(uri, '&');
+
+	pcbc_sso_buf_cleanup(&sso);
+
+	return 0;
+}
+
 /* }}} */
 
 
-static void php_couchbase_extract_view_options(zval *options,
-                                               smart_str *uri TSRMLS_DC)
+static void extract_view_options(php_couchbase_res *couchbase_res,
+		zval *options,
+		smart_str *uri TSRMLS_DC)
 {
 	smart_str_appendc(uri, '?');
 
@@ -83,7 +130,7 @@ static void php_couchbase_extract_view_options(zval *options,
 		uint klen;
 		ulong idx;
 		int type;
-		zval **ppzval = NULL, tmpcopy;
+		zval **ppzval;
 
 		type = zend_hash_get_current_key_ex(Z_ARRVAL_P(options),
 		                                    &key, &klen, &idx, 0, NULL);
@@ -106,17 +153,7 @@ static void php_couchbase_extract_view_options(zval *options,
 		}
 
 		/* Yes! The length *includes* the NUL byte */
-		smart_str_appendl(uri, key, klen - 1);
-		smart_str_appendc(uri, '=');
-
-		tmpcopy = **ppzval;
-		zval_copy_ctor(&tmpcopy);
-		convert_to_string(&tmpcopy);
-		smart_str_appendl(uri,
-		                  Z_STRVAL(tmpcopy), Z_STRLEN(tmpcopy));
-		zval_dtor(&tmpcopy);
-
-		smart_str_appendc(uri, '&');
+		append_view_option(couchbase_res, uri, key, klen -1, *ppzval TSRMLS_CC);
 	}
 
 	/* trim the last '&' from the uri */
@@ -204,7 +241,7 @@ static char *php_couchbase_view_convert_to_error(zval *decoded,
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
+void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only) /* {{{ */
 {
 	lcb_http_request_t htreq;
 	zval *options = NULL;
@@ -232,7 +269,17 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 	                            view_name, view_name_len);
 
 	if (options && memchr(uri.c, '?', uri.len) == NULL) {
-		php_couchbase_extract_view_options(options, &uri TSRMLS_CC);
+		extract_view_options(couchbase_res, options, &uri TSRMLS_CC);
+	}
+
+	if (uri_only) {
+		/**
+		 * Because PHP apparently has multiple personality disorder when it comes
+		 * to the memory allocators it uses, we'll need to copy and free the buf
+		 */
+		ZVAL_STRINGL(return_value, uri.c, uri.len, 1);
+		smart_str_free(&uri);
+		return;
 	}
 
 	ctx.res = couchbase_res;

@@ -90,7 +90,7 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
+void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_observe_impl(

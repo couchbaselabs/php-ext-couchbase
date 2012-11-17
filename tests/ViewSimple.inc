@@ -41,8 +41,7 @@ class ViewSimple extends CouchbaseViewTestCommon {
 
         $rows = $oo->view(COUCHBASE_TEST_DESIGN_DOC_NAME,
                           COUCHBASE_TEST_VIEW_NAME,
-                          array("stale" => "false",
-                                "foo" => "bar"));
+                          array("stale" => "false"));
 
         $this->assertArrayHasKey('rows', $rows);
         $this->assertArrayHasKey('total_rows', $rows);

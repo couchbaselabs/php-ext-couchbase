@@ -169,6 +169,15 @@ ZEND_ARG_INFO(0, return_errors)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_view_gen_query, 0, 0, 2)
+ZEND_ARG_INFO(0, resource)
+ZEND_ARG_INFO(0, doc_name)
+ZEND_ARG_INFO(0, view_name)
+ZEND_ARG_ARRAY_INFO(0, options, 0)
+ZEND_ARG_INFO(0, return_errors)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_increment, 0, 0, 2)
 ZEND_ARG_INFO(0, resource)
 ZEND_ARG_INFO(0, key)
@@ -422,6 +431,15 @@ ZEND_ARG_INFO(0, return_errors)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_view_gen_query, 0, 0, 1)
+ZEND_ARG_INFO(0, doc_name)
+ZEND_ARG_INFO(0, view_name)
+ZEND_ARG_ARRAY_INFO(0, options, 0)
+ZEND_ARG_INFO(0, return_errors)
+ZEND_END_ARG_INFO()
+
+
+COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_increment, 0, 0, 1)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, offset)
@@ -541,6 +559,7 @@ static zend_function_entry couchbase_functions[] = {
 	PHP_FE(couchbase_fetch, arginfo_fetch)
 	PHP_FE(couchbase_fetch_all, arginfo_fetch_all)
 	PHP_FE(couchbase_view, arginfo_view)
+	PHP_FE(couchbase_view_gen_query, arginfo_view_gen_query)
 	PHP_FE(couchbase_increment, arginfo_increment)
 	PHP_FE(couchbase_decrement, arginfo_decrement)
 	PHP_FE(couchbase_get_stats, arginfo_get_stats)
@@ -584,6 +603,7 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, fetch, arginfo_m_fetch, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, fetchAll, arginfo_m_fetchall, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, view, arginfo_m_view, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, viewGenQuery, arginfo_m_view_gen_query, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, delete, arginfo_m_delete, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getStats, arginfo_m_getstats, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, flush, arginfo_m_flush, ZEND_ACC_PUBLIC)
@@ -758,9 +778,18 @@ PHP_METHOD(couchbase, fetchAll)
  */
 PHP_METHOD(couchbase, view)
 {
-	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
 }
 /* }}} */
+
+/* {{{ proto Couchbase::viewGenQuery(string $doc_name, string $view_name[, array $options)
+ */
+PHP_METHOD(couchbase, viewGenQuery)
+{
+	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
+}
+/* }}} */
+
 
 /* {{{ proto Couchbase::delete(string $key[, string $cas = '0'])
  */
@@ -1036,7 +1065,15 @@ PHP_FUNCTION(couchbase_fetch_all)
  */
 PHP_FUNCTION(couchbase_view)
 {
-	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
+}
+/* }}} */
+
+/* {{{ proto couchbase_view_gen_query(resource $couchbase string $doc_name, string $view_name[,array $options])
+ */
+PHP_FUNCTION(couchbase_view_gen_query)
+{
+	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
 }
 /* }}} */
 
@@ -1336,7 +1373,8 @@ PHP_GINIT_FUNCTION(couchbase)
 	XX("COMPRESSION_NONE", COUCHBASE_COMPRESSION_NONE) \
 	XX("COMPRESSION_FASTLZ", COUCHBASE_COMPRESSION_FASTLZ) \
 	XX("COMPRESSION_ZLIB", COUCHBASE_COMPRESSION_ZLIB) \
-	XX("GET_PRESERVE_ORDER", COUCHBASE_GET_PRESERVE_ORDER)
+	XX("GET_PRESERVE_ORDER", COUCHBASE_GET_PRESERVE_ORDER) \
+	XX("OPT_VOPTS_PASSTHROUGH", COUCHBASE_OPT_VOPTS_PASSTHROUGH)
 
 /* {{{ PHP_MINIT_FUNCTION
  */

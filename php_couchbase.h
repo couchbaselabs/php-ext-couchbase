@@ -58,6 +58,7 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_OPT_COMPRESSION			 2
 #define COUCHBASE_OPT_PREFIX_KEY			3
 #define COUCHBASE_OPT_IGNOREFLAGS			4
+#define COUCHBASE_OPT_VOPTS_PASSTHROUGH		5
 
 #define COUCHBASE_SERIALIZER_PHP			0
 #define COUCHBASE_SERIALIZER_DEFAULT		COUCHBASE_SERIALIZER_PHP
@@ -110,6 +111,7 @@ typedef struct _php_couchbase_res {
 	int prefix_key_len;
 	lcb_error_t rc; /* returned code */
 	unsigned char is_connected;
+	unsigned char viewopts_passthrough;
 
 	/* asynchronous context */
 	struct _php_couchbase_ctx *async_ctx;
@@ -157,6 +159,7 @@ PHP_METHOD(couchbase, touchMulti);
 PHP_METHOD(couchbase, fetch);
 PHP_METHOD(couchbase, fetchAll);
 PHP_METHOD(couchbase, view);
+PHP_METHOD(couchbase, viewGenQuery);
 PHP_METHOD(couchbase, delete);
 PHP_METHOD(couchbase, getStats);
 PHP_METHOD(couchbase, flush);
@@ -193,6 +196,7 @@ PHP_FUNCTION(couchbase_touch_multi);
 PHP_FUNCTION(couchbase_fetch);
 PHP_FUNCTION(couchbase_fetch_all);
 PHP_FUNCTION(couchbase_view);
+PHP_FUNCTION(couchbase_view_gen_query);
 PHP_FUNCTION(couchbase_delete);
 PHP_FUNCTION(couchbase_get_stats);
 PHP_FUNCTION(couchbase_flush);

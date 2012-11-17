@@ -423,6 +423,11 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 		couchbase_res->ignoreflags = Z_LVAL_P(value);
 		break;
 	}
+	case COUCHBASE_OPT_VOPTS_PASSTHROUGH: {
+		convert_to_long_ex(&value);
+		couchbase_res->viewopts_passthrough = Z_LVAL_P(value);
+		break;
+	}
 	default:
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %ld", option);
 		break;
@@ -460,6 +465,9 @@ void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 	case COUCHBASE_OPT_IGNOREFLAGS:
 		RETURN_LONG(couchbase_res->ignoreflags);
 		break;
+	case COUCHBASE_OPT_VOPTS_PASSTHROUGH:
+		RETURN_LONG(couchbase_res->viewopts_passthrough);
+		break;
 	default:
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown option type: %ld", option);
 		break;
@@ -477,7 +485,6 @@ void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	int argflags = (oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL)
 			| PHP_COUCHBASE_ARG_F_ONLYVALID;
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
-
 	str_len = spprintf(&str, 0, "%s", lcb_strerror(couchbase_res->handle, couchbase_res->rc));
 	RETURN_STRINGL(str, str_len, 0);
 }
