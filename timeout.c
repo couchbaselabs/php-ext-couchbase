@@ -23,62 +23,20 @@
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_timeout_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
-	zval *res;
 	php_couchbase_res *couchbase_res;
-
-
-	if (oo) {
-		zval *self = getThis();
-		res = zend_read_property(couchbase_ce, self,
-		                         ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
-		                         1 TSRMLS_CC);
-		if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "unintilized couchbase");
-			RETURN_FALSE;
-		}
-	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                          "r", &res) == FAILURE) {
-			return;
-		}
-	}
-
-	ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1,
-	                     PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
-
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
 	RETURN_LONG(lcb_get_timeout(couchbase_res->handle));
 }
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
-	zval *res;
 	php_couchbase_res *couchbase_res;
 	long tmo;
 
-
-	if (oo) {
-		zval *self = getThis();
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                          "l", &tmo) == FAILURE) {
-			return;
-		}
-		res = zend_read_property(couchbase_ce, self,
-		                         ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
-		                         1 TSRMLS_CC);
-		if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "unintilized couchbase");
-			RETURN_FALSE;
-		}
-	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                          "rl", &res, &tmo) == FAILURE) {
-			return;
-		}
-	}
-
-	ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1,
-	                     PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "l", &tmo);
 
 	lcb_set_timeout(couchbase_res->handle, (lcb_uint32_t)tmo);
 	RETURN_TRUE;

@@ -207,7 +207,7 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
 	lcb_http_request_t htreq;
-	zval *res, *options = NULL;
+	zval *options = NULL;
 	char *doc_name = NULL, *view_name = NULL;
 	long doc_name_len = 0, view_name_len = 0;
 	zend_bool return_errors = 0;
@@ -218,44 +218,13 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 	php_couchbase_ctx ctx = {0};
 	lcb_http_cmd_t cmd = {0};
 
-	if (oo) {
-		zval *self = getThis();
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                          "s|sab",
-		                          &doc_name, &doc_name_len,
-		                          &view_name, &view_name_len,
-		                          &options, &return_errors) == FAILURE) {
-			return;
-		}
-		res = zend_read_property(couchbase_ce, self,
-		                         ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
-		                         1 TSRMLS_CC);
-		if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "unintilized couchbase");
-			RETURN_FALSE;
-		}
-	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                          "rs|sab", &res,
-		                          &doc_name, &doc_name_len,
-		                          &view_name, &view_name_len,
-		                          &options, &return_errors) == FAILURE) {
-			return;
-		}
-	}
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
-	ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1,
-	                     PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
-	if (!couchbase_res->is_connected) {
-		php_error(E_WARNING, "There is no active connection to couchbase.");
-		RETURN_FALSE;
-	}
-	if (couchbase_res->async) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-		                 "there are some results should be fetched "
-		                 "before do any sync request");
-		RETURN_FALSE;
-	}
+	PHP_COUCHBASE_GET_PARAMS(
+			couchbase_res,
+			argflags,
+			"s|sab",
+			&doc_name, &doc_name_len, &view_name, &view_name_len, &options, &return_errors);
 
 	APPEND_URI_s(&uri, "/");
 

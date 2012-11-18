@@ -20,18 +20,17 @@
 
 #include "internal.h"
 
-void php_couchbase_get_resource(zval *r_or_this, int oo,
-                                int *ec,
-                                php_couchbase_res **pres,
-                                zval *return_value
-                                TSRMLS_DC)
+void php_couchbase_get_resource(INTERNAL_FUNCTION_PARAMETERS,
+		zval *zvres,
+		int argflags,
+		int *ec,
+		php_couchbase_res **pres)
 {
-	zval *zvres = NULL;
 	*ec = PHP_COUCHBASE_RES_ERETURN;
 	*pres = NULL;
 
-	if (oo) {
-		zvres = zend_read_property(couchbase_ce, r_or_this,
+	if (argflags & PHP_COUCHBASE_ARG_F_OO) {
+		zvres = zend_read_property(couchbase_ce, getThis(),
 		                           ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
 		                           1
 		                           TSRMLS_CC);
@@ -39,19 +38,18 @@ void php_couchbase_get_resource(zval *r_or_this, int oo,
 			*ec = PHP_COUCHBASE_RES_EINVAL;
 			return;
 		}
-	} else {
-		zvres = r_or_this;
 	}
 
 	ZEND_FETCH_RESOURCE2(*pres, php_couchbase_res *, &zvres, -1,
 	                     PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
 
-	if (!(*pres)->is_connected) {
+	if ((argflags & PHP_COUCHBASE_ARG_F_NOCONN) == 0
+			&& (*pres)->is_connected == 0) {
 		*ec = PHP_COUCHBASE_RES_ENOTCONN;
 		return;
 	}
 
-	if ((*pres)->async) {
+	if ((argflags & PHP_COUCHBASE_ARG_F_ASYNC) == 0  && (*pres)->async) {
 		*ec = PHP_COUCHBASE_RES_EBUSY;
 		return;
 	}

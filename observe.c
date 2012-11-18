@@ -707,46 +707,24 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
                                 int multi, int oo, int poll)
 {
 
-	zval *res = NULL,
-	      *adurability = NULL,
+	zval *adurability = NULL,
 	       *adetails = NULL; /* zval passed by ref, will be stuffed with details if given */
 
 	php_couchbase_res *couchbase_res;
 	struct observe_collection ocoll = { 0 };
 	struct observe_expectation expect = { 0 };
 	struct observe_pollprefs pollprefs;
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
 	/* param handling, return value setup */
 	if (multi) {
 		zval *akey_to_cas;
-
-		if (oo) {
-			if (poll) {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "aa", &akey_to_cas, &adurability) == FAILURE) {
-					return;
-				}
-			} else {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "a|z", &akey_to_cas, &adetails) == FAILURE) {
-					return;
-				}
-			}
-
-			PHP_COUCHBASE_GET_RESOURCE_OO(couchbase_res);
-		} else { /* functional */
-			if (poll) {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "raa", &res, &akey_to_cas, &adurability) == FAILURE) {
-					return;
-				}
-			} else {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "ra|z", &res, &akey_to_cas, &adetails) == FAILURE) {
-					return;
-				}
-			}
-			PHP_COUCHBASE_GET_RESOURCE_FUNCTIONAL(couchbase_res, res);
+		if (poll) {
+			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "aa",
+					&akey_to_cas, &adurability);
+		} else {
+			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
+					"a|z", &akey_to_cas, &adetails);
 		}
 
 		array_init(return_value);
@@ -774,37 +752,12 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 		lcb_cas_t tmpcas = 0;
 		ZVAL_FALSE(return_value);
 
-		if (oo) {
-			if (poll) {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "sza", &key, &nkey, &cas, &adurability) == FAILURE) {
-					return;
-				}
-			} else {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "sz|z", &key, &nkey, &cas, &adetails) == FAILURE) {
-					return;
-				}
-			}
-
-			PHP_COUCHBASE_GET_RESOURCE_OO(couchbase_res);
-
-		} else { /* functional */
-			if (poll) {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "rsza", &res, &key, &nkey, &cas, &adurability)
-				        == FAILURE) {
-					return;
-				}
-			} else {
-				if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-				                          "rsz|z", &res, &key, &nkey, &cas, &adetails)
-				        == FAILURE) {
-					return;
-				}
-			}
-
-			PHP_COUCHBASE_GET_RESOURCE_FUNCTIONAL(couchbase_res, res);
+		if (poll) {
+			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
+					"sza", &key, &nkey, &cas, &adurability);
+		} else {
+			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
+					"sz|z", &key, &nkey, &cas, &adetails);
 		}
 
 		if (adetails && IS_ARRAY != Z_TYPE_P(adetails)) {

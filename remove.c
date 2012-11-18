@@ -22,40 +22,19 @@ php_couchbase_remove_callback(lcb_t instance,
 PHP_COUCHBASE_LOCAL
 void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
-	zval *res, *akc, *adurability = NULL;
+	zval *akc, *adurability = NULL;
 	char *key, *cas = NULL;
 	long klen = 0, cas_len = 0;
 	unsigned long long cas_v = 0;
+	php_couchbase_res *couchbase_res;
 
-	if (oo) {
-		zval *self = getThis();
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sa", &key, &klen, &cas, &cas_len, &adurability) == FAILURE) {
-			return;
-		}
-		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
-		if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "unintilized couchbase");
-			RETURN_FALSE;
-		}
-	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|sa", &res, &key, &klen, &cas, &cas_len, &adurability) == FAILURE) {
-			return;
-		}
-	}
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
+
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
+			"s|sa", &key, &klen, &cas, &cas_len, &adurability);
 	{
 		lcb_error_t retval;
-		php_couchbase_res *couchbase_res;
 		php_couchbase_ctx *ctx;
-
-		ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
-		if (!couchbase_res->is_connected) {
-			php_error(E_WARNING, "There is no active connection to couchbase.");
-			RETURN_FALSE;
-		}
-		if (couchbase_res->async) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
-			RETURN_FALSE;
-		}
 
 		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
 		ctx->res = couchbase_res;

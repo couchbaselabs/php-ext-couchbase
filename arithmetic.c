@@ -32,42 +32,21 @@ php_couchbase_arithmetic_callback(lcb_t instance,
 PHP_COUCHBASE_LOCAL
 void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo) /* {{{ */
 {
-	zval *res, *akc, *adurability = NULL;
+	zval *akc, *adurability = NULL;
 	char *key;
 	time_t exp = {0};
 	long klen = 0, offset = 1, expire = 0;
 	long create = 0, initial = 0;
+	php_couchbase_res *couchbase_res;
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
-	if (oo) {
-		zval *self = getThis();
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|lllla", &key, &klen, &offset, &create, &expire, &initial, &adurability) == FAILURE) {
-			return;
-		}
-		res = zend_read_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1 TSRMLS_CC);
-		if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "unintilized couchbase");
-			RETURN_FALSE;
-		}
-	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|lllla", &res, &key, &klen, &offset, &create, &expire, &initial, &adurability) == FAILURE) {
-			return;
-		}
-	}
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
+			"s|lllla", &key, &klen, &offset, &create, &expire, &initial, &adurability);
+
 	{
 		lcb_error_t retval;
-		php_couchbase_res *couchbase_res;
 		php_couchbase_ctx *ctx;
 		long delta = (op == '+') ? offset : -offset;
-
-		ZEND_FETCH_RESOURCE2(couchbase_res, php_couchbase_res *, &res, -1, PHP_COUCHBASE_RESOURCE, le_couchbase, le_pcouchbase);
-		if (!couchbase_res->is_connected) {
-			php_error(E_WARNING, "There is no active connection to couchbase.");
-			RETURN_FALSE;
-		}
-		if (couchbase_res->async) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "there are some results should be fetched before do any sync request");
-			RETURN_FALSE;
-		}
 
 		if (expire) {
 			exp = pcbc_check_expiry(expire);
