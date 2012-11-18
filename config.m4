@@ -183,6 +183,12 @@ if test "$PHP_COUCHBASE" != "no"; then
                      resmgr.c \
                      timeout.c \
                      views.c \
+                     convert.c \
+                     get.c \
+                     store.c \
+                     arithmetic.c \
+                     remove.c \
+                     touch.c \
                      apidecl.c ],
                     [$ext_shared])
 fi

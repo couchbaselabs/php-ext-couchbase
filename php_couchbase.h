@@ -241,19 +241,6 @@ PHP_FUNCTION(couchbase_set_timeout);
 #include "resget.h"
 
 PHP_COUCHBASE_LOCAL
-extern void php_couchbase_complete_callback(lcb_http_request_t request,
-                                            lcb_t instance,
-                                            const void *cookie,
-                                            lcb_error_t error,
-                                            const lcb_http_resp_t *resp);
-
-
-
-PHP_COUCHBASE_LOCAL
-extern void php_couchbase_observe_callback(
-    lcb_t, const void *, lcb_error_t, const lcb_observe_resp_t *);
-
-PHP_COUCHBASE_LOCAL
 extern void observe_polling_internal(
     php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
 
@@ -348,6 +335,41 @@ void pcbc_start_loop(struct _php_couchbase_res *res);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_stop_loop(struct _php_couchbase_res *res);
+
+PHP_COUCHBASE_LOCAL
+long pcbc_check_expiry(long expiry);
+
+PHP_COUCHBASE_LOCAL
+char *php_couchbase_zval_to_payload(zval *value,
+		size_t *payload_len,
+		unsigned int *flags, int serializer, int compressor TSRMLS_DC);
+
+PHP_COUCHBASE_LOCAL
+int php_couchbase_zval_from_payload(zval *value,
+		char *payload, size_t payload_len,
+		unsigned int flags, int serializer, int ignoreflags TSRMLS_DC);
+
+/**
+ * Callback initialization
+ */
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_arithmetic_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_get_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_store_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_remove_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_touch_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_view_init(lcb_t handle);
 
 #endif	  /* PHP_COUCHBASE_H */
 

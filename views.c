@@ -34,8 +34,7 @@ typedef struct _php_couchbase_htinfo {
 } php_couchbase_htinfo;
 
 
-PHP_COUCHBASE_LOCAL
-void php_couchbase_complete_callback(lcb_http_request_t request,
+static void php_couchbase_complete_callback(lcb_http_request_t request,
                                      lcb_t instance,
                                      const void *cookie,
                                      lcb_error_t error,
@@ -336,6 +335,12 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 }
 
 #undef APPEND_URI_s
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_view_init(lcb_t handle)
+{
+	lcb_set_http_complete_callback(handle, php_couchbase_complete_callback);
+}
 
 /* }}} */
 /*

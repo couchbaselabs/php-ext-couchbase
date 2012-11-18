@@ -892,3 +892,9 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_observe_init(lcb_t handle)
+{
+	lcb_set_observe_callback(handle, php_couchbase_observe_callback);
+}
