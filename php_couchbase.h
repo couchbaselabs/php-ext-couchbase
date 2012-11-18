@@ -247,21 +247,6 @@ extern void php_couchbase_complete_callback(lcb_http_request_t request,
                                             lcb_error_t error,
                                             const lcb_http_resp_t *resp);
 
-PHP_COUCHBASE_LOCAL
-extern void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
-
-PHP_COUCHBASE_LOCAL
-extern void php_couchbase_observe_impl(
-    INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int poll);
-
-PHP_COUCHBASE_LOCAL
-extern void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS,
-                                           int style);
-
-PHP_COUCHBASE_LOCAL
-extern void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
-                                                int style);
-
 
 
 PHP_COUCHBASE_LOCAL
@@ -273,6 +258,8 @@ extern void observe_polling_internal(
     php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
 
 
+PHP_COUCHBASE_LOCAL
+ZEND_EXTERN_MODULE_GLOBALS(couchbase);
 
 PHP_COUCHBASE_LOCAL
 extern int le_couchbase;

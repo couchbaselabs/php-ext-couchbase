@@ -62,9 +62,9 @@
 #include "Zend/zend_API.h"
 #include <zend_exceptions.h>
 
-#include "timeout.h"
 #include "management/cluster.h"
 #include "management/exceptions.h"
+#include "apidecl.h"
 
 #endif
 

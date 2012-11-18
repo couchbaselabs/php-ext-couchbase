@@ -182,6 +182,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      observe.c \
                      resmgr.c \
                      timeout.c \
-                     views.c ],
+                     views.c \
+                     apidecl.c ],
                     [$ext_shared])
 fi
