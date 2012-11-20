@@ -309,23 +309,7 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 
 	if (ctx.extended_value) {
 		php_couchbase_htinfo *hti = ctx.extended_value;
-
-#ifdef HAVE_JSON_API
-# if HAVE_JSON_API_5_2
-		php_json_decode(return_value, hti->data, hti->ndata, 1 TSRMLS_CC);
-# elif HAVE_JSON_API_5_3
-		php_json_decode(return_value, hti->data, hti->ndata, 1, 512 TSRMLS_CC);
-# else
-		ZVAL_FALSE(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_ERROR,
-		                 "Unrecognized JSON decoder");
-# endif
-
-#else
-		ZVAL_FALSE(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_ERROR,
-		                 "Couldn't find JSON decoder");
-#endif
+		pcbc_json_decode(return_value, hti->data, hti->ndata, 1 TSRMLS_CC);
 
 		if (ctx.res->rc != LCB_SUCCESS && return_errors == 0) {
 			char *errstr = php_couchbase_view_convert_to_error(

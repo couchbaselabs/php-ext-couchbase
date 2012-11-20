@@ -1,6 +1,27 @@
 #include "internal.h"
 
 PHP_COUCHBASE_LOCAL
+void pcbc_json_decode(zval *zv, char *data, int ndata, zend_bool assoc
+		TSRMLS_DC)
+{
+#if HAVE_JSON_API_5_2
+	php_json_decode(zv, data, ndata, assoc TSRMLS_CC);
+#else
+	php_json_decode(zv, data, ndata, assoc, 512 TSRMLS_CC);
+#endif
+}
+
+PHP_COUCHBASE_LOCAL
+void pcbc_json_encode(smart_str *buf, zval *value TSRMLS_DC)
+{
+#if HAVE_JSON_API_5_2
+	php_json_encode(buf, value TSRMLS_CC);
+#else
+	php_json_encode(buf, value, 0 TSRMLS_CC);
+#endif
+}
+
+PHP_COUCHBASE_LOCAL
 char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned int *flags, int serializer, int compressor TSRMLS_DC) /* {{{ */
 {
 	char *payload = NULL;
@@ -38,21 +59,10 @@ char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned i
 		switch (serializer) {
 		case COUCHBASE_SERIALIZER_JSON:
 		case COUCHBASE_SERIALIZER_JSON_ARRAY:
-#ifdef HAVE_JSON_API
-		{
-# if HAVE_JSON_API_5_2
-			php_json_encode(&buf, value TSRMLS_CC);
-# elif HAVE_JSON_API_5_3
-			php_json_encode(&buf, value, 0 TSRMLS_CC); /* options */
-#endif
-			buf.c[buf.len] = 0;
+			pcbc_json_encode(&buf, value TSRMLS_CC);
 			COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_JSON);
 			break;
-		}
-#else
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not serialize value, no json support");
-		return NULL;
-#endif
+
 		default: {
 			php_serialize_data_t var_hash;
 			PHP_VAR_SERIALIZE_INIT(var_hash);
@@ -239,19 +249,9 @@ int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_l
 	}
 
 	case COUCHBASE_VAL_IS_JSON:
-#ifdef HAVE_JSON_API
-# if HAVE_JSON_API_5_2
-		php_json_decode(value, payload, payload_len, (serializer == COUCHBASE_SERIALIZER_JSON_ARRAY) TSRMLS_CC);
-# elif HAVE_JSON_API_5_3
-		php_json_decode(value, payload, payload_len, (serializer == COUCHBASE_SERIALIZER_JSON_ARRAY), 512 TSRMLS_CC);
-# endif
-#else
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "could not unserialize value, no json support");
-		if (payload_emalloc) {
-			efree(payload);
-		}
-		return 0;
-#endif
+		pcbc_json_decode(value, payload, payload_len,
+				(serializer == COUCHBASE_SERIALIZER_JSON_ARRAY)
+				TSRMLS_CC);
 		break;
 
 	default:

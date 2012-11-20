@@ -299,7 +299,7 @@ static int jval_param_handler(view_param *param,
 	zval zvtmp;
 	int rv;
 
-	php_json_encode(&buf, input, 0 TSRMLS_CC);
+	pcbc_json_encode(&buf, input TSRMLS_CC);
 	if (buf.c == NULL) {
 		*error = "Failed to encode value as JSON";
 		return -1;
