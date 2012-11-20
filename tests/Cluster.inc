@@ -21,7 +21,7 @@ class Cluster extends CouchbaseTestCommon
                 COUCHBASE_CONFIG_USER,
                 COUCHBASE_CONFIG_PASSWD);
             return $cb;
-        } catch (ErrorException $e) {
+        } catch (CouchbaseException $e) {
             $this->assertEquals(
                                 'CouchbaseClusterManager require username/password',
                                 $e->getMessage());
