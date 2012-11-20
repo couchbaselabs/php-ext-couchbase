@@ -86,7 +86,7 @@ php_couchbase_get_callback(lcb_t instance,
 
 		if (IS_ARRAY == Z_TYPE_P(ctx->rv)) { /* multi get */
 			zval *v;
-			char *key_string;
+			char *key_string = NULL;
 			MAKE_STD_ZVAL(v);
 			if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes, flags, ctx->res->serializer, ctx->res->ignoreflags TSRMLS_CC)) {
 				ctx->res->rc = LCB_ERROR;

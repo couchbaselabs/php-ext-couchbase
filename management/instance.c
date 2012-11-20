@@ -68,10 +68,6 @@ void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS)
 		RETURN_FALSE;
 	} else {
 		lcb_t handle;
-		lcb_error_t retval;
-		lcb_io_opt_t iops;
-		php_couchbase_res *couchbase_res;
-		php_couchbase_ctx *ctx = NULL;
 		struct lcb_create_st copts = {0};
         char *allochosts = NULL;
         char *host = NULL;

@@ -82,12 +82,10 @@ static void make_params(struct connparams_st *cparams)
 {
 	struct nodeinfo_st *ni;
 	char *curstr = NULL;
-	int curlen;
 
 	for (ni = cparams->nodes; ni; ni = ni->next) {
 
 		char *newstr = NULL;
-		char *curhost;
 
 		if (ni->url) {
 
@@ -156,7 +154,7 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
 	char *user = NULL, *passwd = NULL, *bucket = NULL;
-	int host_len = 0, user_len = 0, passwd_len = 0, bucket_len = 0;
+	int user_len = 0, passwd_len = 0, bucket_len = 0;
 	zend_bool persistent = 0;
 	zval *zvhosts = NULL;
 	struct connparams_st cparams = { NULL };

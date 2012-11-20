@@ -11,7 +11,6 @@ php_couchbase_touch_callback(lcb_t handle,
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const char *key = (char *)resp->v.v0.key;
 	lcb_size_t nkey = resp->v.v0.nkey;
-	lcb_cas_t cas = resp->v.v0.cas;
 	char *string_key;
 	php_ignore_value(handle);
 
@@ -70,7 +69,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 	}
 
 	if (multi) {
-		zval *arr_keys, *fv;
+		zval *arr_keys;
 		zval **ppzval;
 		int i;
 
@@ -198,7 +197,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		 * fulfill that spec by using polling observe internal:
 		 */
 		if (adurability != NULL) {
-			zval *akc;
+			zval *akc = NULL;
 			array_init(akc);
 
 			if (IS_ARRAY == Z_TYPE_P(return_value)) { /* multi */

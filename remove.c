@@ -22,7 +22,7 @@ php_couchbase_remove_callback(lcb_t instance,
 PHP_COUCHBASE_LOCAL
 void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
-	zval *akc, *adurability = NULL;
+	zval *akc = NULL, *adurability = NULL;
 	char *key, *cas = NULL;
 	long klen = 0, cas_len = 0;
 	unsigned long long cas_v = 0;

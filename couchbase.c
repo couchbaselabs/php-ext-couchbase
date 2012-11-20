@@ -115,7 +115,6 @@ static void php_couchbase_stat_callback(lcb_t handle,
 	char *string_key;
 	size_t nkey = resp->v.v0.nkey;
 	const void *bytes = resp->v.v0.bytes;
-	size_t nbytes = resp->v.v0.nbytes;
 
 	php_ignore_value(handle);
 
@@ -125,7 +124,7 @@ static void php_couchbase_stat_callback(lcb_t handle,
 		pcbc_stop_loop(ctx->res);
 		return;
 	} else if (nkey > 0) {
-		zval *node, *val;
+		zval *node;
 		zval **ppzval;
 		if (IS_ARRAY != Z_TYPE_P(ctx->rv)) {
 			array_init(ctx->rv);
@@ -199,6 +198,7 @@ void php_couchbase_setup_callbacks(lcb_t handle)
 	php_ignore_value(lcb_set_flush_callback(handle, php_couchbase_flush_callback));
 	php_ignore_value(lcb_set_stat_callback(handle, php_couchbase_stat_callback));
 	php_ignore_value(lcb_set_version_callback(handle, php_couchbase_version_callback));
+	php_ignore_value(lcb_set_error_callback(handle, php_couchbase_error_callback));
 }
 
 PHP_COUCHBASE_LOCAL
@@ -293,7 +293,9 @@ void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule stat request: %s", retval, lcb_strerror(couchbase_res->handle, retval));
+			                 "Failed to schedule stat request: %s [%d]",
+			                 lcb_strerror(couchbase_res->handle, retval),
+			                 retval);
 			RETURN_FALSE;
 		}
 
@@ -301,7 +303,9 @@ void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to stat: %s", ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
+			                 "Failed to stat: (%d): %s",
+			                 ctx->res->rc,
+			                 lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			efree(ctx);
 			RETURN_FALSE;
 		}
@@ -357,7 +361,7 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
 	long option;
-	zval *res, *value;
+	zval *value;
 	php_couchbase_res *couchbase_res;
 	int argflags =
 			(oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL) |

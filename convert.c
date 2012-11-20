@@ -3,7 +3,7 @@
 PHP_COUCHBASE_LOCAL
 char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned int *flags, int serializer, int compressor TSRMLS_DC) /* {{{ */
 {
-	char *payload;
+	char *payload = NULL;
 	smart_str buf = {0};
 	switch (Z_TYPE_P(value)) {
 	case IS_STRING:

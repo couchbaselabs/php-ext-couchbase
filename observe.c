@@ -577,7 +577,6 @@ static void observe_poll(php_couchbase_res *res,
 {
 
 #ifdef USE_MSEC_TIMINGS
-	unsigned long msinterval = tprefs->interval / 1000;
 	unsigned long endtime = get_msec_time() + (tprefs->timeout / 1000);
 #else
 	/* doesn't seem to work. Let's use milliseconds */

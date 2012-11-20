@@ -65,7 +65,7 @@ php_couchbase_store_callback(lcb_t instance,
 PHP_COUCHBASE_LOCAL
 void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, int multi, int oo) /* {{{ */
 {
-	zval *akc, *adurability = NULL;
+	zval *akc = NULL, *adurability = NULL;
 	lcb_error_t retval;
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx *ctx;
@@ -75,7 +75,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 	size_t payload_len = 0;
 	unsigned long long cas_v = 0;
 	long expire = 0, cas_len = 0;
-	char *key;
+	char *key = NULL;
 
 	if (!multi) {
 		char *key = NULL;

@@ -97,7 +97,6 @@ PHP_COUCHBASE_LOCAL
 int cbcomp_dcmp_init(const char *data, size_t len,
                      php_couchbase_decomp *info)
 {
-	int ret = 0;
 	/* make a sane value size, say, 1GB? */
 	if (len < sizeof(pcbc_payload_len_t)) {
 		return 0;

@@ -8,9 +8,7 @@ php_couchbase_arithmetic_callback(lcb_t instance,
                                   const lcb_arithmetic_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
-	uint64_t value;
 	php_ignore_value(instance);
-
 	if (--ctx->res->seqno == 0) {
 		pcbc_stop_loop(ctx->res);
 	}
@@ -32,7 +30,6 @@ php_couchbase_arithmetic_callback(lcb_t instance,
 PHP_COUCHBASE_LOCAL
 void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo) /* {{{ */
 {
-	zval *akc, *adurability = NULL;
 	char *key;
 	time_t exp = {0};
 	long klen = 0, offset = 1, expire = 0;
@@ -41,7 +38,7 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-			"s|lllla", &key, &klen, &offset, &create, &expire, &initial, &adurability);
+			"s|llll", &key, &klen, &offset, &create, &expire, &initial);
 
 	{
 		lcb_error_t retval;
@@ -89,18 +86,6 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 			RETURN_FALSE;
 		}
 
-		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
-		 * fulfill that spec by using polling observe internal:
-		 */
-		if (adurability != NULL) {
-			array_init(akc);
-			add_assoc_long(akc, key, Z_LVAL_P(ctx->cas));
-
-			zval_dtor(ctx->cas);
-			ctx->cas = akc;
-
-			observe_polling_internal(ctx, adurability, 0);
-		}
 		efree(ctx);
 	}
 }

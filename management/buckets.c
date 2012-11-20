@@ -43,7 +43,7 @@
 
 struct string {
 	char *buffer;
-	int len;
+	unsigned len;
 };
 
 struct field {
@@ -374,7 +374,7 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 PHP_COUCHBASE_LOCAL
 void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 {
-	zval *res, *options = NULL;
+	zval *res;
 	char *name = NULL;
 	int name_len = 0;
 	lcb_t instance;
