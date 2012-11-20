@@ -33,7 +33,7 @@ PHP_COUCHBASE_LOCAL
 extern int le_pcouchbase_cluster;
 
 PHP_COUCHBASE_LOCAL
-zend_class_entry *couchbase_cluster_ce;
+extern zend_class_entry *couchbase_cluster_ce;
 
 struct lcb_http_ctx {
 	lcb_error_t error;
