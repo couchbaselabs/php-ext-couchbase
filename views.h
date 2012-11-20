@@ -38,8 +38,6 @@ struct view_param_st {
 	view_param_handler handler;
 };
 
-typedef struct view_param_st view_param;
-
 
 PHP_COUCHBASE_LOCAL
 void pcbc_sso_buf_cleanup(pcbc_sso_buf *buf);
