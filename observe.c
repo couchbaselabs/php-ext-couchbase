@@ -74,6 +74,7 @@ struct observe_keystate {
 
 	struct {
 		short resp;
+		char persist_master;
 		char replicate;
 		char persist;
 		lcb_time_t ttp;
@@ -178,7 +179,8 @@ static int oks_durability_satisfied(struct observe_keystate *oks)
 	           (oks->got.persist + oks->got.replicate >= oks->expected.replicate));
 
 	ok_pers = (oks->expected.persist == 0 ||
-	           (oks->got.persist >= oks->expected.replicate));
+	           (oks->got.persist >= oks->expected.persist &&
+	        		   oks->got.persist_master));
 
 	return (ok_repl && ok_pers);
 }
@@ -220,6 +222,11 @@ static void oks_update(struct observe_keystate *oks,
 	switch (resp->v.v0.status) {
 
 	case LCB_OBSERVE_PERSISTED:
+
+		if (resp->v.v0.from_master) {
+			oks->got.persist_master = 1;
+		}
+
 		oks->got.persist++;
 		break;
 
