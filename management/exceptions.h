@@ -19,6 +19,7 @@
 */
 #ifndef MANAGEMENT_EXCEPTIONS_H
 #define MANAGEMENT_EXCEPTIONS_H
+#include "../internal.h"
 
 PHP_COUCHBASE_LOCAL
 extern zend_class_entry *ccm_exception;

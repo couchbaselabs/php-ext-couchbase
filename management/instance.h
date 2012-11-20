@@ -19,6 +19,7 @@
 */
 #ifndef MANAGEMENT_INSTANCE_H
 #define MANAGEMENT_INSTANCE_H 1
+#include "../internal.h"
 
 PHP_COUCHBASE_LOCAL
 extern void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS);

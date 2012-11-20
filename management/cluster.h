@@ -24,6 +24,8 @@
 #define PHP_COUCHBASE_CLUSTER_PERSISTENT_RESOURCE "Persistent Couchbase Cluster"
 #define COUCHBASE_PROPERTY_HANDLE "_handle"
 
+#include "../internal.h"
+
 
 PHP_COUCHBASE_LOCAL
 void init_couchbase_cluster(int module_number TSRMLS_DC);

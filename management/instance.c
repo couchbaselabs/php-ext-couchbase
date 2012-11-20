@@ -18,7 +18,6 @@
   +----------------------------------------------------------------------+
 */
 
-#include "internal.h"
 #include "instance.h"
 
 static void lcb_http_callback(lcb_http_request_t request,

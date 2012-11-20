@@ -18,9 +18,6 @@
   +----------------------------------------------------------------------+
 */
 
-#include "internal.h"
-#include "buckets.h"
-
 #include "cluster.h"
 #include "instance.h"
 #include "buckets.h"

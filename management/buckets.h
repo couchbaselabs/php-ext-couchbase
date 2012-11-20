@@ -19,6 +19,7 @@
 */
 #ifndef MANAGEMENT_BUCKETS_H
 #define MANAGEMENT_BUCKETS_H 1
+#include "../internal.h"
 
 PHP_COUCHBASE_LOCAL
 extern void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS);

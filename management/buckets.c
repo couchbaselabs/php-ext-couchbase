@@ -38,7 +38,6 @@
  *     $cb->deleteBucket("mybucket");
  */
 
-#include "internal.h"
 #include "instance.h"
 #include "buckets.h"
 
