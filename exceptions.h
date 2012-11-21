@@ -22,19 +22,22 @@
 #include "../internal.h"
 
 PHP_COUCHBASE_LOCAL
-extern zend_class_entry *ccm_exception;
+void init_couchbase_exceptions(TSRMLS_D);
 
 PHP_COUCHBASE_LOCAL
-extern zend_class_entry *ccm_illegal_key_exception;
+extern zend_class_entry *cb_exception;
 
 PHP_COUCHBASE_LOCAL
-extern zend_class_entry *ccm_auth_exception;
+extern zend_class_entry *cb_illegal_key_exception;
 
 PHP_COUCHBASE_LOCAL
-extern zend_class_entry *ccm_lcb_exception;
+extern zend_class_entry *cb_auth_exception;
 
 PHP_COUCHBASE_LOCAL
-extern zend_class_entry *ccm_server_exception;
+extern zend_class_entry *cb_lcb_exception;
+
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *cb_server_exception;
 
 #endif	  /* MANAGEMENT_EXCEPTION_H */
 

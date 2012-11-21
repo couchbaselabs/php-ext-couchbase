@@ -174,6 +174,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                     [compress.c \
                      couchbase.c \
                      create.c \
+                     exceptions.c \
                      fastlz/fastlz.c \
                      ht.c \
                      management/buckets.c \

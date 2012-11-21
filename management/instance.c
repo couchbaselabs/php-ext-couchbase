@@ -73,7 +73,7 @@ void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS)
 		char *host = NULL;
 
 		if (ulen == 0 || plen == 0) {
-			zend_throw_exception(ccm_exception,
+			zend_throw_exception(cb_exception,
 								 "CouchbaseClusterManager require username/password",
 								 0 TSRMLS_CC);
 			return;
@@ -98,7 +98,7 @@ void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS)
 
 				for (ii = 0; ii < nhosts && zend_hash_get_current_data_ex(hthosts, (void **)&curzv, &htpos) == SUCCESS; zend_hash_move_forward_ex(hthosts, &htpos), ii++) {
 					if (!Z_TYPE_PP(curzv) == IS_STRING) {
-						zend_throw_exception(ccm_exception,
+						zend_throw_exception(cb_exception,
 											 "Element in the host array is not a string",
 											 0 TSRMLS_CC);
 						free(allochosts);
@@ -113,7 +113,7 @@ void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS)
 
 			case IS_STRING:
 				if (allochosts == NULL) {
-					zend_throw_exception(ccm_exception,
+					zend_throw_exception(cb_exception,
 										 "Failed to allocate memory",
 										 0 TSRMLS_CC);
 					return;
@@ -122,7 +122,7 @@ void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS)
 				break;
 
 			default:
-				zend_throw_exception(ccm_exception,
+				zend_throw_exception(cb_exception,
 									 "hosts should be array or string",
 									 0 TSRMLS_CC);
 				return;
@@ -170,7 +170,7 @@ void ccm_get_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
 							 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-		zend_throw_exception(ccm_exception, "unintilized couchbase",
+		zend_throw_exception(cb_exception, "unintilized couchbase",
 							 0 TSRMLS_CC);
 		return;
 	}
@@ -198,7 +198,7 @@ void ccm_get_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 		snprintf(errmsg, sizeof(errmsg),
 				 "Failed to get cluster information: %s",
 				 lcb_strerror(instance, rc));
-		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
+		zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		efree(ctx.payload);
 		return ;
 	}
@@ -210,7 +210,7 @@ void ccm_get_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 		abort();
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
-		zend_throw_exception(ccm_auth_exception, "Incorrect credentials",
+		zend_throw_exception(cb_auth_exception, "Incorrect credentials",
 							 0 TSRMLS_CC);
 		break;
 
@@ -219,9 +219,9 @@ void ccm_get_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
 					(int)ctx.status);
-			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
 		} else {
-			zend_throw_exception(ccm_server_exception, ctx.payload,
+			zend_throw_exception(cb_server_exception, ctx.payload,
 								 0 TSRMLS_CC);
 		}
 	}

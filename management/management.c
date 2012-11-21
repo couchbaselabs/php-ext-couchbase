@@ -36,22 +36,6 @@ int le_pcouchbase_cluster;
 PHP_COUCHBASE_LOCAL
 zend_class_entry *couchbase_cluster_ce;
 
-PHP_COUCHBASE_LOCAL
-zend_class_entry *ccm_exception;
-
-PHP_COUCHBASE_LOCAL
-zend_class_entry *ccm_illegal_key_exception;
-
-PHP_COUCHBASE_LOCAL
-zend_class_entry *ccm_auth_exception;
-
-PHP_COUCHBASE_LOCAL
-zend_class_entry *ccm_lcb_exception;
-
-PHP_COUCHBASE_LOCAL
-zend_class_entry *ccm_server_exception;
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_construct, 0, 0, 3)
 ZEND_ARG_INFO(0, host)
 ZEND_ARG_INFO(0, user)
@@ -151,7 +135,6 @@ static void persistent_resource_destructor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 }
 
-
 PHP_COUCHBASE_LOCAL
 void init_couchbase_cluster(int module_number TSRMLS_DC)
 {
@@ -163,65 +146,10 @@ void init_couchbase_cluster(int module_number TSRMLS_DC)
 															  PHP_COUCHBASE_CLUSTER_PERSISTENT_RESOURCE,
 															  module_number);
 
-	{
-		zend_class_entry ce;
-		INIT_CLASS_ENTRY(ce, "CouchbaseClusterManager", methods);
-		couchbase_cluster_ce = zend_register_internal_class_ex(&ce, NULL,
-															   NULL TSRMLS_CC);
-	}
-
-	/* Initialize Exceptions */
-	{
-		zend_class_entry ce;
-		zend_class_entry *cle;
-
-		INIT_CLASS_ENTRY(ce, "CouchbaseException", NULL);
-
-#if ZEND_MODULE_API_NO >= 20060613
-		cle = (zend_class_entry *)zend_exception_get_default(TSRMLS_C);
-#else
-		cle = (zend_class_entry *)zend_exception_get_default();
-#endif
-
-		ccm_exception = zend_register_internal_class_ex(&ce, cle,
-														NULL TSRMLS_CC);
-	}
-
-	{
-		zend_class_entry ce;
-
-		INIT_CLASS_ENTRY(ce, "CouchbaseIllegalKeyException", NULL);
-		ccm_illegal_key_exception = zend_register_internal_class_ex(&ce,
-																	ccm_exception,
-																	NULL TSRMLS_CC);
-	}
-
-	{
-		zend_class_entry ce;
-
-		INIT_CLASS_ENTRY(ce, "CouchbaseAuthenticationException", NULL);
-		ccm_auth_exception = zend_register_internal_class_ex(&ce,
-															 ccm_exception,
-															 NULL TSRMLS_CC);
-	}
-
-	{
-		zend_class_entry ce;
-
-		INIT_CLASS_ENTRY(ce, "CouchbaseLibcouchbaseException", NULL);
-		ccm_lcb_exception = zend_register_internal_class_ex(&ce,
-															ccm_exception,
-															NULL TSRMLS_CC);
-	}
-
-	{
-		zend_class_entry ce;
-
-		INIT_CLASS_ENTRY(ce, "CouchbaseServerException", NULL);
-		ccm_server_exception = zend_register_internal_class_ex(&ce,
-															   ccm_exception,
-															   NULL TSRMLS_CC);
-	}
+	zend_class_entry ce;
+	INIT_CLASS_ENTRY(ce, "CouchbaseClusterManager", methods);
+	couchbase_cluster_ce = zend_register_internal_class_ex(&ce, NULL,
+														   NULL TSRMLS_CC);
 }
 
 /*

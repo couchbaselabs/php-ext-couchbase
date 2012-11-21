@@ -67,7 +67,7 @@
 #include <zend_exceptions.h>
 
 #include "management/cluster.h"
-#include "management/exceptions.h"
+#include "exceptions.h"
 #include "apidecl.h"
 
 #endif

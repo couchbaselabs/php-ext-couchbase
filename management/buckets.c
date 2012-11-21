@@ -168,7 +168,7 @@ static int set_value(const struct string *key,
 	char k[64];
 	char *c;
 	if (key->len > (sizeof(k) - 1)) {
-		zend_throw_exception(ccm_illegal_key_exception,
+		zend_throw_exception(cb_illegal_key_exception,
 							 "Invalid key specified", 0 TSRMLS_CC);
 		return -1;
 	}
@@ -208,7 +208,7 @@ static int set_value(const struct string *key,
 	} else {
 		char message[80];
 		sprintf(message, "Unknown key: %s", k);
-		zend_throw_exception(ccm_illegal_key_exception, message, 0 TSRMLS_CC);
+		zend_throw_exception(cb_illegal_key_exception, message, 0 TSRMLS_CC);
 		return -1;
 	}
 
@@ -240,7 +240,7 @@ static int extract_bucket_options(zval *options,
 			sprintf(message, "Got non- (or empty) string value "
 					"for bucket parameters (%d)",
 					type);
-			zend_throw_exception(ccm_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_exception, message, 0 TSRMLS_CC);
 			return -1;
 		}
 
@@ -249,7 +249,7 @@ static int extract_bucket_options(zval *options,
 			char message[80];
 			sprintf(message, "Couldn't get value for %*s", key.len,
 					key.buffer);
-			zend_throw_exception(ccm_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_exception, message, 0 TSRMLS_CC);
 			return -1;
 		}
 
@@ -285,7 +285,7 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
 							 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-		zend_throw_exception(ccm_exception, "unintilized couchbase",
+		zend_throw_exception(cb_exception, "unintilized couchbase",
 							 0 TSRMLS_CC);
 		return;
 	}
@@ -339,7 +339,7 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 		}
 		snprintf(errmsg, sizeof(errmsg), "Failed to create bucket \"%s\": %s",
 				 name, lcb_strerror(instance, rc));
-		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
+		zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		free(ctx.payload);
 		return ;
 	}
@@ -351,7 +351,7 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 		RETURN_TRUE;
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
-		zend_throw_exception(ccm_auth_exception, "Incorrect credentials",
+		zend_throw_exception(cb_auth_exception, "Incorrect credentials",
 							 0 TSRMLS_CC);
 		break;
 
@@ -360,9 +360,9 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
 					(int)ctx.status);
-			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
 		} else {
-			zend_throw_exception(ccm_server_exception, ctx.payload,
+			zend_throw_exception(cb_server_exception, ctx.payload,
 								 0 TSRMLS_CC);
 		}
 	}
@@ -388,7 +388,7 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
 							 1 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-		zend_throw_exception(ccm_exception, "unintilized couchbase",
+		zend_throw_exception(cb_exception, "unintilized couchbase",
 							 0 TSRMLS_CC);
 		return;
 	}
@@ -423,7 +423,7 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 		}
 		snprintf(errmsg, sizeof(errmsg), "Failed to remove bucket \"%s\": %s",
 				 name, lcb_strerror(instance, rc));
-		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
+		zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		free(ctx.payload);
 		return ;
 	}
@@ -439,9 +439,9 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
 					(int)ctx.status);
-			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
 		} else {
-			zend_throw_exception(ccm_server_exception, ctx.payload,
+			zend_throw_exception(cb_server_exception, ctx.payload,
 								 0 TSRMLS_CC);
 		}
 	}
@@ -470,7 +470,7 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
 							 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-		zend_throw_exception(ccm_exception, "unintilized couchbase",
+		zend_throw_exception(cb_exception, "unintilized couchbase",
 							 0 TSRMLS_CC);
 		return;
 	}
@@ -529,7 +529,7 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 		}
 		snprintf(errmsg, sizeof(errmsg), "Failed to modify bucket \"%s\": %s",
 				 name, lcb_strerror(instance, rc));
-		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
+		zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		free(ctx.payload);
 		return ;
 	}
@@ -546,9 +546,9 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
 					(int)ctx.status);
-			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
 		} else {
-			zend_throw_exception(ccm_server_exception, ctx.payload,
+			zend_throw_exception(cb_server_exception, ctx.payload,
 								 0 TSRMLS_CC);
 		}
 	}
@@ -575,7 +575,7 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
 							 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-		zend_throw_exception(ccm_exception, "unintilized couchbase",
+		zend_throw_exception(cb_exception, "unintilized couchbase",
 							 0 TSRMLS_CC);
 		return;
 	}
@@ -594,7 +594,7 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 	if (name != NULL) {
 		allocuri = malloc(strlen(uri) + name_len + 2);
 		if (allocuri == NULL) {
-			zend_throw_exception(ccm_exception, "failed to allocate memory",
+			zend_throw_exception(cb_exception, "failed to allocate memory",
 								 0 TSRMLS_CC);
 			return;
 		}
@@ -622,7 +622,7 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 		snprintf(errmsg, sizeof(errmsg),
 				 "Failed to get bucket information: %s",
 				 lcb_strerror(instance, rc));
-		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
+		zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		efree(ctx.payload);
 		return ;
 	}
@@ -633,7 +633,7 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 		RETURN_STRING(ctx.payload, 0);
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
-		zend_throw_exception(ccm_auth_exception, "Incorrect credentials",
+		zend_throw_exception(cb_auth_exception, "Incorrect credentials",
 							 0 TSRMLS_CC);
 		break;
 
@@ -642,9 +642,9 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
 					(int)ctx.status);
-			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
+			zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
 		} else {
-			zend_throw_exception(ccm_server_exception, ctx.payload,
+			zend_throw_exception(cb_server_exception, ctx.payload,
 								 0 TSRMLS_CC);
 		}
 	}
