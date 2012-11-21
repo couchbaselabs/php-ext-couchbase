@@ -15,7 +15,7 @@
 # Please run this script without any arguments before pushing the
 # code to gerrit.
 #
-style=tab
+style=force-tab
 if [ x$1 != x ]
 then
   style=spaces

@@ -4,9 +4,9 @@
  */
 static void
 php_couchbase_get_callback(lcb_t instance,
-                           const void *cookie,
-                           lcb_error_t error,
-                           const lcb_get_resp_t *resp)
+						   const void *cookie,
+						   lcb_error_t error,
+						   const lcb_get_resp_t *resp)
 {
 	zval *retval;
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
@@ -171,8 +171,8 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 		zend_bool preserve_order;
 		int i;
 		PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-						"a|zllb",
-						&akeys, &cas_token, &flag, &expiry, &lock);
+										 "a|zllb",
+										 &akeys, &cas_token, &flag, &expiry, &lock);
 
 		nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
 		keys = ecalloc(nkey, sizeof(char *));
@@ -182,8 +182,8 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 		array_init(return_value);
 
 		for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
-		        zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
-		        zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
+				zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
+				zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
 			if (zend_hash_get_current_data(Z_ARRVAL_P(akeys), (void **)&ppzval) == FAILURE) {
 				nkey--;
 				continue;
@@ -223,11 +223,11 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 	} else {
 
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-					"s|f!zlb", &key, &klen, &fci, &fci_cache, &cas_token, &expiry, &lock);
+		PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+										 "s|f!zlb", &key, &klen, &fci, &fci_cache, &cas_token, &expiry, &lock);
 #else
-			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-					"s|zzlb", &key, &klen, &callback, &cas_token, &expiry, &lock);
+		PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+										 "s|zzlb", &key, &klen, &callback, &cas_token, &expiry, &lock);
 #endif
 
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3
@@ -276,7 +276,7 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 		ctx->cas = cas_token;
 
 		retval = lcb_get(couchbase_res->handle, ctx,
-		                 nkey, (const lcb_get_cmd_t * const *)commands);
+						 nkey, (const lcb_get_cmd_t * const *)commands);
 		for (ii = 0; ii < nkey; ++ii) {
 			efree(commands[ii]);
 		}
@@ -296,7 +296,7 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 			}
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule get request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule get request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -306,9 +306,9 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 			if (LCB_KEY_ENOENT == ctx->res->rc) {
 				if (
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-				    fci.size
+					fci.size
 #else
-				    callback
+					callback
 #endif
 				) {
 					zval *result, *zkey, *retval_ptr = NULL;
@@ -357,7 +357,7 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 				}
 			} else {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-				                 "Failed to get a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+								 "Failed to get a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			}
 		}
 		efree(ctx);
@@ -398,8 +398,8 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 	}
 
 	PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-			"a|lf!lb",
-			&akeys, &with_cas, &fci, &fci_cache, &expiry, &lock);
+									 "a|lf!lb",
+									 &akeys, &with_cas, &fci, &fci_cache, &expiry, &lock);
 
 #else
 	if (oo) {
@@ -410,10 +410,10 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 
 	zval *callback = NULL;
 	PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-			"a|lzlb", &akeys, &with_cas, &callback, &expiry, &lock);
+									 "a|lzlb", &akeys, &with_cas, &callback, &expiry, &lock);
 
 	if (callback && Z_TYPE_P(callback) != IS_NULL
-	        && !zend_is_callable(callback, 0, NULL)) {
+			&& !zend_is_callable(callback, 0, NULL)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "third argument is expected to be a valid callback");
 		return;
 	}
@@ -430,8 +430,8 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 		klens = ecalloc(nkey, sizeof(long));
 
 		for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
-		        zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
-		        zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
+				zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
+				zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
 			if (zend_hash_get_current_data(Z_ARRVAL_P(akeys), (void **)&ppzval) == FAILURE) {
 				nkey--;
 				continue;
@@ -483,7 +483,7 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 			}
 
 			retval = lcb_get(couchbase_res->handle, ctx,
-			                 nkey, (const lcb_get_cmd_t * const *)commands);
+							 nkey, (const lcb_get_cmd_t * const *)commands);
 			for (ii = 0; ii < nkey; ++ii) {
 				efree(commands[ii]);
 			}
@@ -501,7 +501,7 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 			efree(klens);
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule delayed get request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule delayed get request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 		couchbase_res->async = 1;
@@ -516,9 +516,9 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 		efree(klens);
 		if (
 #if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-		    fci.size
+			fci.size
 #else
-		    callback
+			callback
 #endif
 		) {
 			zval *result, **ppzval, *retval_ptr = NULL;
@@ -530,8 +530,8 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 			pcbc_start_loop(couchbase_res);
 			couchbase_res->async = 0;
 			for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(result));
-			        zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
-			        zend_hash_move_forward(Z_ARRVAL_P(result))) {
+					zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
+					zend_hash_move_forward(Z_ARRVAL_P(result))) {
 				if (zend_hash_get_current_data(Z_ARRVAL_P(result), (void **)&ppzval) == FAILURE) {
 					continue;
 				}

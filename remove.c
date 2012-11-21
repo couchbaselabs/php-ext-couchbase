@@ -3,9 +3,9 @@
 /* {{{ static void php_couchbase_remove_callback(...) */
 static void
 php_couchbase_remove_callback(lcb_t instance,
-                              const void *cookie,
-                              lcb_error_t error,
-                              const lcb_remove_resp_t *resp)
+							  const void *cookie,
+							  lcb_error_t error,
+							  const lcb_remove_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	php_ignore_value(instance);
@@ -31,7 +31,7 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-			"s|sa", &key, &klen, &cas, &cas_len, &adurability);
+							 "s|sa", &key, &klen, &cas, &cas_len, &adurability);
 	{
 		lcb_error_t retval;
 		php_couchbase_ctx *ctx;
@@ -51,12 +51,12 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			cmd.v.v0.nkey = klen;
 			cmd.v.v0.cas = cas_v;
 			retval = lcb_remove(couchbase_res->handle, ctx,
-			                    1, (const lcb_remove_cmd_t * const *)commands);
+								1, (const lcb_remove_cmd_t * const *)commands);
 		}
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule delete request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule delete request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -69,11 +69,11 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 				RETVAL_TRUE;
 			}
 		} else if (LCB_KEY_ENOENT == ctx->res->rc ||	/* skip missing key errors */
-		           LCB_KEY_EEXISTS == ctx->res->rc) {	/* skip CAS mismatch */
+				   LCB_KEY_EEXISTS == ctx->res->rc) {	/* skip CAS mismatch */
 			RETVAL_FALSE;
 		} else {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to remove a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 "Failed to remove a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			RETVAL_FALSE;
 		}
 

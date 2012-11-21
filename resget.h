@@ -78,10 +78,10 @@ enum {
  */
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_resource(INTERNAL_FUNCTION_PARAMETERS,
-		zval *zvres,
-		int argflags,
-		int *ec,
-		php_couchbase_res **pres);
+								zval *zvres,
+								int argflags,
+								int *ec,
+								php_couchbase_res **pres);
 
 /**
  * Returns true on success, false on error

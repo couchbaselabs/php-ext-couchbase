@@ -112,11 +112,11 @@ int pcbc_ht_iexists(zval *assoc, unsigned long idx);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_ht_hkstores(zval *assoc, pcbc_ht_key *hk,
-                      const char *value, int nvalue);
+					  const char *value, int nvalue);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_ht_stores(zval *assoc,
-                    const char *key, int nkey, const char *value, int nvalue);
+					const char *key, int nkey, const char *value, int nvalue);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_ht_hkstoreb(zval *assoc, pcbc_ht_key *hk, zend_bool value);

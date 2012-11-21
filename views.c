@@ -36,10 +36,10 @@ typedef struct _php_couchbase_htinfo {
 
 
 static void php_couchbase_complete_callback(lcb_http_request_t request,
-                                     lcb_t instance,
-                                     const void *cookie,
-                                     lcb_error_t error,
-                                     const lcb_http_resp_t *resp)
+											lcb_t instance,
+											const void *cookie,
+											lcb_error_t error,
+											const lcb_http_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	php_couchbase_htinfo *hti;
@@ -70,8 +70,8 @@ static void php_couchbase_complete_callback(lcb_http_request_t request,
 
 
 static int append_view_option(php_couchbase_res *res,
-		smart_str *uri,
-		const char *vopt, int nvopt, zval *input TSRMLS_DC)
+							  smart_str *uri,
+							  const char *vopt, int nvopt, zval *input TSRMLS_DC)
 {
 	view_param *curvp = NULL;
 	pcbc_sso_buf sso = { 0 };
@@ -82,21 +82,21 @@ static int append_view_option(php_couchbase_res *res,
 		curvp = pcbc_find_view_param(vopt, nvopt);
 		if (!curvp) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Unrecognized view option '%*s'", nvopt, vopt);
+							 "Unrecognized view option '%*s'", nvopt, vopt);
 			return -1;
 		}
 
 		status = curvp->handler(curvp, input, &sso, &error TSRMLS_CC);
 		if (status == -1) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					"Problem with value for parameter '%*s': %s",
-					nvopt, vopt, error);
+							 "Problem with value for parameter '%*s': %s",
+							 nvopt, vopt, error);
 			return -1;
 		}
 
 	} else {
 		pcbc_vopt_generic_param_handler(NULL,
-				input, &sso, &error TSRMLS_CC);
+										input, &sso, &error TSRMLS_CC);
 	}
 
 	/**
@@ -116,15 +116,15 @@ static int append_view_option(php_couchbase_res *res,
 
 
 static void extract_view_options(php_couchbase_res *couchbase_res,
-		zval *options,
-		smart_str *uri TSRMLS_DC)
+								 zval *options,
+								 smart_str *uri TSRMLS_DC)
 {
 	smart_str_appendc(uri, '?');
 
 	for (
-	    zend_hash_internal_pointer_reset(Z_ARRVAL_P(options));
-	    zend_hash_has_more_elements(Z_ARRVAL_P(options)) == SUCCESS;
-	    zend_hash_move_forward(Z_ARRVAL_P(options))) {
+		zend_hash_internal_pointer_reset(Z_ARRVAL_P(options));
+		zend_hash_has_more_elements(Z_ARRVAL_P(options)) == SUCCESS;
+		zend_hash_move_forward(Z_ARRVAL_P(options))) {
 
 		char *key;
 		uint klen;
@@ -133,27 +133,27 @@ static void extract_view_options(php_couchbase_res *couchbase_res,
 		zval **ppzval;
 
 		type = zend_hash_get_current_key_ex(Z_ARRVAL_P(options),
-		                                    &key, &klen, &idx, 0, NULL);
+											&key, &klen, &idx, 0, NULL);
 
 		if (type != HASH_KEY_IS_STRING || klen == 0) {
 			php_error_docref(NULL TSRMLS_CC, E_ERROR,
-			                 "Got non- (or empty) string value "
-			                 "for view parameters (%d)",
-			                 type);
+							 "Got non- (or empty) string value "
+							 "for view parameters (%d)",
+							 type);
 			continue;
 		}
 
 		if (FAILURE ==
-		        zend_hash_get_current_data(
-		            Z_ARRVAL_P(options), (void **)&ppzval)) {
+				zend_hash_get_current_data(
+					Z_ARRVAL_P(options), (void **)&ppzval)) {
 
 			php_error_docref(NULL TSRMLS_CC, E_ERROR,
-			                 "Couldn't get value for %*s", klen, key);
+							 "Couldn't get value for %*s", klen, key);
 			continue;
 		}
 
 		/* Yes! The length *includes* the NUL byte */
-		append_view_option(couchbase_res, uri, key, klen -1, *ppzval TSRMLS_CC);
+		append_view_option(couchbase_res, uri, key, klen - 1, *ppzval TSRMLS_CC);
 	}
 
 	/* trim the last '&' from the uri */
@@ -163,8 +163,8 @@ static void extract_view_options(php_couchbase_res *couchbase_res,
 }
 
 static void php_couchbase_sanitize_path(smart_str *uri,
-                                        char *doc_name, long doc_name_len,
-                                        char *view_name, long view_name_len)
+										char *doc_name, long doc_name_len,
+										char *view_name, long view_name_len)
 {
 	if (strcmp(doc_name, "_all_docs") == 0) {
 		/* special case of _all_docs, which does not have its own design doc */
@@ -190,7 +190,7 @@ static void php_couchbase_sanitize_path(smart_str *uri,
  * HTTP content string
  */
 static char *php_couchbase_view_convert_to_error(zval *decoded,
-                                                 php_couchbase_htinfo *hti)
+												 php_couchbase_htinfo *hti)
 {
 	char *err = NULL, *reason = NULL;
 	char *ret = NULL;
@@ -201,17 +201,17 @@ static char *php_couchbase_view_convert_to_error(zval *decoded,
 	if (IS_ARRAY == Z_TYPE_P(decoded)) {
 
 		zend_hash_find(Z_ARRVAL_P(decoded),
-		               "error", sizeof("error"),
-		               (void **)&zverr);
+					   "error", sizeof("error"),
+					   (void **)&zverr);
 
 		zend_hash_find(Z_ARRVAL_P(decoded),
-		               "reason", sizeof("reason"),
-		               (void **)&zvreason);
+					   "reason", sizeof("reason"),
+					   (void **)&zvreason);
 	}
 
 	if (zverr == NULL && zvreason == NULL) {
 		spprintf(&ret, 2048, "[%d, %*s]",
-		         hti->htstatus, (int)hti->ndata, hti->data);
+				 hti->htstatus, (int)hti->ndata, hti->data);
 
 		return ret;
 	}
@@ -235,8 +235,8 @@ static char *php_couchbase_view_convert_to_error(zval *decoded,
 	}
 
 	spprintf(&ret, 2048, "[%d, %*s, %*s]",
-	         hti->htstatus,
-	         (int)nerr, err, (int)nreason, reason);
+			 hti->htstatus,
+			 (int)nerr, err, (int)nreason, reason);
 	return ret;
 }
 
@@ -258,15 +258,15 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
 	PHP_COUCHBASE_GET_PARAMS(
-			couchbase_res,
-			argflags,
-			"s|sab",
-			&doc_name, &doc_name_len, &view_name, &view_name_len, &options, &return_errors);
+		couchbase_res,
+		argflags,
+		"s|sab",
+		&doc_name, &doc_name_len, &view_name, &view_name_len, &options, &return_errors);
 
 	APPEND_URI_s(&uri, "/");
 
 	php_couchbase_sanitize_path(&uri, doc_name, doc_name_len,
-	                            view_name, view_name_len);
+								view_name, view_name_len);
 
 	if (options && memchr(uri.c, '?', uri.len) == NULL) {
 		extract_view_options(couchbase_res, options, &uri TSRMLS_CC);
@@ -293,15 +293,15 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	cmd.v.v0.content_type = "application/json";
 
 	retval = lcb_make_http_request(couchbase_res->handle,
-	                               (const void *)&ctx,
-	                               LCB_HTTP_TYPE_VIEW,
-	                               &cmd, &htreq);
+								   (const void *)&ctx,
+								   LCB_HTTP_TYPE_VIEW,
+								   &cmd, &htreq);
 
 	smart_str_free(&uri);
 
 	if (LCB_SUCCESS != retval) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-		                 "Failed to schedule couch request: %s", lcb_strerror(couchbase_res->handle, retval));
+						 "Failed to schedule couch request: %s", lcb_strerror(couchbase_res->handle, retval));
 		RETURN_FALSE;
 	}
 
@@ -313,10 +313,10 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 
 		if (ctx.res->rc != LCB_SUCCESS && return_errors == 0) {
 			char *errstr = php_couchbase_view_convert_to_error(
-			                   return_value, hti);
+							   return_value, hti);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to execute view: Server Response: %s",
-			                 errstr);
+							 "Failed to execute view: Server Response: %s",
+							 errstr);
 
 			efree(errstr);
 			zval_dtor(return_value);
@@ -329,8 +329,8 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	} else {
 		ZVAL_FALSE(return_value);
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-		                 "Failed to execute view: %s",
-		                 lcb_strerror(couchbase_res->handle, ctx.res->rc));
+						 "Failed to execute view: %s",
+						 lcb_strerror(couchbase_res->handle, ctx.res->rc));
 	}
 }
 

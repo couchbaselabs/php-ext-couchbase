@@ -2,7 +2,7 @@
 
 PHP_COUCHBASE_LOCAL
 void pcbc_json_decode(zval *zv, char *data, int ndata, zend_bool assoc
-		TSRMLS_DC)
+					  TSRMLS_DC)
 {
 #if HAVE_JSON_API_5_2
 	php_json_decode(zv, data, ndata, assoc TSRMLS_CC);
@@ -150,7 +150,7 @@ int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_l
 
 	if (payload == NULL && payload_len > 0) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-		                 "could not handle non-existing value of length %zu", payload_len);
+						 "could not handle non-existing value of length %zu", payload_len);
 		return 0;
 	} else if (payload == NULL) {
 		if ((flags & 127) == IS_BOOL) {
@@ -250,8 +250,8 @@ int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_l
 
 	case COUCHBASE_VAL_IS_JSON:
 		pcbc_json_decode(value, payload, payload_len,
-				(serializer == COUCHBASE_SERIALIZER_JSON_ARRAY)
-				TSRMLS_CC);
+						 (serializer == COUCHBASE_SERIALIZER_JSON_ARRAY)
+						 TSRMLS_CC);
 		break;
 
 	default:

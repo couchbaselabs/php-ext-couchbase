@@ -83,9 +83,9 @@ static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const 
 
 /* {{{ static void php_couchbase_flush_callback(...) */
 static void php_couchbase_flush_callback(lcb_t handle,
-                                         const void *cookie,
-                                         lcb_error_t error,
-                                         const lcb_flush_resp_t *resp)
+										 const void *cookie,
+										 lcb_error_t error,
+										 const lcb_flush_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const char *server_endpoint = resp->v.v0.server_endpoint;
@@ -105,9 +105,9 @@ static void php_couchbase_flush_callback(lcb_t handle,
 
 /* {{{ static void php_couchbase_stat_callback(...) */
 static void php_couchbase_stat_callback(lcb_t handle,
-                                        const void *cookie,
-                                        lcb_error_t error,
-                                        const lcb_server_stat_resp_t *resp)
+										const void *cookie,
+										lcb_error_t error,
+										const lcb_server_stat_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const char *server_endpoint = resp->v.v0.server_endpoint;
@@ -152,9 +152,9 @@ static void php_couchbase_stat_callback(lcb_t handle,
 /* {{{ static void php_couchbase_version_callback(...) */
 static void
 php_couchbase_version_callback(lcb_t handle,
-                               const void *cookie,
-                               lcb_error_t error,
-                               const lcb_server_version_resp_t *resp)
+							   const void *cookie,
+							   lcb_error_t error,
+							   const lcb_server_version_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const char *server_endpoint = resp->v.v0.server_endpoint;
@@ -214,7 +214,7 @@ long pcbc_check_expiry(long expiry)
 PHP_COUCHBASE_LOCAL
 void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
-	php_couchbase_res* couchbase_res;
+	php_couchbase_res *couchbase_res;
 
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
@@ -230,7 +230,7 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			lcb_flush_cmd_t *commands[] = { &cmd };
 			memset(&cmd, 0, sizeof(cmd));
 			retval = lcb_flush(couchbase_res->handle, (const void *)ctx,
-			                   1, (const lcb_flush_cmd_t * const *)commands);
+							   1, (const lcb_flush_cmd_t * const *)commands);
 		}
 		if (LCB_SUCCESS != retval) {
 			if (ctx->extended_value) {
@@ -238,7 +238,7 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			}
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule flush request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule flush request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -250,7 +250,7 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			}
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to flush node %s: %s", ctx->extended_value ? (char *)ctx->extended_value : "", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 "Failed to flush node %s: %s", ctx->extended_value ? (char *)ctx->extended_value : "", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			RETURN_FALSE;
 		}
 		if (ctx->extended_value) {
@@ -288,14 +288,14 @@ void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			lcb_server_stats_cmd_t *commands[] = { &cmd };
 			memset(&cmd, 0, sizeof(cmd));
 			retval = lcb_server_stats(couchbase_res->handle, (const void *)ctx,
-			                          1, (const lcb_server_stats_cmd_t * const *)commands);
+									  1, (const lcb_server_stats_cmd_t * const *)commands);
 		}
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule stat request: %s [%d]",
-			                 lcb_strerror(couchbase_res->handle, retval),
-			                 retval);
+							 "Failed to schedule stat request: %s [%d]",
+							 lcb_strerror(couchbase_res->handle, retval),
+							 retval);
 			RETURN_FALSE;
 		}
 
@@ -303,9 +303,9 @@ void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to stat: (%d): %s",
-			                 ctx->res->rc,
-			                 lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 "Failed to stat: (%d): %s",
+							 ctx->res->rc,
+							 lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			efree(ctx);
 			RETURN_FALSE;
 		}
@@ -334,12 +334,12 @@ void php_couchbase_version_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			lcb_server_version_cmd_t *commands[] = { &cmd };
 			memset(&cmd, 0, sizeof(cmd));
 			retval = lcb_server_versions(couchbase_res->handle, (const void *)ctx,
-			                             1, (const lcb_server_version_cmd_t * const *)commands);
+										 1, (const lcb_server_version_cmd_t * const *)commands);
 		}
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule server version request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule server version request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -347,7 +347,7 @@ void php_couchbase_version_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to fetch server version (%u): %s", ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 "Failed to fetch server version (%u): %s", ctx->res->rc, lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			efree(ctx);
 			RETURN_FALSE;
 		}
@@ -364,8 +364,8 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 	zval *value;
 	php_couchbase_res *couchbase_res;
 	int argflags =
-			(oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL) |
-			PHP_COUCHBASE_ARG_F_NOCONN | PHP_COUCHBASE_ARG_F_ASYNC;
+		(oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL) |
+		PHP_COUCHBASE_ARG_F_NOCONN | PHP_COUCHBASE_ARG_F_ASYNC;
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "lz", &option, &value);
 
@@ -442,8 +442,8 @@ void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ 
 	long option;
 	php_couchbase_res *couchbase_res;
 	int argflags =
-			(oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL) |
-			PHP_COUCHBASE_ARG_F_ONLYVALID;
+		(oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL) |
+		PHP_COUCHBASE_ARG_F_ONLYVALID;
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "l", &option);
 
@@ -483,7 +483,7 @@ void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	char *str;
 	int str_len;
 	int argflags = (oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL)
-			| PHP_COUCHBASE_ARG_F_ONLYVALID;
+				   | PHP_COUCHBASE_ARG_F_ONLYVALID;
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
 	str_len = spprintf(&str, 0, "%s", lcb_strerror(couchbase_res->handle, couchbase_res->rc));
 	RETURN_STRINGL(str, str_len, 0);

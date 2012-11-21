@@ -248,7 +248,7 @@ PHP_COUCHBASE_LOCAL
 extern void php_couchbase_setup_callbacks(lcb_t handle);
 
 extern void observe_polling_internal(
-    php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
+	php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
 
 
 PHP_COUCHBASE_LOCAL
@@ -304,18 +304,18 @@ void cbcomp_free(php_couchbase_comp *str);
 
 PHP_COUCHBASE_LOCAL
 int cbcomp_dcmp_init(const char *data, size_t len,
-                     php_couchbase_decomp *info);
+					 php_couchbase_decomp *info);
 
 PHP_COUCHBASE_LOCAL
 void cbcomp_dcmp_free(php_couchbase_decomp *info);
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_compress_zlib(const smart_str *input,
-                                php_couchbase_comp *output);
+								php_couchbase_comp *output);
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_compress_fastlz(const smart_str *input,
-                                  php_couchbase_comp *output);
+								  php_couchbase_comp *output);
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_decompress_zlib(php_couchbase_decomp *info);
@@ -347,13 +347,13 @@ long pcbc_check_expiry(long expiry);
 
 PHP_COUCHBASE_LOCAL
 char *php_couchbase_zval_to_payload(zval *value,
-		size_t *payload_len,
-		unsigned int *flags, int serializer, int compressor TSRMLS_DC);
+									size_t *payload_len,
+									unsigned int *flags, int serializer, int compressor TSRMLS_DC);
 
 PHP_COUCHBASE_LOCAL
 int php_couchbase_zval_from_payload(zval *value,
-		char *payload, size_t payload_len,
-		unsigned int flags, int serializer, int ignoreflags TSRMLS_DC);
+									char *payload, size_t payload_len,
+									unsigned int flags, int serializer, int ignoreflags TSRMLS_DC);
 
 /**
  * Callback initialization
@@ -385,7 +385,7 @@ void pcbc_json_encode(smart_str *buf, zval *value TSRMLS_DC);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_json_decode(zval *out, char *data, int ndata, zend_bool assoc
-		TSRMLS_DC);
+					  TSRMLS_DC);
 
 #endif	  /* PHP_COUCHBASE_H */
 

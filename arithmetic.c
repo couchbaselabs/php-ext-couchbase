@@ -3,9 +3,9 @@
 /* {{{ static void php_couchbase_arithmetic_callback(...) */
 static void
 php_couchbase_arithmetic_callback(lcb_t instance,
-                                  const void *cookie,
-                                  lcb_error_t error,
-                                  const lcb_arithmetic_resp_t *resp)
+								  const void *cookie,
+								  lcb_error_t error,
+								  const lcb_arithmetic_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	php_ignore_value(instance);
@@ -38,7 +38,7 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-			"s|llll", &key, &klen, &offset, &create, &expire, &initial);
+							 "s|llll", &key, &klen, &offset, &create, &expire, &initial);
 
 	{
 		lcb_error_t retval;
@@ -65,12 +65,12 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 			cmd.v.v0.exptime = exp;
 
 			retval = lcb_arithmetic(couchbase_res->handle, ctx, 1,
-			                        (const lcb_arithmetic_cmd_t * const *)commands);
+									(const lcb_arithmetic_cmd_t * const *)commands);
 		}
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule rithmetic request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule rithmetic request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -80,7 +80,7 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 			// Just return false and don't print a warning when no key is present and create is false
 			if (!(LCB_KEY_ENOENT == ctx->res->rc && create == 0)) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-				                 "Failed to %s value in server: %s", (op == '+') ? "increment" : "decrement", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+								 "Failed to %s value in server: %s", (op == '+') ? "increment" : "decrement", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			}
 			efree(ctx);
 			RETURN_FALSE;
@@ -95,7 +95,7 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_arithmetic_init(lcb_t handle)
 {
 	php_ignore_value(
-			lcb_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
+		lcb_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
 }
 
 /*

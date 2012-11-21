@@ -21,7 +21,7 @@ struct connparams_st {
 
 
 static int parse_host(const char *host,
-		size_t host_len, struct connparams_st *cparams TSRMLS_DC)
+					  size_t host_len, struct connparams_st *cparams TSRMLS_DC)
 {
 	php_url *url = NULL;
 	struct nodeinfo_st *curnode;
@@ -61,7 +61,7 @@ static int parse_host(const char *host,
 }
 
 static int _append_host_port(char *oldstr, char **newstr,
-		const char *host, unsigned short port)
+							 const char *host, unsigned short port)
 {
 	if (oldstr) {
 		if (port) {
@@ -169,11 +169,11 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 	memset(&cparams, 0, sizeof(cparams));
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zsssb",
-	                          &zvhosts,
-	                          &user, &user_len,
-	                          &passwd, &passwd_len,
-	                          &bucket, &bucket_len,
-	                          &persistent) == FAILURE) {
+							  &zvhosts,
+							  &user, &user_len,
+							  &passwd, &passwd_len,
+							  &bucket, &bucket_len,
+							  &persistent) == FAILURE) {
 		return;
 	}
 
@@ -191,7 +191,7 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 	if (zvhosts == NULL) {
 		char host_localhost[] = "127.0.0.1";
 		parse_host(host_localhost, sizeof(host_localhost) - 1,
-								 &cparams TSRMLS_CC);
+				   &cparams TSRMLS_CC);
 
 	} else if (Z_TYPE_P(zvhosts) == IS_STRING) {
 		if (!parse_host(
@@ -219,8 +219,8 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 				RETURN_FALSE;
 			}
 			if (!parse_host(Z_STRVAL_PP(curzv),
-										  Z_STRLEN_PP(curzv),
-										  &cparams TSRMLS_CC)) {
+							Z_STRLEN_PP(curzv),
+							&cparams TSRMLS_CC)) {
 				free_connparams(&cparams);
 				RETURN_FALSE;
 			}

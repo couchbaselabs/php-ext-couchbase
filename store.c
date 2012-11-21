@@ -4,10 +4,10 @@
  */
 static void
 php_couchbase_store_callback(lcb_t instance,
-                             const void *cookie,
-                             lcb_storage_t operation,
-                             lcb_error_t error,
-                             const lcb_store_resp_t *resp)
+							 const void *cookie,
+							 lcb_storage_t operation,
+							 lcb_error_t error,
+							 const lcb_store_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const void *key;
@@ -82,12 +82,12 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 		zval *value;
 		long klen = 0;
 		PHP_COUCHBASE_GET_PARAMS(couchbase_res,
-				oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL,
-						"sz|lsa",
-						&key, &klen,
-						&value,
-						&expire,
-						&cas, &cas_len, &adurability);
+								 oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL,
+								 "sz|lsa",
+								 &key, &klen,
+								 &value,
+								 &expire,
+								 &cas, &cas_len, &adurability);
 
 		if (!klen) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to schedule set request: Empty key");
@@ -129,7 +129,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 			cmd.v.v0.cas = (uint64_t)cas_v;
 
 			retval = lcb_store(couchbase_res->handle, ctx,
-			                   1, (const lcb_store_cmd_t * const *)commands);
+							   1, (const lcb_store_cmd_t * const *)commands);
 		}
 
 		efree(payload);
@@ -139,7 +139,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule set request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule set request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -151,9 +151,9 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 		int key_type, nkey = 0;
 
 		PHP_COUCHBASE_GET_PARAMS(couchbase_res,
-				oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL,
-				"a|la",
-				&akeys, &expire, &adurability);
+								 oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL,
+								 "a|la",
+								 &akeys, &expire, &adurability);
 
 		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
 		ctx->res = couchbase_res;
@@ -165,8 +165,8 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 		}
 
 		for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
-		        zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
-		        zend_hash_move_forward(Z_ARRVAL_P(akeys))) {
+				zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
+				zend_hash_move_forward(Z_ARRVAL_P(akeys))) {
 			if (zend_hash_get_current_data(Z_ARRVAL_P(akeys), (void **)&ppzval) == FAILURE) {
 				continue;
 			}
@@ -210,7 +210,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 				cmd.v.v0.exptime = exp;
 
 				retval = lcb_store(couchbase_res->handle, ctx,
-				                   1, (const lcb_store_cmd_t * const *)commands);
+								   1, (const lcb_store_cmd_t * const *)commands);
 			}
 
 			efree(payload);
@@ -220,7 +220,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 			if (LCB_SUCCESS != retval) {
 				efree(ctx);
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-				                 "Failed to schedule set request: %s", lcb_strerror(couchbase_res->handle, retval));
+								 "Failed to schedule set request: %s", lcb_strerror(couchbase_res->handle, retval));
 				RETURN_FALSE;
 			}
 			nkey++;
@@ -256,7 +256,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 					}
 				default:
 					php_error_docref(NULL TSRMLS_CC, E_WARNING,
-					                 "Failed to store a value to server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+									 "Failed to store a value to server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 					break;
 				}
 			}
@@ -275,8 +275,8 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 				zval **curr_cas;
 
 				for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(return_value));
-				        zend_hash_has_more_elements(Z_ARRVAL_P(return_value)) == SUCCESS;
-				        zend_hash_move_forward(Z_ARRVAL_P(return_value))) {
+						zend_hash_has_more_elements(Z_ARRVAL_P(return_value)) == SUCCESS;
+						zend_hash_move_forward(Z_ARRVAL_P(return_value))) {
 					zend_hash_get_current_key_ex(Z_ARRVAL_P(return_value), (char **)&curr_key, &curr_key_len, &curr_idx, 0, NULL);
 					zend_hash_get_current_data(Z_ARRVAL_P(return_value), (void **)&curr_cas);
 					if (Z_BVAL_PP(curr_cas)) {
@@ -313,11 +313,11 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 	php_couchbase_res *couchbase_res;
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res,
-			oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL,
-					"ssz|l",
-					&cas, &cas_len,
-					&key, &klen,
-					&value, &expire);
+							 oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL,
+							 "ssz|l",
+							 &cas, &cas_len,
+							 &key, &klen,
+							 &value, &expire);
 
 	{
 		lcb_error_t retval;
@@ -358,7 +358,7 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			cmd.v.v0.cas = (uint64_t)cas_v;
 
 			retval = lcb_store(couchbase_res->handle, ctx,
-			                   1, (const lcb_store_cmd_t * const *)commands);
+							   1, (const lcb_store_cmd_t * const *)commands);
 		}
 
 		efree(payload);
@@ -368,7 +368,7 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		if (LCB_SUCCESS != retval) {
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to schedule cas request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule cas request: %s", lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
@@ -382,7 +382,7 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		} else {
 			ZVAL_FALSE(return_value);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-			                 "Failed to store a value to server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 "Failed to store a value to server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
 		}
 		efree(ctx);
 	}

@@ -94,14 +94,14 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_observe_impl(
-		INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int poll);
+	INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int poll);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS, int style);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
-                                                int style);
+										 int style);
 
 #endif
 

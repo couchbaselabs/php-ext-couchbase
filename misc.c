@@ -21,7 +21,7 @@
 #include "internal.h"
 
 void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS,
-                                    int style)
+									int style)
 {
 	php_couchbase_res *res;
 	const char *const *server_list = NULL;
@@ -34,8 +34,8 @@ void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS,
 	array_init(return_value);
 
 	for (wix = 0, cur_item = server_list;
-	        *cur_item;
-	        cur_item++, wix++) {
+			*cur_item;
+			cur_item++, wix++) {
 
 		add_index_string(return_value, wix, *cur_item, 1);
 	}
@@ -43,7 +43,7 @@ void php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 
 void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
-                                         int style)
+										 int style)
 {
 	php_couchbase_res *res;
 	PHP_COUCHBASE_GET_PARAMS(res, style, "");

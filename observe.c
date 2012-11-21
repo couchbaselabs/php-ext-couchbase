@@ -101,8 +101,8 @@ struct observe_collection {
 };
 
 static void make_prefixed_hk(php_couchbase_res *res,
-                             const char *key, int nkey,
-                             pcbc_ht_key *hk)
+							 const char *key, int nkey,
+							 pcbc_ht_key *hk)
 {
 	if (!res->prefix_key_len) {
 		pcbc_ht_key_create(key, nkey, hk);
@@ -123,8 +123,8 @@ static lcb_cas_t cas_from_zval(zval *zv)
 
 	/* convert the cas */
 	if (Z_TYPE_P(zv) == IS_NULL ||
-	        (Z_TYPE_P(zv) == IS_LONG && Z_LVAL_P(zv) == 0) ||
-	        (Z_TYPE_P(zv) == IS_BOOL && Z_BVAL_P(zv) == 0)) {
+			(Z_TYPE_P(zv) == IS_LONG && Z_LVAL_P(zv) == 0) ||
+			(Z_TYPE_P(zv) == IS_BOOL && Z_BVAL_P(zv) == 0)) {
 		/* invalid, but fals-ish */
 		return 0;
 
@@ -146,7 +146,7 @@ static lcb_cas_t cas_from_zval(zval *zv)
 
 GT_ERR:
 	php_error(E_RECOVERABLE_ERROR,
-	          "Invalid CAS Specified (must be a numeric string)");
+			  "Invalid CAS Specified (must be a numeric string)");
 	return -1;
 }
 
@@ -157,7 +157,7 @@ GT_ERR:
  * i.e.
  */
 static void oks_set_error(struct observe_keystate *oks,
-                          const char *errstr, int clear_old)
+						  const char *errstr, int clear_old)
 {
 	if (oks->got.errstr) {
 		if (!clear_old) {
@@ -176,11 +176,11 @@ static int oks_durability_satisfied(struct observe_keystate *oks)
 	int ok_repl, ok_pers;
 
 	ok_repl = (oks->expected.replicate == 0 ||
-	           (oks->got.persist + oks->got.replicate >= oks->expected.replicate));
+			   (oks->got.persist + oks->got.replicate >= oks->expected.replicate));
 
 	ok_pers = (oks->expected.persist == 0 ||
-	           (oks->got.persist >= oks->expected.persist &&
-	        		   oks->got.persist_master));
+			   (oks->got.persist >= oks->expected.persist &&
+				oks->got.persist_master));
 
 	return (ok_repl && ok_pers);
 }
@@ -196,7 +196,7 @@ static void oks_set_done(struct observe_keystate *oks)
 }
 
 static void oks_update(struct observe_keystate *oks,
-                       const lcb_observe_resp_t *resp)
+					   const lcb_observe_resp_t *resp)
 {
 	oks->got.resp++;
 
@@ -205,10 +205,10 @@ static void oks_update(struct observe_keystate *oks,
 	}
 
 	if (resp->v.v0.cas && oks->expected.cas &&
-	        resp->v.v0.cas != oks->expected.cas) {
+			resp->v.v0.cas != oks->expected.cas) {
 
 		obs_debug("Cas Mismatch: Got %llu, Expected %llu\n",
-		          resp->v.v0.cas, oks->expected.cas);
+				  resp->v.v0.cas, oks->expected.cas);
 
 		oks_set_error(oks, "CAS Mismatch", 1);
 		oks_set_done(oks);
@@ -239,8 +239,8 @@ static void oks_update(struct observe_keystate *oks,
 
 	default:
 		php_error(E_RECOVERABLE_ERROR,
-		          "Got unhandled observe status (%d)",
-		          resp->v.v0.status);
+				  "Got unhandled observe status (%d)",
+				  resp->v.v0.status);
 		break;
 
 	}
@@ -288,9 +288,9 @@ static int oks_get_boolval(struct observe_keystate *oks)
 }
 
 static int oks_extract_durability(php_couchbase_res *res,
-                                  struct observe_expectation *expectation,
-                                  struct observe_pollprefs *pollprefs,
-                                  zval *adurability)
+								  struct observe_expectation *expectation,
+								  struct observe_pollprefs *pollprefs,
+								  zval *adurability)
 {
 	zval *tmpval;
 	long tmplong = 0;
@@ -318,14 +318,14 @@ static int oks_extract_durability(php_couchbase_res *res,
 
 	if (expectation->replicate > available) {
 		php_error(E_WARNING,
-		          "Not enough replicas (want=%d, max=%d). Capping",
-		          expectation->replicate, available);
+				  "Not enough replicas (want=%d, max=%d). Capping",
+				  expectation->replicate, available);
 		expectation->replicate = available;
 	}
 	if (expectation->persist > available + 1) {
 		php_error(E_WARNING,
-		          "Not enough nodes for persistence (want=%d, max=%d). Capping",
-		          expectation->persist, available + 1);
+				  "Not enough nodes for persistence (want=%d, max=%d). Capping",
+				  expectation->persist, available + 1);
 		expectation->persist = available + 1;
 	}
 
@@ -346,7 +346,7 @@ static int oks_extract_durability(php_couchbase_res *res,
 
 		if (pollprefs->timeout <= 0 || pollprefs->interval <= 0) {
 			php_error(E_RECOVERABLE_ERROR,
-			          "interval or timeout must be greater than 0");
+					  "interval or timeout must be greater than 0");
 			return -1;
 		}
 
@@ -388,10 +388,10 @@ static void oks_cleanup_context(struct observe_collection *ocoll)
  * 	couchbase-level prefix
  */
 static int oks_build_context(php_couchbase_res *res,
-                             struct observe_collection *ocoll,
-                             struct observe_expectation *expectation,
-                             zval *akc,
-                             int append_prefix)
+							 struct observe_collection *ocoll,
+							 struct observe_expectation *expectation,
+							 zval *akc,
+							 int append_prefix)
 {
 	int nks, ix;
 	struct observe_keystate *ks;
@@ -400,8 +400,8 @@ static int oks_build_context(php_couchbase_res *res,
 	ks = ecalloc(sizeof(*ks), nks);
 
 	for (ix = 0, pcbc_ht_iter_init(akc);
-	        pcbc_ht_iter_remaining(akc);
-	        pcbc_ht_iter_next(akc), ix++) {
+			pcbc_ht_iter_remaining(akc);
+			pcbc_ht_iter_next(akc), ix++) {
 
 		pcbc_ht_entry *kv = pcbc_ht_iter_entry(akc);
 		struct observe_keystate *oks = ks + ix;
@@ -422,18 +422,18 @@ static int oks_build_context(php_couchbase_res *res,
 		}
 
 		if (append_prefix && res->prefix_key_len &&
-		        ocoll->prefix_appended == 0) {
+				ocoll->prefix_appended == 0) {
 
 			pcbc_ht_key prefixed_ki;
 			make_prefixed_hk(res, kv->key_info->key, kv->key_info->key_len,
-			                 &prefixed_ki);
+							 &prefixed_ki);
 
 			oks->ocmd.v.v0.nkey = prefixed_ki.key_len;
 			oks->ocmd.v.v0.key = emalloc(prefixed_ki.key_len);
 
 			memcpy((char *)oks->ocmd.v.v0.key,
-			       prefixed_ki.key,
-			       prefixed_ki.key_len);
+				   prefixed_ki.key,
+				   prefixed_ki.key_len);
 
 			pcbc_ht_key_cleanup(&prefixed_ki);
 
@@ -442,8 +442,8 @@ static int oks_build_context(php_couchbase_res *res,
 			oks->ocmd.v.v0.nkey = kv->key_info->key_len;
 
 			memcpy((char *)oks->ocmd.v.v0.key,
-			       kv->key_info->key,
-			       oks->ocmd.v.v0.nkey);
+				   kv->key_info->key,
+				   oks->ocmd.v.v0.nkey);
 		}
 
 		pcbc_ht_entry_free(kv);
@@ -473,9 +473,9 @@ GT_CLEANUP:
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_observe_callback(lcb_t instance,
-                                    const void *cookie,
-                                    lcb_error_t error,
-                                    const lcb_observe_resp_t *resp)
+									const void *cookie,
+									lcb_error_t error,
+									const lcb_observe_resp_t *resp)
 {
 	struct observe_keystate *oks = (struct observe_keystate *)cookie;
 
@@ -494,7 +494,7 @@ void php_couchbase_observe_callback(lcb_t instance,
 }
 
 static int observe_iterate(php_couchbase_res *res,
-                           struct observe_collection *ocoll)
+						   struct observe_collection *ocoll)
 {
 	int ii, scheduled = 0;
 	obs_debug("Have %d total requests\n", ocoll->nks);
@@ -552,7 +552,7 @@ static int observe_iterate(php_couchbase_res *res,
 		 */
 
 		if (oks->expected.persist > oks->got.resp ||
-		        oks->expected.replicate > oks->got.resp) {
+				oks->expected.replicate > oks->got.resp) {
 			oks_set_error(oks, "Not enough nodes for durability criteria", 1);
 			oks_set_done(oks);
 		}
@@ -579,8 +579,8 @@ static unsigned long get_msec_time(void)
 #endif
 
 static void observe_poll(php_couchbase_res *res,
-                         struct observe_collection *ocoll,
-                         struct observe_pollprefs *tprefs)
+						 struct observe_collection *ocoll,
+						 struct observe_pollprefs *tprefs)
 {
 
 #ifdef USE_MSEC_TIMINGS
@@ -612,8 +612,8 @@ static void observe_poll(php_couchbase_res *res,
 		gettimeofday(&curr_time, NULL);
 
 		if (curr_time.tv_sec > end_time.tv_sec ||
-		        (curr_time.tv_sec == end_time.tv_sec &&
-		         curr_time.tv_usec > end_time.tv_usec)) {
+				(curr_time.tv_sec == end_time.tv_sec &&
+				 curr_time.tv_usec > end_time.tv_usec)) {
 
 		} else {
 			usleep(tprefs->interval);
@@ -629,15 +629,15 @@ static void observe_poll(php_couchbase_res *res,
  */
 PHP_COUCHBASE_LOCAL
 void observe_polling_internal(php_couchbase_ctx *ctx,
-                              zval *adurability,
-                              int modify_rv)
+							  zval *adurability,
+							  int modify_rv)
 {
 	struct observe_collection ocoll = { 0 };
 	struct observe_expectation expect = { 0 };
 	struct observe_pollprefs pollprefs = { 0 };
 
 	if (oks_extract_durability(ctx->res, &expect, &pollprefs, adurability)
-	        == -1) {
+			== -1) {
 		return;
 	}
 
@@ -660,10 +660,10 @@ void observe_polling_internal(php_couchbase_ctx *ctx,
  *  an array
  */
 static void oks_populate_results(php_couchbase_res *res,
-                                 struct observe_collection *ocoll,
-                                 zval *abools,
-                                 zval *adetails,
-                                 int multi)
+								 struct observe_collection *ocoll,
+								 zval *abools,
+								 zval *adetails,
+								 int multi)
 {
 	int ii;
 
@@ -679,13 +679,13 @@ static void oks_populate_results(php_couchbase_res *res,
 		struct observe_keystate *oks = ocoll->ks + ii;
 
 		pcbc_ht_key_create(
-		    oks->ocmd.v.v0.key,
-		    oks->ocmd.v.v0.nkey,
-		    &reski);
+			oks->ocmd.v.v0.key,
+			oks->ocmd.v.v0.nkey,
+			&reski);
 
 		if (multi) {
 			pcbc_ht_hkstoreb(abools,
-			                 &reski, oks_get_boolval(oks));
+							 &reski, oks_get_boolval(oks));
 
 		} else {
 
@@ -710,11 +710,11 @@ static void oks_populate_results(php_couchbase_res *res,
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
-                                int multi, int oo, int poll)
+								int multi, int oo, int poll)
 {
 
 	zval *adurability = NULL,
-	       *adetails = NULL; /* zval passed by ref, will be stuffed with details if given */
+		  *adetails = NULL; /* zval passed by ref, will be stuffed with details if given */
 
 	php_couchbase_res *couchbase_res;
 	struct observe_collection ocoll = { 0 };
@@ -727,23 +727,23 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 		zval *akey_to_cas;
 		if (poll) {
 			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "aa",
-					&akey_to_cas, &adurability);
+									 &akey_to_cas, &adurability);
 		} else {
 			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-					"a|z", &akey_to_cas, &adetails);
+									 "a|z", &akey_to_cas, &adetails);
 		}
 
 		array_init(return_value);
 
 		if (poll) {
 			if (-1 == oks_extract_durability(couchbase_res,
-			                                 &expect, &pollprefs, adurability)) {
+											 &expect, &pollprefs, adurability)) {
 				RETURN_FALSE;
 			}
 		}
 
 		if (-1 == oks_build_context(couchbase_res,
-		                            &ocoll, &expect, akey_to_cas, 1)) {
+									&ocoll, &expect, akey_to_cas, 1)) {
 			RETURN_FALSE;
 		}
 
@@ -760,10 +760,10 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 		if (poll) {
 			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-					"sza", &key, &nkey, &cas, &adurability);
+									 "sza", &key, &nkey, &cas, &adurability);
 		} else {
 			PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-					"sz|z", &key, &nkey, &cas, &adetails);
+									 "sz|z", &key, &nkey, &cas, &adetails);
 		}
 
 		if (adetails && IS_ARRAY != Z_TYPE_P(adetails)) {
@@ -788,7 +788,7 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 		if (tmpcas) {
 			pcbc_ht_hkstores(akc_dummy, &dummy_hk,
-			                 Z_STRVAL_P(cas), Z_STRLEN_P(cas));
+							 Z_STRVAL_P(cas), Z_STRLEN_P(cas));
 		} else {
 			pcbc_ht_hkstoreb(akc_dummy, &dummy_hk, 0);
 		}
@@ -800,16 +800,16 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 				if (poll) {
 					if (-1 == oks_extract_durability(couchbase_res,
-					                                 &expect,
-					                                 &pollprefs,
-					                                 adurability)) {
+													 &expect,
+													 &pollprefs,
+													 adurability)) {
 						have_failure = 1;
 						break;
 					}
 				}
 
 				if (-1 == oks_build_context(
-				            couchbase_res, &ocoll, &expect, akc_dummy, 0)) {
+							couchbase_res, &ocoll, &expect, akc_dummy, 0)) {
 
 					have_failure = 1;
 					break;
@@ -838,7 +838,7 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 	}
 
 	oks_populate_results(couchbase_res,
-	                     &ocoll, return_value, adetails, multi);
+						 &ocoll, return_value, adetails, multi);
 
 	oks_cleanup_context(&ocoll);
 }

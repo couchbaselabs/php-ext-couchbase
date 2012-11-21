@@ -37,24 +37,24 @@ DECLARE_HANDLER(jarry_param_handler);
 #undef DECLARE_HANDLER
 
 static view_param Recognized_View_Params[] = {
-		{ "descending", bool_param_handler },
-		{ "endkey", jval_param_handler },
-		{ "endkey_docid", string_param_handler },
-		{ "full_set", bool_param_handler },
-		{ "group", bool_param_handler },
-		{ "group_level", num_param_handler },
-		{ "inclusive_end", bool_param_handler },
-		{ "key", jval_param_handler },
-		{ "keys", jarry_param_handler },
-		{ "on_error", onerror_param_handler },
-		{ "reduce", bool_param_handler },
-		{ "stale", stale_param_handler },
-		{ "skip", num_param_handler },
-		{ "limit", num_param_handler },
-		{ "startkey", jval_param_handler },
-		{ "startkey_docid", string_param_handler },
-		{ "debug", bool_param_handler },
-		{ NULL, NULL }
+	{ "descending", bool_param_handler },
+	{ "endkey", jval_param_handler },
+	{ "endkey_docid", string_param_handler },
+	{ "full_set", bool_param_handler },
+	{ "group", bool_param_handler },
+	{ "group_level", num_param_handler },
+	{ "inclusive_end", bool_param_handler },
+	{ "key", jval_param_handler },
+	{ "keys", jarry_param_handler },
+	{ "on_error", onerror_param_handler },
+	{ "reduce", bool_param_handler },
+	{ "stale", stale_param_handler },
+	{ "skip", num_param_handler },
+	{ "limit", num_param_handler },
+	{ "startkey", jval_param_handler },
+	{ "startkey_docid", string_param_handler },
+	{ "debug", bool_param_handler },
+	{ NULL, NULL }
 };
 
 
@@ -62,7 +62,7 @@ static view_param Recognized_View_Params[] = {
  * Callbacks/Handlers for various parameters
  */
 static int bool_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+							  zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	/**
 	 * Try real hard to get a boolean value
@@ -86,10 +86,10 @@ static int bool_param_handler(view_param *param,
 
 	case IS_STRING:
 		if (strncasecmp(
-				"true", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
+					"true", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
 			bval = 1;
 		} else if (strncasecmp(
-				"false", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
+					   "false", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
 			bval = 0;
 		} else {
 			*error = "String must be either 'true' or 'false'";
@@ -103,7 +103,7 @@ static int bool_param_handler(view_param *param,
 
 	default:
 		*error = "Cannot convert parameter to boolean. "
-				"Must be int, string, bool, or NULL";
+				 "Must be int, string, bool, or NULL";
 		break;
 	}
 
@@ -113,17 +113,17 @@ static int bool_param_handler(view_param *param,
 
 	if (bval) {
 		output->str = "true";
-		output->len = sizeof("true")-1;
+		output->len = sizeof("true") - 1;
 	} else {
 		output->str = "false";
-		output->len = sizeof("false")-1;
+		output->len = sizeof("false") - 1;
 	}
 	output->allocated = 0;
 	return 0;
 }
 
 static int num_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+							 zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	/**
 	 * TODO: does Zend warn about failed numeric conversion?
@@ -178,7 +178,7 @@ static int num_param_handler(view_param *param,
 }
 
 static int string_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+								zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	zval tmp = *input;
 	int encoded_len;
@@ -216,7 +216,7 @@ static int string_param_handler(view_param *param,
 
 PHP_COUCHBASE_LOCAL
 int pcbc_vopt_generic_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+									zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	if (Z_TYPE_P(input) == IS_STRING) {
 		output->str = Z_STRVAL_P(input);
@@ -239,7 +239,7 @@ int pcbc_vopt_generic_param_handler(view_param *param,
 }
 
 static int stale_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+							   zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	/**
 	 * See if we can get it to be a true/false param
@@ -247,16 +247,16 @@ static int stale_param_handler(view_param *param,
 	if (-1 != bool_param_handler(param, input, output, error TSRMLS_CC)) {
 		if (*output->str == 't') {
 			output->str = "ok";
-			output->len = sizeof("ok")-1;
+			output->len = sizeof("ok") - 1;
 		}
 		return 0;
 	}
 
 	if (Z_TYPE_P(input) == IS_STRING &&
 			strncasecmp(
-					"update_after", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
+				"update_after", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
 		output->str = "update_after";
-		output->len = sizeof("update_after")-1;
+		output->len = sizeof("update_after") - 1;
 		output->allocated = 0;
 		return 0;
 	}
@@ -266,7 +266,7 @@ static int stale_param_handler(view_param *param,
 }
 
 static int onerror_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+								 zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	*error = "on_error must be one of 'continue' or 'stop'";
 	if (IS_STRING != Z_TYPE_P(input)) {
@@ -274,15 +274,15 @@ static int onerror_param_handler(view_param *param,
 	}
 
 	if (strncasecmp(
-			"stop", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
+				"stop", Z_STRVAL_P(input), Z_STRLEN_P(input)) == 0) {
 		output->str = "stop";
-		output->len = sizeof("stop")-1;
+		output->len = sizeof("stop") - 1;
 
 	} else if (
-			strncasecmp(
-					"continue", Z_STRVAL_P(input), Z_STRLEN_P(input)) == -0) {
+		strncasecmp(
+			"continue", Z_STRVAL_P(input), Z_STRLEN_P(input)) == -0) {
 		output->str = "continue";
-		output->len = sizeof("continue")-1;
+		output->len = sizeof("continue") - 1;
 
 	} else {
 		return -1;
@@ -293,7 +293,7 @@ static int onerror_param_handler(view_param *param,
 }
 
 static int jval_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+							  zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	smart_str buf = {0};
 	zval zvtmp;
@@ -314,7 +314,7 @@ static int jval_param_handler(view_param *param,
 }
 
 static int jarry_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
+							   zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC)
 {
 	if (IS_ARRAY != Z_TYPE_P(input)) {
 		*error = "Parameter must be an array";

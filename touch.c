@@ -4,9 +4,9 @@
  */
 static void
 php_couchbase_touch_callback(lcb_t handle,
-                             const void *cookie,
-                             lcb_error_t error,
-                             const lcb_touch_resp_t *resp)
+							 const void *cookie,
+							 lcb_error_t error,
+							 const lcb_touch_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const char *key = (char *)resp->v.v0.key;
@@ -74,7 +74,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		int i;
 
 		PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-				"al|a", &arr_keys, &expiry, &adurability);
+								 "al|a", &arr_keys, &expiry, &adurability);
 
 		keycount = zend_hash_num_elements(Z_ARRVAL_P(arr_keys));
 		multi_keys = ecalloc(keycount, sizeof(char *));
@@ -83,8 +83,8 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		array_init(return_value);
 
 		for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(arr_keys));
-		        zend_hash_has_more_elements(Z_ARRVAL_P(arr_keys)) == SUCCESS;
-		        zend_hash_move_forward(Z_ARRVAL_P(arr_keys)), i++) {
+				zend_hash_has_more_elements(Z_ARRVAL_P(arr_keys)) == SUCCESS;
+				zend_hash_move_forward(Z_ARRVAL_P(arr_keys)), i++) {
 			if (zend_hash_get_current_data(Z_ARRVAL_P(arr_keys), (void **)&ppzval) == FAILURE) {
 				keycount--;
 				continue;
@@ -118,7 +118,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 	} else { /* single-valued */
 
 		PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-				"sl|a", &single_key, &single_nkey, &expiry, &adurability);
+								 "sl|a", &single_key, &single_nkey, &expiry, &adurability);
 
 		if (!single_nkey) {
 			return;
@@ -181,7 +181,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 			efree(ctx);
 
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to schedule touch request: %s",
-			                 lcb_strerror(couchbase_res->handle, retval));
+							 lcb_strerror(couchbase_res->handle, retval));
 
 			RETURN_FALSE;
 		}
@@ -190,7 +190,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed touch request: %s",
-			                 lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 lcb_strerror(couchbase_res->handle, ctx->res->rc));
 		}
 
 		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to

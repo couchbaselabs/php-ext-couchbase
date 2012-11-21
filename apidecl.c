@@ -813,7 +813,7 @@ PHP_METHOD(couchbase, getResultCode)
 {
 	php_couchbase_res *couchbase_res;
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res,
-			PHP_COUCHBASE_ARG_F_OO | PHP_COUCHBASE_ARG_F_ONLYVALID, "");
+							 PHP_COUCHBASE_ARG_F_OO | PHP_COUCHBASE_ARG_F_ONLYVALID, "");
 	RETURN_LONG(couchbase_res->rc);
 }
 /* }}} */
@@ -861,13 +861,13 @@ PHP_METHOD(couchbase, getClientVersion)
 PHP_METHOD(couchbase, getNumReplicas)
 {
 	php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
-	                                    PHP_COUCHBASE_ARG_F_OO);
+										PHP_COUCHBASE_ARG_F_OO);
 }
 
 PHP_METHOD(couchbase, getServers)
 {
 	php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
-	                               PHP_COUCHBASE_ARG_F_OO);
+								   PHP_COUCHBASE_ARG_F_OO);
 }
 
 /* {{{ proto Couchbase::observe(string $key, string $cas, &$details)
@@ -1099,8 +1099,8 @@ PHP_FUNCTION(couchbase_get_result_code)
 {
 	php_couchbase_res *couchbase_res;
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res,
-			PHP_COUCHBASE_ARG_F_FUNCTIONAL|PHP_COUCHBASE_ARG_F_ONLYVALID,
-			"");
+							 PHP_COUCHBASE_ARG_F_FUNCTIONAL | PHP_COUCHBASE_ARG_F_ONLYVALID,
+							 "");
 
 	RETURN_LONG(couchbase_res->rc);
 }
@@ -1153,7 +1153,7 @@ PHP_FUNCTION(couchbase_get_client_version)
 PHP_FUNCTION(couchbase_get_num_replicas)
 {
 	php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
-	                                    PHP_COUCHBASE_ARG_F_FUNCTIONAL);
+										PHP_COUCHBASE_ARG_F_FUNCTIONAL);
 }
 /* }}} */
 
@@ -1163,7 +1163,7 @@ PHP_FUNCTION(couchbase_get_num_replicas)
 PHP_FUNCTION(couchbase_get_servers)
 {
 	php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
-	                               PHP_COUCHBASE_ARG_F_FUNCTIONAL);
+								   PHP_COUCHBASE_ARG_F_FUNCTIONAL);
 }
 /* }}} */
 
@@ -1311,22 +1311,22 @@ static PHP_INI_MH(OnUpdateSerializer)
  */
 PHP_INI_BEGIN()
 STD_PHP_INI_ENTRY(PCBC_INIENT_SERIALIZER, PCBC_INIDEFL_SERIALIZER,
-		PHP_INI_ALL, OnUpdateSerializer, serializer, zend_couchbase_globals, couchbase_globals)
+				  PHP_INI_ALL, OnUpdateSerializer, serializer, zend_couchbase_globals, couchbase_globals)
 
 STD_PHP_INI_ENTRY(PCBC_INIENT_COMPALGO, PCBC_INIDEFL_COMPALGO,
-		PHP_INI_ALL, OnUpdateCompressor, compressor, zend_couchbase_globals, couchbase_globals)
+				  PHP_INI_ALL, OnUpdateCompressor, compressor, zend_couchbase_globals, couchbase_globals)
 
 STD_PHP_INI_ENTRY(PCBC_INIENT_COMPFACTOR, PCBC_INIDEFL_COMPFACTOR,
-		PHP_INI_ALL, OnUpdateReal, compression_factor, zend_couchbase_globals, couchbase_globals)
+				  PHP_INI_ALL, OnUpdateReal, compression_factor, zend_couchbase_globals, couchbase_globals)
 
 STD_PHP_INI_ENTRY(PCBC_INIENT_COMPTHRESH, PCBC_INIDEFL_COMPTHRESH,
-		PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
+				  PHP_INI_ALL, OnUpdateLong, compression_threshold, zend_couchbase_globals, couchbase_globals)
 
 STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_INTERVAL, PCBC_INIDEFL_OBS_INTERVAL,
-		PHP_INI_ALL, OnUpdateLong, durability_default_poll_interval, zend_couchbase_globals, couchbase_globals) /* units of microseconds, 100k = a tenth of a second */
+				  PHP_INI_ALL, OnUpdateLong, durability_default_poll_interval, zend_couchbase_globals, couchbase_globals) /* units of microseconds, 100k = a tenth of a second */
 
 STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_TIMEOUT, PCBC_INIDEFL_OBS_TIMEOUT,
-		PHP_INI_ALL, OnUpdateLong, durability_default_timeout, zend_couchbase_globals, couchbase_globals) /* also units of microseconds, 40M = 40sec */
+				  PHP_INI_ALL, OnUpdateLong, durability_default_timeout, zend_couchbase_globals, couchbase_globals) /* also units of microseconds, 40M = 40sec */
 PHP_INI_END()
 /* }}} */
 
@@ -1401,7 +1401,7 @@ PHP_MINIT_FUNCTION(couchbase)
 #undef XX
 
 	zend_declare_property_null(couchbase_ce, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), ZEND_ACC_PRIVATE TSRMLS_CC);
-    init_couchbase_cluster(module_number TSRMLS_CC);
+	init_couchbase_cluster(module_number TSRMLS_CC);
 
 	return SUCCESS;
 }

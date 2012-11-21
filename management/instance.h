@@ -40,7 +40,7 @@ struct lcb_http_ctx {
 	lcb_error_t error;
 	lcb_http_status_t status;
 	char *payload;
-    int use_emalloc;
+	int use_emalloc;
 };
 
 #endif

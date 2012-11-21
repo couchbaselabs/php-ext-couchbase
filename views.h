@@ -29,8 +29,8 @@ typedef struct {
 
 typedef struct view_param_st view_param;
 
-typedef int (*view_param_handler)(view_param* param,
-		zval* input, pcbc_sso_buf *output, char **error TSRMLS_DC);
+typedef int (*view_param_handler)(view_param *param,
+								  zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC);
 
 
 struct view_param_st {
@@ -47,7 +47,7 @@ view_param *pcbc_find_view_param(const char *vopt, size_t nvopt);
 
 PHP_COUCHBASE_LOCAL
 int pcbc_vopt_generic_param_handler(view_param *param,
-		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC);
+									zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC);
 
 #endif /* PCBC_VIEWS_H_ */
 

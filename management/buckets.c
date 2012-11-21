@@ -105,8 +105,8 @@ static void release_bucket_meta(struct bucket_meta_info *meta)
 }
 
 static int append(char *buffer, int offset,
-                  const char *key,
-                  const struct field *field)
+				  const char *key,
+				  const struct field *field)
 {
 	if (field->present && field->value.len > 0) {
 		int ii;
@@ -139,7 +139,7 @@ static int meta_to_url(char *buffer, const struct bucket_meta_info *meta)
 	offset = append(buffer, offset, "bucketType", &meta->bucket_type);
 	offset = append(buffer, offset, "flushEnabled", &meta->flush_enabled);
 	offset = append(buffer, offset, "parallelDBAndViewCompaction",
-	                &meta->parallel_compaction);
+					&meta->parallel_compaction);
 	offset = append(buffer, offset, "proxyPort", &meta->proxy_port);
 	offset = append(buffer, offset, "ramQuotaMB", &meta->ram_quota);
 	offset = append(buffer, offset, "replicaIndex", &meta->replica_index);
@@ -161,15 +161,15 @@ static void update_field(struct field *f, const struct string *v)
 }
 
 static int set_value(const struct string *key,
-                     const struct string *value,
-                     struct bucket_meta_info *meta
-                     TSRMLS_DC)
+					 const struct string *value,
+					 struct bucket_meta_info *meta
+					 TSRMLS_DC)
 {
 	char k[64];
 	char *c;
 	if (key->len > (sizeof(k) - 1)) {
 		zend_throw_exception(ccm_illegal_key_exception,
-		                     "Invalid key specified", 0 TSRMLS_CC);
+							 "Invalid key specified", 0 TSRMLS_CC);
 		return -1;
 	}
 
@@ -216,13 +216,13 @@ static int set_value(const struct string *key,
 }
 
 static int extract_bucket_options(zval *options,
-                                  struct bucket_meta_info *meta TSRMLS_DC)
+								  struct bucket_meta_info *meta TSRMLS_DC)
 {
 	int rval = 0;
 	for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(options));
-	        zend_hash_has_more_elements(Z_ARRVAL_P(options)) == SUCCESS &&
-	        rval == 0;
-	        zend_hash_move_forward(Z_ARRVAL_P(options))) {
+			zend_hash_has_more_elements(Z_ARRVAL_P(options)) == SUCCESS &&
+			rval == 0;
+			zend_hash_move_forward(Z_ARRVAL_P(options))) {
 
 		struct string key;
 		struct string value;
@@ -232,23 +232,23 @@ static int extract_bucket_options(zval *options,
 		zval tmpcopy;
 
 		type = zend_hash_get_current_key_ex(Z_ARRVAL_P(options),
-		                                    &key.buffer, &key.len,
-		                                    &idx, 0, NULL);
+											&key.buffer, &key.len,
+											&idx, 0, NULL);
 
 		if (type != HASH_KEY_IS_STRING || key.len == 0) {
 			char message[80];
 			sprintf(message, "Got non- (or empty) string value "
-			        "for bucket parameters (%d)",
-			        type);
+					"for bucket parameters (%d)",
+					type);
 			zend_throw_exception(ccm_exception, message, 0 TSRMLS_CC);
 			return -1;
 		}
 
 		if (zend_hash_get_current_data(Z_ARRVAL_P(options),
-		                               (void **)&ppzval) == FAILURE) {
+									   (void **)&ppzval) == FAILURE) {
 			char message[80];
 			sprintf(message, "Couldn't get value for %*s", key.len,
-			        key.buffer);
+					key.buffer);
 			zend_throw_exception(ccm_exception, message, 0 TSRMLS_CC);
 			return -1;
 		}
@@ -282,19 +282,19 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	init_bucket_meta(&meta);
 
 	res = zend_read_property(couchbase_ce, getThis(),
-	                         ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
-	                         TSRMLS_CC);
+							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
+							 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
 		zend_throw_exception(ccm_exception, "unintilized couchbase",
-		                     0 TSRMLS_CC);
+							 0 TSRMLS_CC);
 		return;
 	}
 
 	meta.name.present = 1;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa",
-	                          &meta.name.value.buffer,
-	                          &meta.name.value.len,
-	                          &options) == FAILURE) {
+							  &meta.name.value.buffer,
+							  &meta.name.value.len,
+							  &options) == FAILURE) {
 		return;
 	}
 
@@ -307,8 +307,8 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	}
 
 	ZEND_FETCH_RESOURCE2(instance, lcb_t, &res, -1,
-	                     PHP_COUCHBASE_CLUSTER_RESOURCE,
-	                     le_couchbase_cluster, le_pcouchbase_cluster);
+						 PHP_COUCHBASE_CLUSTER_RESOURCE,
+						 le_couchbase_cluster, le_pcouchbase_cluster);
 
 
 	if (extract_bucket_options(options, &meta TSRMLS_CC) != 0) {
@@ -326,7 +326,7 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	cmd.v.v0.content_type = "application/x-www-form-urlencoded";
 
 	rc = lcb_make_http_request(instance, &ctx,
-	                           LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
+							   LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
 
 	free(data);
 
@@ -338,7 +338,7 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 			rc = ctx.error;
 		}
 		snprintf(errmsg, sizeof(errmsg), "Failed to create bucket \"%s\": %s",
-		         name, lcb_strerror(instance, rc));
+				 name, lcb_strerror(instance, rc));
 		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
 		free(ctx.payload);
 		return ;
@@ -352,18 +352,18 @@ void ccm_create_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
 		zend_throw_exception(ccm_auth_exception, "Incorrect credentials",
-		                     0 TSRMLS_CC);
+							 0 TSRMLS_CC);
 		break;
 
 	default:
 		if (ctx.payload == NULL) {
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
-			        (int)ctx.status);
+					(int)ctx.status);
 			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
 		} else {
 			zend_throw_exception(ccm_server_exception, ctx.payload,
-			                     0 TSRMLS_CC);
+								 0 TSRMLS_CC);
 		}
 	}
 
@@ -385,22 +385,22 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	int plen;
 
 	res = zend_read_property(couchbase_ce, getThis(),
-	                         ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
-	                         1 TSRMLS_CC);
+							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
+							 1 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
 		zend_throw_exception(ccm_exception, "unintilized couchbase",
-		                     0 TSRMLS_CC);
+							 0 TSRMLS_CC);
 		return;
 	}
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name,
-	                          &name_len) == FAILURE) {
+							  &name_len) == FAILURE) {
 		return;
 	}
 
 	ZEND_FETCH_RESOURCE2(instance, lcb_t, &res, -1,
-	                     PHP_COUCHBASE_CLUSTER_RESOURCE,
-	                     le_couchbase_cluster, le_pcouchbase_cluster);
+						 PHP_COUCHBASE_CLUSTER_RESOURCE,
+						 le_couchbase_cluster, le_pcouchbase_cluster);
 
 	path = calloc(sizeof("/pools/default/buckets/") + name_len + 1, 1);
 	plen = sprintf(path, "/pools/default/buckets/");
@@ -413,7 +413,7 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	cmd.v.v0.content_type = "application/x-www-form-urlencoded";
 
 	rc = lcb_make_http_request(instance, &ctx,
-	                           LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
+							   LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
 	free(path);
 
 	if (rc != LCB_SUCCESS || ctx.error != LCB_SUCCESS) {
@@ -422,7 +422,7 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 			rc = ctx.error;
 		}
 		snprintf(errmsg, sizeof(errmsg), "Failed to remove bucket \"%s\": %s",
-		         name, lcb_strerror(instance, rc));
+				 name, lcb_strerror(instance, rc));
 		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
 		free(ctx.payload);
 		return ;
@@ -438,11 +438,11 @@ void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 		if (ctx.payload == NULL) {
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
-			        (int)ctx.status);
+					(int)ctx.status);
 			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
 		} else {
 			zend_throw_exception(ccm_server_exception, ctx.payload,
-			                     0 TSRMLS_CC);
+								 0 TSRMLS_CC);
 		}
 	}
 
@@ -467,18 +467,18 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	init_bucket_meta(&meta);
 
 	res = zend_read_property(couchbase_ce, getThis(),
-	                         ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
-	                         TSRMLS_CC);
+							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
+							 TSRMLS_CC);
 	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
 		zend_throw_exception(ccm_exception, "unintilized couchbase",
-		                     0 TSRMLS_CC);
+							 0 TSRMLS_CC);
 		return;
 	}
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa",
-	                          &meta.name.value.buffer,
-	                          &meta.name.value.len,
-	                          &options) == FAILURE) {
+							  &meta.name.value.buffer,
+							  &meta.name.value.len,
+							  &options) == FAILURE) {
 		return;
 	}
 
@@ -492,8 +492,8 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 
 
 	ZEND_FETCH_RESOURCE2(instance, lcb_t, &res, -1,
-	                     PHP_COUCHBASE_CLUSTER_RESOURCE,
-	                     le_couchbase_cluster, le_pcouchbase_cluster);
+						 PHP_COUCHBASE_CLUSTER_RESOURCE,
+						 le_couchbase_cluster, le_pcouchbase_cluster);
 
 	extract_bucket_options(options, &meta TSRMLS_CC);
 
@@ -515,7 +515,7 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 	cmd.v.v0.content_type = "application/x-www-form-urlencoded";
 
 	rc = lcb_make_http_request(instance, &ctx,
-	                           LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
+							   LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
 
 	free(data);
 	free(path);
@@ -528,7 +528,7 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 			rc = ctx.error;
 		}
 		snprintf(errmsg, sizeof(errmsg), "Failed to modify bucket \"%s\": %s",
-		         name, lcb_strerror(instance, rc));
+				 name, lcb_strerror(instance, rc));
 		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
 		free(ctx.payload);
 		return ;
@@ -545,11 +545,11 @@ void ccm_modify_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
 		if (ctx.payload == NULL) {
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
-			        (int)ctx.status);
+					(int)ctx.status);
 			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
 		} else {
 			zend_throw_exception(ccm_server_exception, ctx.payload,
-			                     0 TSRMLS_CC);
+								 0 TSRMLS_CC);
 		}
 	}
 
@@ -560,47 +560,47 @@ PHP_COUCHBASE_LOCAL
 void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 {
 	static const char uri[] = "/pools/default/buckets";
-    char *allocuri = NULL;
-    char *requesturi = (char*)uri;
+	char *allocuri = NULL;
+	char *requesturi = (char *)uri;
 	zval *res;
-    char *name;
-    int name_len;
+	char *name;
+	int name_len;
 
 	lcb_t instance;
 	struct lcb_http_ctx ctx = { 0 };
 	lcb_http_cmd_t cmd = { 0 };
 	lcb_error_t rc;
 
-    res = zend_read_property(couchbase_ce, getThis(),
-                             ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
-                             TSRMLS_CC);
-    if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
-        zend_throw_exception(ccm_exception, "unintilized couchbase",
-                             0 TSRMLS_CC);
-        return;
-    }
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name,
-	                          &name_len) == FAILURE) {
+	res = zend_read_property(couchbase_ce, getThis(),
+							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), 1
+							 TSRMLS_CC);
+	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+		zend_throw_exception(ccm_exception, "unintilized couchbase",
+							 0 TSRMLS_CC);
 		return;
 	}
 
-    ctx.use_emalloc = 1;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name,
+							  &name_len) == FAILURE) {
+		return;
+	}
+
+	ctx.use_emalloc = 1;
 	ZEND_FETCH_RESOURCE2(instance, lcb_t, &res, -1,
-	                     PHP_COUCHBASE_CLUSTER_RESOURCE,
-	                     le_couchbase_cluster, le_pcouchbase_cluster);
+						 PHP_COUCHBASE_CLUSTER_RESOURCE,
+						 le_couchbase_cluster, le_pcouchbase_cluster);
 
 
-    if (name != NULL) {
-        allocuri = malloc(strlen(uri) + name_len + 2);
-        if (allocuri == NULL) {
-            zend_throw_exception(ccm_exception, "failed to allocate memory",
-                                 0 TSRMLS_CC);
-            return;
-        }
-        sprintf(allocuri, "%s/%*s", uri, name_len, name);
-        requesturi = allocuri;
-    }
+	if (name != NULL) {
+		allocuri = malloc(strlen(uri) + name_len + 2);
+		if (allocuri == NULL) {
+			zend_throw_exception(ccm_exception, "failed to allocate memory",
+								 0 TSRMLS_CC);
+			return;
+		}
+		sprintf(allocuri, "%s/%*s", uri, name_len, name);
+		requesturi = allocuri;
+	}
 
 	cmd.v.v0.path = requesturi;
 	cmd.v.v0.npath = strlen(requesturi);
@@ -610,9 +610,9 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 	cmd.v.v0.content_type = "application/x-www-form-urlencoded";
 
 	rc = lcb_make_http_request(instance, &ctx,
-	                           LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
+							   LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
 
-    free(allocuri);
+	free(allocuri);
 
 	if (rc != LCB_SUCCESS || ctx.error != LCB_SUCCESS) {
 		char errmsg[512];
@@ -620,8 +620,8 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 			rc = ctx.error;
 		}
 		snprintf(errmsg, sizeof(errmsg),
-                 "Failed to get bucket information: %s",
-		         lcb_strerror(instance, rc));
+				 "Failed to get bucket information: %s",
+				 lcb_strerror(instance, rc));
 		zend_throw_exception(ccm_lcb_exception, errmsg, 0 TSRMLS_CC);
 		efree(ctx.payload);
 		return ;
@@ -630,22 +630,22 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 	switch (ctx.status)  {
 	case LCB_HTTP_STATUS_OK:
 	case LCB_HTTP_STATUS_ACCEPTED:
-        RETURN_STRING(ctx.payload, 0);
+		RETURN_STRING(ctx.payload, 0);
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
 		zend_throw_exception(ccm_auth_exception, "Incorrect credentials",
-		                     0 TSRMLS_CC);
+							 0 TSRMLS_CC);
 		break;
 
 	default:
 		if (ctx.payload == NULL) {
 			char message[200];
 			sprintf(message, "{\"errors\":{\"http response\": %d }}",
-			        (int)ctx.status);
+					(int)ctx.status);
 			zend_throw_exception(ccm_server_exception, message, 0 TSRMLS_CC);
 		} else {
 			zend_throw_exception(ccm_server_exception, ctx.payload,
-			                     0 TSRMLS_CC);
+								 0 TSRMLS_CC);
 		}
 	}
 
