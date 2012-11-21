@@ -49,3 +49,12 @@ void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
 	PHP_COUCHBASE_GET_PARAMS(res, style, "");
 	ZVAL_LONG(return_value, lcb_get_num_replicas(res->handle));
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

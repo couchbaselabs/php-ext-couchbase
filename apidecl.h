@@ -103,6 +103,13 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
                                                 int style);
 
-
-
 #endif
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

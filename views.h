@@ -50,3 +50,12 @@ int pcbc_vopt_generic_param_handler(view_param *param,
 		zval *input, pcbc_sso_buf *output, char **error TSRMLS_DC);
 
 #endif /* PCBC_VIEWS_H_ */
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

@@ -349,3 +349,12 @@ void pcbc_sso_buf_cleanup(pcbc_sso_buf *buf)
 	buf->len = 0;
 	buf->allocated = 0;
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

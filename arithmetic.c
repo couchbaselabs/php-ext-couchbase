@@ -97,3 +97,12 @@ void php_couchbase_callbacks_arithmetic_init(lcb_t handle)
 	php_ignore_value(
 			lcb_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

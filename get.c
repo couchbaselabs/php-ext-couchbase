@@ -631,3 +631,12 @@ void php_couchbase_callbacks_get_init(lcb_t handle)
 {
 	lcb_set_get_callback(handle, php_couchbase_get_callback);
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */
