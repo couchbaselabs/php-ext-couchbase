@@ -48,7 +48,7 @@ class Cluster extends CouchbaseTestCommon
 
         try {
             $cb->deleteBucket("php-ext-test-bucket");
-        } catch (ErrorException $e) {
+        } catch (CouchbaseServerException $e) {
             $this->assertRegexp('/Some nodes are still deleting bucket/i',
                 $e->getMessage());
         }
