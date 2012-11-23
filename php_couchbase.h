@@ -247,9 +247,9 @@ PHP_FUNCTION(couchbase_set_timeout);
 PHP_COUCHBASE_LOCAL
 extern void php_couchbase_setup_callbacks(lcb_t handle);
 
+PHP_COUCHBASE_LOCAL
 extern void observe_polling_internal(
 	php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
-
 
 PHP_COUCHBASE_LOCAL
 ZEND_EXTERN_MODULE_GLOBALS(couchbase);
