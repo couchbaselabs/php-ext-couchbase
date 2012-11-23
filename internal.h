@@ -35,10 +35,11 @@
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
 #    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
-#	  define PHP_COUCHBASE_UNUSED __attribute__((unused))
+#    define PHP_COUCHBASE_UNUSED __attribute__((unused))
 #else
 #	 define PHP_COUCHBASE_API
 #    define PHP_COUCHBASE_LOCAL
+#    define PHP_COUCHBASE_UNUSED
 #endif
 
 #ifdef PHP_WIN32
