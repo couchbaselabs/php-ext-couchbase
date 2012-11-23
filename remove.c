@@ -1,95 +1,164 @@
 #include "internal.h"
 
+struct remove_cookie {
+	lcb_error_t error;
+	uint64_t cas;
+};
+
 /* {{{ static void php_couchbase_remove_callback(...) */
-static void
-php_couchbase_remove_callback(lcb_t instance,
-							  const void *cookie,
-							  lcb_error_t error,
-							  const lcb_remove_resp_t *resp)
+static void php_couchbase_remove_callback(lcb_t instance,
+										  const void *cookie,
+										  lcb_error_t error,
+										  const lcb_remove_resp_t *resp)
 {
-	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
-	php_ignore_value(instance);
-	php_ignore_value(resp);
-
-	if (--ctx->res->seqno == 0) {
-		pcbc_stop_loop(ctx->res);
+	struct remove_cookie *rmc = (struct remove_cookie *)cookie;
+	rmc->error = error;
+	rmc->cas = resp->v.v0.cas;
+	if (resp->version != 0) {
+		rmc->error = LCB_ERROR;
 	}
-
-	ctx->res->rc = error;
 }
 /* }}} */
+
+static lcb_error_t do_remove(lcb_t instance, const void *key, uint16_t klen,
+							 lcb_cas_t *cas)
+{
+	lcb_remove_cmd_t cmd;
+	const lcb_remove_cmd_t *const commands[] = { &cmd };
+	struct remove_cookie rmc;
+	lcb_error_t retval;
+
+	memset(&cmd, 0, sizeof(cmd));
+	memset(&rmc, 0, sizeof(rmc));
+	cmd.v.v0.key = key;
+	cmd.v.v0.nkey = klen;
+	cmd.v.v0.cas = *cas;
+
+	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
+	retval = lcb_remove(instance, &rmc, 1, commands);
+	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
+
+	if (retval == LCB_SUCCESS && rmc.error == LCB_SUCCESS) {
+		*cas = rmc.cas;
+	}
+
+	return (retval == LCB_SUCCESS) ? rmc.error : retval;
+}
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
-	zval *akc = NULL, *adurability = NULL;
-	char *key, *cas = NULL;
-	long klen = 0, cas_len = 0;
-	unsigned long long cas_v = 0;
+	char *key;
+	char *cas = NULL;
+	long klen = 0;
+	long cas_len = 0;
+	long replicate_to = 0;
+	long persist_to = 0;
+	lcb_cas_t cas_v = 0;
 	php_couchbase_res *couchbase_res;
+	lcb_error_t retval;
+	php_couchbase_ctx *ctx;
+	char errmsg[256];
 
-	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
+	int arg = (oo) ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
-	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-							 "s|sa", &key, &klen, &cas, &cas_len, &adurability);
-	{
-		lcb_error_t retval;
-		php_couchbase_ctx *ctx;
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res,  arg,
+							 "s|sll", &key, &klen, &cas, &cas_len,
+							 &persist_to, &replicate_to);
 
-		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-		ctx->res = couchbase_res;
-
-		if (cas) {
-			cas_v = strtoull(cas, 0, 10);
-		}
-
-		{
-			lcb_remove_cmd_t cmd;
-			lcb_remove_cmd_t *commands[] = { &cmd };
-			memset(&cmd, 0, sizeof(cmd));
-			cmd.v.v0.key = key;
-			cmd.v.v0.nkey = klen;
-			cmd.v.v0.cas = cas_v;
-			retval = lcb_remove(couchbase_res->handle, ctx,
-								1, (const lcb_remove_cmd_t * const *)commands);
-		}
-		if (LCB_SUCCESS != retval) {
-			efree(ctx);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to schedule delete request: %s", lcb_strerror(couchbase_res->handle, retval));
+	if (klen == 0) {
+		if (oo) {
+			zend_throw_exception(cb_illegal_key_exception,
+								 "No key specified: Empty key",
+								 0 TSRMLS_CC);
+			return ;
+		} else {
 			RETURN_FALSE;
 		}
+	}
 
-		couchbase_res->seqno += 1;
-		pcbc_start_loop(couchbase_res);
-		if (LCB_SUCCESS == ctx->res->rc) {
-			if (oo) {
-				RETVAL_ZVAL(getThis(), 1, 0);
-			} else {
-				RETVAL_TRUE;
-			}
-		} else if (LCB_KEY_ENOENT == ctx->res->rc ||	/* skip missing key errors */
-				   LCB_KEY_EEXISTS == ctx->res->rc) {	/* skip CAS mismatch */
+	if (validate_simple_observe_clause(couchbase_res->handle,
+									   persist_to,
+									   replicate_to TSRMLS_CC) == -1) {
+		/* Exception already thrown */
+		return;
+	}
+
+	if (cas_len > 0) {
+		cas_v = (lcb_cas_t)strtoull(cas, 0, 10);
+	}
+
+	retval = do_remove(couchbase_res->handle, key, klen, &cas_v);
+	couchbase_res->rc = retval;
+
+	switch (retval) {
+	case LCB_SUCCESS:
+		Z_TYPE_P(return_value) = IS_STRING;
+		Z_STRLEN_P(return_value) = spprintf(&(Z_STRVAL_P(return_value)), 0,
+											"%llu", cas_v);
+		break;
+	case LCB_KEY_ENOENT:
+		RETURN_FALSE;
+		/* NOTREACHED */
+	case LCB_KEY_EEXISTS:
+		if (oo) {
+			sprintf(errmsg, "Failed to remove the value from the server: %s",
+					lcb_strerror(couchbase_res->handle, retval));
+			zend_throw_exception(cb_key_mutated_exception, errmsg, 0 TSRMLS_CC);
+		} else {
 			RETVAL_FALSE;
+		}
+		return ;
+	default:
+		if (oo) {
+			sprintf(errmsg, "Failed to remove the value from the server: %s",
+					lcb_strerror(couchbase_res->handle, retval));
+			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		} else {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to remove a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+							 "Failed to remove a value from server: %s",
+							 lcb_strerror(couchbase_res->handle, retval));
 			RETVAL_FALSE;
 		}
+		return ;
+	}
 
-		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
-		 * fulfill that spec by using polling observe internal:
+	if (retval == LCB_SUCCESS && (persist_to > 0 || replicate_to > 0)) {
+		/*
+		 * If we have a durability spec, after the commands have been
+		 * issued (and callbacks returned), try to fulfill that spec by
+		 * using polling observe internal (please note that this is
+		 * only possible from OO)
 		 */
-		if (adurability != NULL) {
-			array_init(akc);
-			add_assoc_long(akc, key, cas_v);
+		struct observe_entry entry;
+		memset(&entry, 0, sizeof(entry));
+		entry.key = key;
+		entry.nkey = klen;
+		entry.cas = cas_v;
 
-			ctx->cas = akc;
+		retval = simple_observe(couchbase_res->handle, &entry, 1,
+								persist_to, replicate_to);
+		couchbase_res->rc = retval;
 
-			observe_polling_internal(ctx, adurability, 0);
+		if (retval != LCB_SUCCESS) {
+			if (retval == LCB_ETIMEDOUT) {
+				zend_throw_exception(cb_timeout_exception,
+									 "Timed out waiting for the objects to persist",
+									 0 TSRMLS_CC);
+			} else {
+				snprintf(errmsg, sizeof(errmsg), "observe failed for: %s",
+						 klen, key, lcb_strerror(couchbase_res->handle,
+												 retval));
+				zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
+			}
+		} else {
+			/* @todo checkfor timeout!!! */
+			if (entry.mutated) {
+				zend_throw_exception(cb_key_mutated_exception,
+									 "The document was mutated",
+									 0 TSRMLS_CC);
+			}
 		}
-
-		efree(ctx);
 	}
 }
 /* }}} */

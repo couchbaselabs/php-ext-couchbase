@@ -14,50 +14,46 @@
   | implied. See the License for the specific language governing		 |
   | permissions and limitations under the License.						 |
   +----------------------------------------------------------------------+
-  | Author: Trond Norbye   <trond.norbye@couchbase.com>					 |
+  | Author: Trond Norbye	   <trond.norbye@gmail.org>					 |
   +----------------------------------------------------------------------+
 */
-#ifndef MANAGEMENT_EXCEPTIONS_H
-#define MANAGEMENT_EXCEPTIONS_H
-#include "../internal.h"
+
+#ifndef COUCHBASE_INTERNAL_H
+#error "Must include internal.h"
+#endif
+
+#ifndef COUCHBASE_SIMPLE_OBSERVE_H
+#define COUCHBASE_SIMPLE_OBSERVE_H
+
+struct observe_entry {
+	lcb_error_t err;
+	void *key;
+	int nkey;
+	uint64_t cas;
+	int mutated;
+	int persisted;
+	int replicated;
+};
 
 PHP_COUCHBASE_LOCAL
-void init_couchbase_exceptions(TSRMLS_D);
+lcb_error_t simple_observe(lcb_t instance,
+						   struct observe_entry *entries,
+						   int nentries,
+						   long persist_to,
+						   long replicate_to);
 
 PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_exception;
+int validate_simple_observe_clause(lcb_t instance,
+								   int persist,
+								   int replicas TSRMLS_DC);
 
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_illegal_key_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_no_such_key_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_auth_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_lcb_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_server_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_key_mutated_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_timeout_exception;
-
-PHP_COUCHBASE_LOCAL
-extern zend_class_entry *cb_not_enough_nodes_exception;
-
-#endif	  /* MANAGEMENT_EXCEPTION_H */
+#endif
 
 /*
  * Local variables:
  * tab-width: 4
  * c-basic-offset: 4
  * End:
- * vim600: noet expandtab sw=4 ts=4 fdm=marker
+ * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */

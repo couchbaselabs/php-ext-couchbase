@@ -20,6 +20,7 @@ if (PHP_COUCHBASE != "no") {
 		ADD_SOURCES(configure_module_dirname, "observe.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "remove.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "resmgr.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "simple_observe.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "store.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "timeout.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "touch.c", "couchbase");

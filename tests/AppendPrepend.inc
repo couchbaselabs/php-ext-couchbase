@@ -24,6 +24,17 @@ class AppendPrepend extends CouchbaseTestCommon {
         $oo->append($key, "_suffix");
         $this->assertEquals("prefix_$value" . "_suffix",
                             $oo->get($key));
+
+
+        # Ensure that it works if we try to wait for persistence
+        $key = $this->mk_key();
+        $value = "foo";
+        $oo = $this->oo;
+        $cas = $oo->add($key, $value);
+        $cas = $oo->prepend($key, "prefix_", 0, $cas, 1);
+        $cas = $oo->append($key, "_suffix", 0, $cas, 1);
+        $this->assertEquals("prefix_$value" . "_suffix",
+                            $oo->get($key));
     }
 
     function testAppendPrepend() {

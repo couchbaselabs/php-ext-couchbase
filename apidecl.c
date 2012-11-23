@@ -42,7 +42,6 @@ ZEND_ARG_INFO(0, resource)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -52,7 +51,6 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -60,7 +58,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_set_multi, 0, 0, 2)
 ZEND_ARG_INFO(0, resource)
 ZEND_ARG_ARRAY_INFO(0, values, 0)
 ZEND_ARG_INFO(0, expiration)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -70,7 +67,6 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -80,7 +76,6 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -90,7 +85,6 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -100,7 +94,6 @@ ZEND_ARG_INFO(0, cas)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -138,7 +131,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_touch, 0, 0, 3)
 ZEND_ARG_INFO(0, resource)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, expiry)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -146,7 +138,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_touch_multi, 0, 0, 3)
 ZEND_ARG_INFO(0, resource)
 ZEND_ARG_ARRAY_INFO(0, keys, 0)
 ZEND_ARG_INFO(0, expiry)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -185,7 +176,6 @@ ZEND_ARG_INFO(0, offset)
 ZEND_ARG_INFO(0, create)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, initial)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -196,7 +186,6 @@ ZEND_ARG_INFO(0, offset)
 ZEND_ARG_INFO(0, create)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, initial)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -204,7 +193,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_delete, 0, 0, 2)
 ZEND_ARG_INFO(0, resource)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -318,7 +306,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_add, 0, 0, 2)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -327,14 +316,16 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_setmulti, 0, 0, 1)
 ZEND_ARG_ARRAY_INFO(0, values, 0)
 ZEND_ARG_INFO(0, expiration)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -343,7 +334,8 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -352,7 +344,8 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -361,7 +354,8 @@ ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -370,7 +364,6 @@ ZEND_ARG_INFO(0, cas)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, value)
 ZEND_ARG_INFO(0, expiration)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -404,14 +397,12 @@ COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_touch, 0, 0, 2)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, expiry)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_touchmulti, 0, 0, 2)
 ZEND_ARG_ARRAY_INFO(0, keys, 0)
 ZEND_ARG_INFO(0, expiry)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -446,7 +437,6 @@ ZEND_ARG_INFO(0, offset)
 ZEND_ARG_INFO(0, create)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, initial)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -456,14 +446,14 @@ ZEND_ARG_INFO(0, offset)
 ZEND_ARG_INFO(0, create)
 ZEND_ARG_INFO(0, expiration)
 ZEND_ARG_INFO(0, initial)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_delete, 0, 0, 1)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, cas)
-ZEND_ARG_ARRAY_INFO(0, durability, 0)
+ZEND_ARG_INFO(0, persist_to)
+ZEND_ARG_INFO(0, replicate_to)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
@@ -682,7 +672,7 @@ PHP_METHOD(couchbase, cas)
  */
 PHP_METHOD(couchbase, add)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_ADD, 0, 1);
+	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_ADD);
 }
 /* }}} */
 
@@ -690,7 +680,7 @@ PHP_METHOD(couchbase, add)
  */
 PHP_METHOD(couchbase, set)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 0, 1);
+	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET);
 }
 /* }}} */
 
@@ -698,7 +688,7 @@ PHP_METHOD(couchbase, set)
  */
 PHP_METHOD(couchbase, setMulti)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 1, 1);
+	php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
@@ -706,7 +696,7 @@ PHP_METHOD(couchbase, setMulti)
  */
 PHP_METHOD(couchbase, prepend)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_PREPEND, 0, 1);
+	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_PREPEND);
 }
 /* }}} */
 
@@ -714,7 +704,7 @@ PHP_METHOD(couchbase, prepend)
  */
 PHP_METHOD(couchbase, append)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_APPEND, 0, 1);
+	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_APPEND);
 }
 /* }}} */
 
@@ -722,7 +712,7 @@ PHP_METHOD(couchbase, append)
  */
 PHP_METHOD(couchbase, replace)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_REPLACE, 0, 1);
+	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_REPLACE);
 }
 /* }}} */
 
@@ -969,7 +959,7 @@ PHP_FUNCTION(couchbase_cas)
  */
 PHP_FUNCTION(couchbase_add)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_ADD, 0, 0);
+	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_ADD, 0);
 }
 /* }}} */
 
@@ -977,7 +967,7 @@ PHP_FUNCTION(couchbase_add)
  */
 PHP_FUNCTION(couchbase_set)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 0, 0);
+	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 0);
 }
 /* }}} */
 
@@ -985,7 +975,7 @@ PHP_FUNCTION(couchbase_set)
  */
 PHP_FUNCTION(couchbase_set_multi)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 1, 0);
+	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 1);
 }
 /* }}} */
 
@@ -993,7 +983,7 @@ PHP_FUNCTION(couchbase_set_multi)
  */
 PHP_FUNCTION(couchbase_prepend)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_PREPEND, 0, 0);
+	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_PREPEND, 0);
 }
 /* }}} */
 
@@ -1001,7 +991,7 @@ PHP_FUNCTION(couchbase_prepend)
  */
 PHP_FUNCTION(couchbase_append)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_APPEND, 0, 0);
+	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_APPEND, 0);
 }
 /* }}} */
 
@@ -1009,7 +999,7 @@ PHP_FUNCTION(couchbase_append)
  */
 PHP_FUNCTION(couchbase_replace)
 {
-	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_REPLACE, 0, 0);
+	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_REPLACE, 0);
 }
 /* }}} */
 

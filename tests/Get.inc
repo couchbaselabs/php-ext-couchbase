@@ -310,7 +310,8 @@ class Get extends CouchbaseTestCommon {
 
 		sleep(2);
 
-		$this->assertEquals($oo, $oo->delete($key)); // oddly, oo delete returns itself rather than true on success
+		$cas = $oo->delete($key);
+		$this->assertTrue(is_string($cas));
 	}
 
 	function skipGetWithLockOO() { $this->_v11_feature(); }
@@ -336,8 +337,8 @@ class Get extends CouchbaseTestCommon {
 		$this->assertNotEquals($cas, $lockCAS);
 
 		sleep(2);
-
-		$this->assertTrue(couchbase_delete($h, $key));
+                $cas = couchbase_delete($h, $key);
+		$this->assertTrue(is_string($cas));
 	}
 	function skipGetWithLock() { $this->_v11_feature(); }
 }

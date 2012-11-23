@@ -27,6 +27,9 @@ PHP_COUCHBASE_LOCAL
 zend_class_entry *cb_illegal_key_exception;
 
 PHP_COUCHBASE_LOCAL
+zend_class_entry *cb_no_such_key_exception;
+
+PHP_COUCHBASE_LOCAL
 zend_class_entry *cb_auth_exception;
 
 PHP_COUCHBASE_LOCAL
@@ -34,6 +37,15 @@ zend_class_entry *cb_lcb_exception;
 
 PHP_COUCHBASE_LOCAL
 zend_class_entry *cb_server_exception;
+
+PHP_COUCHBASE_LOCAL
+zend_class_entry *cb_key_mutated_exception;
+
+PHP_COUCHBASE_LOCAL
+zend_class_entry *cb_timeout_exception;
+
+PHP_COUCHBASE_LOCAL
+zend_class_entry *cb_not_enough_nodes_exception;
 
 #define setup(var, name, parent)										\
 	do {																\
@@ -57,9 +69,16 @@ void init_couchbase_exceptions(TSRMLS_D)
 	setup(cb_exception, "CouchbaseException", root);
 	setup(cb_illegal_key_exception, "CouchbaseIllegalKeyException",
 		  cb_exception);
+	setup(cb_no_such_key_exception, "CouchbaseNoSuchKeyException",
+		  cb_exception);
 	setup(cb_auth_exception, "CouchbaseAuthenticationException", cb_exception);
 	setup(cb_lcb_exception, "CouchbaseLibcouchbaseException", cb_exception);
 	setup(cb_server_exception, "CouchbaseServerException", cb_exception);
+	setup(cb_key_mutated_exception, "CouchbaseKeyMutatedException",
+		  cb_exception);
+	setup(cb_timeout_exception, "CouchbaseTimeoutException", cb_exception);
+	setup(cb_not_enough_nodes_exception, "CouchbaseNotEnoughNodesException",
+		  cb_exception);
 }
 
 /*

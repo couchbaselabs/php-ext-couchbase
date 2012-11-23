@@ -224,7 +224,7 @@ PHP_FUNCTION(couchbase_set_timeout);
 #define PCBC_INIDEFL_OBS_INTERVAL "100000"
 
 #define PCBC_INIENT_OBS_TIMEOUT "couchbase.durability_default_timeout"
-#define PCBC_INIDEFL_OBS_TIMEOUT "4000000"
+#define PCBC_INIDEFL_OBS_TIMEOUT "40000000"
 
 #define PCBC_INIENT_SERIALIZER "couchbase.serializer"
 #define PCBC_INIDEFL_SERIALIZER "php"

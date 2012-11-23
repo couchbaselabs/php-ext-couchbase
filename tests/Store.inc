@@ -14,7 +14,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * adding a single item works
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -22,14 +22,14 @@ class Store extends CouchbaseTestCommon {
 		$h = $this->handle;
 		$key = $this->mk_key();
 		$val = uniqid('couchbase-value-');
-	
+
 		$cas = couchbase_add($h, $key, $val);
 		$valGet = couchbase_get($h, $key, NULL, $casGet);
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);
 	}
-	
+
 	/**
 	 * @test
 	 * Add (OO)
@@ -39,7 +39,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * adding a single item works
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -53,8 +53,12 @@ class Store extends CouchbaseTestCommon {
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);
+
+                # test with persistence to disk
+		$key = $this->mk_key();
+		$cas = $oo->add($key, "foobar", 0, 1);
 	}
-	
+
 	/**
 	 * @test
 	 * Add on Key that Already Exists
@@ -64,7 +68,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * adding a key that already exists does not modify the prior value
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -84,7 +88,7 @@ class Store extends CouchbaseTestCommon {
 		$this->assertEquals($v, $val);
 		$this->assertNotEquals($v, $val2);
 	}
-	
+
 	/**
 	 * @test
 	 * Add on Key that Already Exists (OO)
@@ -94,7 +98,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * adding a key that already exists does not modify the prior value
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -106,7 +110,7 @@ class Store extends CouchbaseTestCommon {
 		$oo->add($key, $val);
 
 		$val2 = uniqid('another-couchbase-value-');
-		
+
 		$oo->add($key, $val2);
 
 		$v = $oo->get( $key);
@@ -117,14 +121,14 @@ class Store extends CouchbaseTestCommon {
 
 	/**
 	 * @test
-	 * Set 
+	 * Set
 	 *
 	 * @pre
 	 * connection established
 	 *
 	 * @post
 	 * setting a single item works
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -132,7 +136,7 @@ class Store extends CouchbaseTestCommon {
 		$h = $this->handle;
 		$key = $this->mk_key();
 		$val = uniqid('couchbase-value-');
-		
+
 		$cas = couchbase_set($h, $key, $val);
 		$valGet = couchbase_get($h, $key, NULL, $casGet);
 
@@ -149,7 +153,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * setting a single item works
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -163,8 +167,45 @@ class Store extends CouchbaseTestCommon {
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);
+
+                # test with persistence to disk
+		$cas = $oo->set($key, "foobar", 0, $cas, 1, 0);
 	}
-	
+
+	/**
+	 * @test
+	 * Cas (OO)
+	 *
+	 * @pre
+	 * connection established
+	 *
+	 * @post
+	 * setting a single item works
+	 *
+	 * @remark
+	 * Variants: OO, plain
+	 */
+	function testCasSingleOO() {
+		$oo = $this->oo;
+                try {
+                   $oo->cas("1234", "", "foo");
+                   $this->assertEquals("", "Illegal key should have been thrown");
+                } catch (CouchbaseIllegalKeyException $e) {}
+
+                try {
+                   $oo->cas("", "foo", "foo");
+                   $this->assertEquals("", "CouchbaseException should have been thrown");
+                } catch (CouchbaseException $e) {}
+
+		$key = $this->mk_key();
+		$cas = $oo->set($key, "foo");
+
+                # Run the cas operation and wait for it to persist to disk
+                $oo->cas($cas, $key, "bar", 0, 1, 0);
+                $val = $oo->get($key);
+		$this->assertEquals($val, "bar");
+	}
+
 	/**
 	 * @test
 	 * Set Multi
@@ -174,7 +215,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * setting several items at once works
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */
@@ -192,7 +233,7 @@ class Store extends CouchbaseTestCommon {
 			$this->assertEquals($v, $keys[$k]);
 		}
 	}
-	
+
 	/**
 	 * @test
 	 * Set Multi (OO)
@@ -202,7 +243,7 @@ class Store extends CouchbaseTestCommon {
 	 *
 	 * @post
 	 * setting several items at once works
-	 * 
+	 *
 	 * @remark
 	 * Variants: OO, plain
 	 */

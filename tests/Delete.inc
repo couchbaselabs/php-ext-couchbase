@@ -47,13 +47,25 @@ class Delete extends CouchbaseTestCommon {
 
         $this->assertNotEmpty($cas2);
 
-        $this->assertFalse($oo->delete($key, $cas),
-                           "delete Fails on stale cas");
+        try {
+            $oo->delete($key, $cas);
+            $this->assertFalse(true, "Delete should fail for invalid cas");
+        } catch (CouchbaseKeyMutatedException $e) {}
 
         $this->assertEquals($oo->get($key), "bar");
 
         $oo->delete($key, $cas2);
         $this->assertNull($oo->get($key));
+
+        # Test that I can do a delete and wait for it to persist..
+        # Unfortunately we have no idea how fast the server is,
+        # so we just have to ignore the timeout ;)
+	$cas = $oo->set($key, $value);
+	try {
+            $oo->delete($key, $cas, 1);
+            $this->assertNull($oo->get($key));
+        } catch (CouchbaseTimeoutException $e) {}
+
     }
 
     function testDelete() {

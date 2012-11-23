@@ -35,6 +35,10 @@ class Replace extends CouchbaseTestCommon {
         $this->assertNotEmpty($rv);
         $val = $oo->get($key);
         $this->assertEquals("bar", $val);
+
+	# Test replace with persistence
+        $oo->replace($key, "foo", 0, 0, 1, 0);
+
     }
 
     function testReplace() {

@@ -2,11 +2,10 @@
 
 /* {{{ static void php_couchbase_touch_callback(...)
  */
-static void
-php_couchbase_touch_callback(lcb_t handle,
-							 const void *cookie,
-							 lcb_error_t error,
-							 const lcb_touch_resp_t *resp)
+static void php_couchbase_touch_callback(lcb_t handle,
+										 const void *cookie,
+										 lcb_error_t error,
+										 const lcb_touch_resp_t *resp)
 {
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
 	const char *key = (char *)resp->v.v0.key;
@@ -43,8 +42,6 @@ php_couchbase_touch_callback(lcb_t handle,
 }
 /* }}} */
 
-
-#include "internal.h"
 PHP_COUCHBASE_LOCAL
 void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* {{{ */
 {
@@ -56,7 +53,6 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 	lcb_time_t exp = {0}; /* how long to set expiry. */
 	long expiry; /* used for parameter passing */
 	/* note that by server's behavior, anything longer than 30 days (60*60*24*30) is an epoch time to expire at */
-	zval *adurability = NULL;
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx *ctx;
 	int argflags;
@@ -74,7 +70,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		int i;
 
 		PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-								 "al|a", &arr_keys, &expiry, &adurability);
+								 "al", &arr_keys, &expiry);
 
 		keycount = zend_hash_num_elements(Z_ARRVAL_P(arr_keys));
 		multi_keys = ecalloc(keycount, sizeof(char *));
@@ -118,7 +114,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 	} else { /* single-valued */
 
 		PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
-								 "sl|a", &single_key, &single_nkey, &expiry, &adurability);
+								 "sl", &single_key, &single_nkey, &expiry);
 
 		if (!single_nkey) {
 			return;
@@ -191,38 +187,6 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		if (LCB_SUCCESS != ctx->res->rc) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed touch request: %s",
 							 lcb_strerror(couchbase_res->handle, ctx->res->rc));
-		}
-
-		/* If we have a durability spec, after the commands have been issued (and callbacks returned), try to
-		 * fulfill that spec by using polling observe internal:
-		 */
-		if (adurability != NULL) {
-			zval *akc = NULL;
-			array_init(akc);
-
-			if (IS_ARRAY == Z_TYPE_P(return_value)) { /* multi */
-				ulong curr_idx;
-				char *curr_key;
-				uint curr_key_len;
-				zval **curr_cas;
-
-				for (pcbc_ht_iter_init(return_value); pcbc_ht_iter_remaining(return_value); pcbc_ht_iter_next(return_value)) {
-					zend_hash_get_current_key_ex(Z_ARRVAL_P(return_value), (char **)&curr_key, &curr_key_len, &curr_idx, 0, NULL);
-					zend_hash_get_current_data(Z_ARRVAL_P(return_value), (void **)&curr_cas);
-					if (Z_BVAL_PP(curr_cas)) {
-						add_assoc_long(akc, curr_key, Z_LVAL_PP(curr_cas));
-					}
-				}
-				pcbc_ht_iter_init(return_value);
-			} else { /* not multi */
-				if (Z_BVAL_P(return_value)) {
-					add_assoc_long(akc, multi_keys[0], Z_LVAL_P(return_value));
-				}
-			}
-
-			ctx->cas = akc;
-
-			observe_polling_internal(ctx, adurability, 0);
 		}
 
 		efree(ctx);

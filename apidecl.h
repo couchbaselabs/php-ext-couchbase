@@ -54,7 +54,13 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo);
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, int multi, int oo);
+void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, int multi);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);

@@ -187,6 +187,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      views.c \
                      convert.c \
                      get.c \
+                     simple_observe.c \
                      store.c \
                      arithmetic.c \
                      remove.c \

@@ -70,6 +70,7 @@
 #include "management/cluster.h"
 #include "exceptions.h"
 #include "apidecl.h"
+#include "simple_observe.h"
 
 #endif
 
