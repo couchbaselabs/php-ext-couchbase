@@ -13,6 +13,7 @@ if (PHP_COUCHBASE != "no") {
 		ADD_SOURCES(configure_module_dirname, "convert.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "create.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "exceptions.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "flush.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "get.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "gettimeofday_win32.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "ht.c", "couchbase");

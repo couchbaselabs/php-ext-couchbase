@@ -175,6 +175,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      couchbase.c \
                      create.c \
                      exceptions.c \
+                     flush.c \
                      fastlz/fastlz.c \
                      ht.c \
                      management/buckets.c \
