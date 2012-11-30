@@ -192,6 +192,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      store.c \
                      arithmetic.c \
                      remove.c \
+                     stat.c \
                      touch.c \
                      viewopts.c \
                      apidecl.c ],

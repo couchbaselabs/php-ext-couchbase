@@ -80,52 +80,6 @@ static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const 
 }
 /* }}} */
 
-/* {{{ static void php_couchbase_stat_callback(...) */
-static void php_couchbase_stat_callback(lcb_t handle,
-										const void *cookie,
-										lcb_error_t error,
-										const lcb_server_stat_resp_t *resp)
-{
-	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
-	const char *server_endpoint = resp->v.v0.server_endpoint;
-	const void *key = resp->v.v0.key;
-	char *string_key;
-	size_t nkey = resp->v.v0.nkey;
-	const void *bytes = resp->v.v0.bytes;
-
-	php_ignore_value(handle);
-
-	ctx->res->rc = error;
-	if (LCB_SUCCESS != error || nkey == 0) {
-		--ctx->res->seqno;
-		pcbc_stop_loop(ctx->res);
-		return;
-	} else if (nkey > 0) {
-		zval *node;
-		zval **ppzval;
-		if (IS_ARRAY != Z_TYPE_P(ctx->rv)) {
-			array_init(ctx->rv);
-		}
-
-		if (zend_hash_find(Z_ARRVAL_P(ctx->rv), (char *)server_endpoint, strlen(server_endpoint) + 1, (void **)&ppzval) == SUCCESS) {
-			node = *ppzval;
-		} else {
-			MAKE_STD_ZVAL(node);
-			array_init(node);
-			zend_hash_add(Z_ARRVAL_P(ctx->rv), (char *)server_endpoint, strlen(server_endpoint) + 1, (void **)&node, sizeof(zval *), NULL);
-		}
-
-		string_key = emalloc(nkey + 1);
-		memcpy(string_key, key, nkey);
-		string_key[nkey] = '\0';
-
-		add_assoc_string(node, string_key, (char *)bytes, 1);
-
-		efree(string_key);
-	}
-}
-/* }}} */
-
 /* {{{ static void php_couchbase_version_callback(...) */
 static void
 php_couchbase_version_callback(lcb_t handle,
@@ -172,8 +126,8 @@ void php_couchbase_setup_callbacks(lcb_t handle)
 	php_couchbase_callbacks_observe_init(handle);
 	php_couchbase_callbacks_view_init(handle);
 	php_couchbase_callbacks_flush_init(handle);
+	php_couchbase_callbacks_stat_init(handle);
 
-	php_ignore_value(lcb_set_stat_callback(handle, php_couchbase_stat_callback));
 	php_ignore_value(lcb_set_version_callback(handle, php_couchbase_version_callback));
 	php_ignore_value(lcb_set_error_callback(handle, php_couchbase_error_callback));
 }
@@ -186,52 +140,6 @@ long pcbc_check_expiry(long expiry)
 	}
 	return expiry;
 }
-
-PHP_COUCHBASE_LOCAL
-void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
-{
-	php_couchbase_res *couchbase_res;
-	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
-	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
-
-	{
-		lcb_error_t retval;
-		php_couchbase_ctx *ctx;
-
-		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-		ctx->res = couchbase_res;
-		ctx->rv = return_value;
-
-		{
-			lcb_server_stats_cmd_t cmd;
-			lcb_server_stats_cmd_t *commands[] = { &cmd };
-			memset(&cmd, 0, sizeof(cmd));
-			retval = lcb_server_stats(couchbase_res->handle, (const void *)ctx,
-									  1, (const lcb_server_stats_cmd_t * const *)commands);
-		}
-		if (LCB_SUCCESS != retval) {
-			efree(ctx);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to schedule stat request: %s [%d]",
-							 lcb_strerror(couchbase_res->handle, retval),
-							 retval);
-			RETURN_FALSE;
-		}
-
-		couchbase_res->seqno += 1;
-		pcbc_start_loop(couchbase_res);
-		if (LCB_SUCCESS != ctx->res->rc) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to stat: (%d): %s",
-							 ctx->res->rc,
-							 lcb_strerror(couchbase_res->handle, ctx->res->rc));
-			efree(ctx);
-			RETURN_FALSE;
-		}
-		efree(ctx);
-	}
-}
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_version_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
