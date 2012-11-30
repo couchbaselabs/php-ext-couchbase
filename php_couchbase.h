@@ -387,6 +387,9 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_stat_init(lcb_t handle);
 
 PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_version_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
 void pcbc_json_encode(smart_str *buf, zval *value TSRMLS_DC);
 
 PHP_COUCHBASE_LOCAL

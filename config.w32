@@ -26,6 +26,7 @@ if (PHP_COUCHBASE != "no") {
 		ADD_SOURCES(configure_module_dirname, "store.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "timeout.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "touch.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "version.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "views.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "viewopts.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname + "\\fastlz", "fastlz.c", "couchbase");

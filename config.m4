@@ -194,6 +194,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      remove.c \
                      stat.c \
                      touch.c \
+                     version.c \
                      viewopts.c \
                      apidecl.c ],
                     [$ext_shared])
