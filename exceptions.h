@@ -51,6 +51,12 @@ extern zend_class_entry *cb_timeout_exception;
 PHP_COUCHBASE_LOCAL
 extern zend_class_entry *cb_not_enough_nodes_exception;
 
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *cb_illegal_option_exception;
+
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *cb_illegal_value_exception;
+
 #endif	  /* MANAGEMENT_EXCEPTION_H */
 
 /*

@@ -188,6 +188,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      management/management.c \
                      misc.c  \
                      observe.c \
+                     options.c \
                      remove.c \
                      resmgr.c \
                      simple_observe.c \
