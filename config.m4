@@ -171,31 +171,32 @@ if test "$PHP_COUCHBASE" != "no"; then
   dnl PHP_ADD_LIBRARY(event, 1, COUCHBASE_SHARED_LIBADD)
   PHP_SUBST(COUCHBASE_SHARED_LIBADD)
   PHP_NEW_EXTENSION([couchbase],
-                    [compress.c \
+                    [ \
+                     apidecl.c \
+                     arithmetic.c \
+                     compress.c \
+                     convert.c \
                      couchbase.c \
                      create.c \
                      exceptions.c \
-                     flush.c \
                      fastlz/fastlz.c \
+                     flush.c \
+                     get.c \
                      ht.c \
                      management/buckets.c \
                      management/instance.c \
                      management/management.c \
                      misc.c  \
                      observe.c \
-                     resmgr.c \
-                     timeout.c \
-                     views.c \
-                     convert.c \
-                     get.c \
-                     simple_observe.c \
-                     store.c \
-                     arithmetic.c \
                      remove.c \
+                     resmgr.c \
+                     simple_observe.c \
                      stat.c \
+                     store.c \
+                     timeout.c \
                      touch.c \
                      version.c \
                      viewopts.c \
-                     apidecl.c ],
-                    [$ext_shared])
+                     views.c \
+                    ], [$ext_shared])
 fi
