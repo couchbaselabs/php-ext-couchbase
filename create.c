@@ -281,6 +281,11 @@ create_new_link:
 
 		couchbase_res = pecalloc(1, sizeof(php_couchbase_res), persistent);
 		couchbase_res->handle = handle;
+		if (cparams.bucket) {
+			couchbase_res->bucket = strdup(cparams.bucket);
+		} else {
+			couchbase_res->bucket = strdup("default");
+		}
 		couchbase_res->seqno = -1; /* tell error callback stop event loop when error occurred */
 		couchbase_res->async = 0;
 		couchbase_res->serializer = COUCHBASE_G(serializer_real);

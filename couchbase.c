@@ -42,6 +42,7 @@ void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		if (couchbase_res->handle) {
 			lcb_destroy(couchbase_res->handle);
 		}
+		free(couchbase_res->bucket);
 		if (couchbase_res->prefix_key) {
 			efree((void *)couchbase_res->prefix_key);
 		}
@@ -58,6 +59,7 @@ void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		if (couchbase_res->handle) {
 			lcb_destroy(couchbase_res->handle);
 		}
+		free(couchbase_res->bucket);
 		if (couchbase_res->prefix_key) {
 			free((void *)couchbase_res->prefix_key);
 		}
@@ -90,7 +92,6 @@ void php_couchbase_setup_callbacks(lcb_t handle)
 	php_couchbase_callbacks_touch_init(handle);
 	php_couchbase_callbacks_observe_init(handle);
 	php_couchbase_callbacks_view_init(handle);
-	php_couchbase_callbacks_flush_init(handle);
 	php_couchbase_callbacks_stat_init(handle);
 	php_couchbase_callbacks_version_init(handle);
 

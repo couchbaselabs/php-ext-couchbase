@@ -102,6 +102,7 @@ struct _php_couchbase_ctx;
 
 typedef struct _php_couchbase_res {
 	lcb_t handle;
+	char *bucket;
 	long seqno;
 	char async;
 	char serializer;
