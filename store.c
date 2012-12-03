@@ -530,7 +530,7 @@ void php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op)
 		default: {
 			char errmsg[256];
 			sprintf(errmsg, "Failed to store value to server: %s",
-					lcb_strerror(couchbase_res->handle, retval));
+					lcb_strerror(couchbase_res->handle, ctx->res->rc));
 			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		}
 
