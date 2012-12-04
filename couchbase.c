@@ -94,6 +94,7 @@ void php_couchbase_setup_callbacks(lcb_t handle)
 	php_couchbase_callbacks_view_init(handle);
 	php_couchbase_callbacks_stat_init(handle);
 	php_couchbase_callbacks_version_init(handle);
+	php_couchbase_callbacks_unlock_init(handle);
 
 	php_ignore_value(lcb_set_error_callback(handle, php_couchbase_error_callback));
 }

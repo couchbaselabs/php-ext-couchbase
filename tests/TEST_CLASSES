@@ -26,5 +26,6 @@ Serialization
 ServerStats
 Store
 Sync
+Unlock
 ViewSimple
 ViewQueryStrings

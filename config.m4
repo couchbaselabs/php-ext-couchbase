@@ -196,6 +196,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      store.c \
                      timeout.c \
                      touch.c \
+                     unlock.c \
                      version.c \
                      viewopts.c \
                      views.c \

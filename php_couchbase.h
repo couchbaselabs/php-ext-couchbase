@@ -155,6 +155,7 @@ PHP_METHOD(couchbase, cas);
 PHP_METHOD(couchbase, get);
 PHP_METHOD(couchbase, getMulti);
 PHP_METHOD(couchbase, getDelayed);
+PHP_METHOD(couchbase, unlock);
 PHP_METHOD(couchbase, touch);
 PHP_METHOD(couchbase, touchMulti);
 PHP_METHOD(couchbase, fetch);
@@ -192,6 +193,7 @@ PHP_FUNCTION(couchbase_cas);
 PHP_FUNCTION(couchbase_get);
 PHP_FUNCTION(couchbase_get_multi);
 PHP_FUNCTION(couchbase_get_delayed);
+PHP_FUNCTION(couchbase_unlock);
 PHP_FUNCTION(couchbase_touch);
 PHP_FUNCTION(couchbase_touch_multi);
 PHP_FUNCTION(couchbase_fetch);
@@ -389,6 +391,9 @@ void php_couchbase_callbacks_stat_init(lcb_t handle);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_version_init(lcb_t handle);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_unlock_init(lcb_t handle);
 
 PHP_COUCHBASE_LOCAL
 void pcbc_json_encode(smart_str *buf, zval *value TSRMLS_DC);

@@ -127,6 +127,13 @@ ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_unlock, 0, 0, 3)
+ZEND_ARG_INFO(0, resource)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_touch, 0, 0, 3)
 ZEND_ARG_INFO(0, resource)
 ZEND_ARG_INFO(0, key)
@@ -394,6 +401,12 @@ ZEND_ARG_INFO(0, lock)
 ZEND_END_ARG_INFO()
 
 COUCHBASE_ARG_PREFIX
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_unlock, 0, 0, 2)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, cas)
+ZEND_END_ARG_INFO()
+
+COUCHBASE_ARG_PREFIX
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_touch, 0, 0, 2)
 ZEND_ARG_INFO(0, key)
 ZEND_ARG_INFO(0, expiry)
@@ -544,6 +557,7 @@ static zend_function_entry couchbase_functions[] = {
 	PHP_FE(couchbase_get, arginfo_get)
 	PHP_FE(couchbase_get_multi, arginfo_get_multi)
 	PHP_FE(couchbase_get_delayed, arginfo_get_delayed)
+	PHP_FE(couchbase_unlock, arginfo_unlock)
 	PHP_FE(couchbase_touch, arginfo_touch)
 	PHP_FE(couchbase_touch_multi, arginfo_touch_multi)
 	PHP_FE(couchbase_fetch, arginfo_fetch)
@@ -588,6 +602,7 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, get, arginfo_m_get, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getMulti, arginfo_m_getmulti, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getDelayed, arginfo_m_getdelayed, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, unlock, arginfo_m_unlock, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, touch, arginfo_m_touch, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, touchMulti, arginfo_m_touchmulti, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, fetch, arginfo_m_fetch, ZEND_ACC_PUBLIC)
@@ -643,6 +658,13 @@ PHP_METHOD(couchbase, getMulti)
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
 }
 /* }}} */
+
+/* {{{ proto Couchbase::unlock(string $key, string $cas)
+ */
+PHP_METHOD(couchbase, unlock)
+{
+	php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
+}
 
 /* {{{ proto Couchbase::touch(string $key, int $expiry)
  */
@@ -930,6 +952,13 @@ PHP_FUNCTION(couchbase_get_multi)
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
 }
 /* }}} */
+
+/* {{{ proto couchbase_unlock(resource $couchbase, string $key, string $cas)
+ */
+PHP_FUNCTION(couchbase_unlock)
+{
+	php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+}
 
 /* {{{ proto couchbase_touch(resource $couchbase, string $key, int $expiry)
  */

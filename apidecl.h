@@ -48,6 +48,9 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
+void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
+
+PHP_COUCHBASE_LOCAL
 void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo);
 
 PHP_COUCHBASE_LOCAL
