@@ -84,7 +84,7 @@ void init_couchbase_exceptions(TSRMLS_D)
 		  cb_exception);
 	setup(cb_timeout_exception, "CouchbaseTimeoutException", cb_exception);
 	setup(cb_not_enough_nodes_exception, "CouchbaseNotEnoughNodesException",
-          cb_exception);
+		  cb_exception);
 	setup(cb_illegal_option_exception, "CouchbaseIllegalOptionException",
 		  cb_exception);
 	setup(cb_illegal_value_exception, "CouchbaseIllegalValueException",

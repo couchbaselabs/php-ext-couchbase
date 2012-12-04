@@ -145,11 +145,12 @@ void init_couchbase_cluster(int module_number TSRMLS_DC)
 															  persistent_resource_destructor,
 															  PHP_COUCHBASE_CLUSTER_PERSISTENT_RESOURCE,
 															  module_number);
-
-	zend_class_entry ce;
-	INIT_CLASS_ENTRY(ce, "CouchbaseClusterManager", methods);
-	couchbase_cluster_ce = zend_register_internal_class_ex(&ce, NULL,
-														   NULL TSRMLS_CC);
+	{
+		zend_class_entry ce;
+		INIT_CLASS_ENTRY(ce, "CouchbaseClusterManager", methods);
+		couchbase_cluster_ce = zend_register_internal_class_ex(&ce, NULL,
+															   NULL TSRMLS_CC);
+	}
 }
 
 /*

@@ -17,9 +17,9 @@
   | Author: Trond Norbye   <trond.norbye@couchbase.com>					 |
   +----------------------------------------------------------------------+
 */
-#ifndef MANAGEMENT_EXCEPTIONS_H
-#define MANAGEMENT_EXCEPTIONS_H
-#include "../internal.h"
+#ifndef COUCHBASE_EXCEPTIONS_H
+#define COUCHBASE_EXCEPTIONS_H
+#include "internal.h"
 
 PHP_COUCHBASE_LOCAL
 void init_couchbase_exceptions(TSRMLS_D);
