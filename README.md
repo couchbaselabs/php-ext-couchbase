@@ -49,3 +49,8 @@ See CREDITS file. Thanks all!
 ## Copyright
 
 (c) 2011, 2012 Couchbase
+
+## Contributions
+
+If you'd like to contribute to the project, please look in
+CONTRIBUTING.md.
