@@ -142,7 +142,10 @@ php_couchbase_get_callback(lcb_t instance,
 
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* {{{ */
+void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
+							int multi,
+							int oo,
+							int lock)
 {
 	char *key, **keys;
 	long *klens, klen = 0;
@@ -151,14 +154,7 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 	lcb_time_t exp = {0};
 	long expiry = 0;
 	zval *res, *cas_token = NULL;
-	zend_bool lock = 0;
 	int argflags;
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-	zend_fcall_info fci = {0};
-	zend_fcall_info_cache fci_cache;
-#else
-	zval *callback = NULL;
-#endif
 	lcb_error_t retval;
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx *ctx;
@@ -170,9 +166,17 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 		zval **ppzval;
 		zend_bool preserve_order;
 		int i;
-		PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-										 "a|zllb",
-										 &akeys, &cas_token, &flag, &expiry, &lock);
+
+		if (lock) {
+			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+											 "az|ll",
+											 &akeys, &cas_token,
+											 &flag, &expiry);
+		} else {
+			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+											 "a|zl",
+											 &akeys, &cas_token, &expiry);
+		}
 
 		nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
 		keys = ecalloc(nkey, sizeof(char *));
@@ -221,21 +225,15 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 			array_init(cas_token);
 		}
 	} else {
-
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-		PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-										 "s|f!zlb", &key, &klen, &fci, &fci_cache, &cas_token, &expiry, &lock);
-#else
-		PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-										 "s|zzlb", &key, &klen, &callback, &cas_token, &expiry, &lock);
-#endif
-
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3
-		if (callback && Z_TYPE_P(callback) != IS_NULL && !zend_is_callable(callback, 0, NULL)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "third argument is expected to be a valid callback");
-			return;
+		if (lock) {
+			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+											 "sz|l", &key, &klen,
+											 &cas_token, &expiry);
+		} else {
+			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+											 "s|zl", &key, &klen,
+											 &cas_token, &expiry);
 		}
-#endif
 
 		if (!klen) {
 			return;
@@ -296,68 +294,19 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* 
 			}
 			efree(ctx);
 			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to schedule get request: %s", lcb_strerror(couchbase_res->handle, retval));
+							 "Failed to schedule get request: %s",
+							 lcb_strerror(couchbase_res->handle, retval));
 			RETURN_FALSE;
 		}
 
 		couchbase_res->seqno += nkey;
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
-			if (LCB_KEY_ENOENT == ctx->res->rc) {
-				if (
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-					fci.size
-#else
-					callback
-#endif
-				) {
-					zval *result, *zkey, *retval_ptr = NULL;
-					zval **params[3];
-
-					MAKE_STD_ZVAL(result);
-					MAKE_STD_ZVAL(zkey);
-					ZVAL_NULL(result);
-					ZVAL_STRINGL(zkey, key, klen, 1);
-
-					params[0] = &res;
-					params[1] = &zkey;
-					params[2] = &result;
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-					fci.retval_ptr_ptr = &retval_ptr;
-					fci.param_count = 3;
-					fci.params = params;
-					if (zend_call_function(&fci, &fci_cache TSRMLS_CC) == SUCCESS && fci.retval_ptr_ptr && *fci.retval_ptr_ptr) {
-						if (Z_TYPE_P(retval_ptr) == IS_BOOL && Z_BVAL_P(retval_ptr)) {
-							zval_ptr_dtor(fci.retval_ptr_ptr);
-							zval_ptr_dtor(&zkey);
-							efree(ctx);
-							if (multi) {
-								zval_dtor(return_value);
-							}
-							RETURN_ZVAL(result, 1, 1);
-						}
-						zval_ptr_dtor(fci.retval_ptr_ptr);
-					}
-#else
-					if (call_user_function_ex(EG(function_table), NULL, callback, &retval_ptr, 3, params, 0, NULL TSRMLS_CC) == SUCCESS) {
-						if (Z_TYPE_P(retval_ptr) == IS_BOOL && Z_BVAL_P(retval_ptr)) {
-							zval_ptr_dtor(&retval_ptr);
-							zval_ptr_dtor(&zkey);
-							efree(ctx);
-							if (multi) {
-								zval_dtor(return_value);
-							}
-							RETURN_ZVAL(result, 1, 1);
-						}
-						zval_ptr_dtor(&retval_ptr);
-					}
-#endif
-					zval_ptr_dtor(&zkey);
-					zval_ptr_dtor(&result);
-				}
-			} else {
+			if (LCB_KEY_ENOENT != ctx->res->rc) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-								 "Failed to get a value from server: %s", lcb_strerror(couchbase_res->handle, ctx->res->rc));
+								 "Failed to get a value from server: %s",
+								 lcb_strerror(couchbase_res->handle,
+											  ctx->res->rc));
 			}
 		}
 		efree(ctx);

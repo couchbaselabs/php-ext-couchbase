@@ -24,7 +24,7 @@ class Store extends CouchbaseTestCommon {
 		$val = uniqid('couchbase-value-');
 
 		$cas = couchbase_add($h, $key, $val);
-		$valGet = couchbase_get($h, $key, NULL, $casGet);
+		$valGet = couchbase_get($h, $key, $casGet);
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);
@@ -49,7 +49,7 @@ class Store extends CouchbaseTestCommon {
 		$val = uniqid('couchbase-value-');
 
 		$cas = $oo->add($key, $val);
-		$valGet = $oo->get($key, NULL, $casGet);
+		$valGet = $oo->get($key, $casGet);
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);
@@ -113,7 +113,7 @@ class Store extends CouchbaseTestCommon {
 
 		$oo->add($key, $val2);
 
-		$v = $oo->get( $key);
+		$v = $oo->get($key);
 
 		$this->assertEquals($v, $val);
 		$this->assertNotEquals($v, $val2);
@@ -138,7 +138,7 @@ class Store extends CouchbaseTestCommon {
 		$val = uniqid('couchbase-value-');
 
 		$cas = couchbase_set($h, $key, $val);
-		$valGet = couchbase_get($h, $key, NULL, $casGet);
+		$valGet = couchbase_get($h, $key, $casGet);
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);
@@ -163,7 +163,7 @@ class Store extends CouchbaseTestCommon {
 		$val = uniqid('couchbase-value-');
 
 		$cas = $oo->set($key, $val);
-		$valGet = $oo->get($key, NULL, $casGet);
+		$valGet = $oo->get($key, $casGet);
 
 		$this->assertEquals($valGet, $val);
 		$this->assertEquals($casGet, $cas);

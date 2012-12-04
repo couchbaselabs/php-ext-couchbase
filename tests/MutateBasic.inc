@@ -130,8 +130,7 @@ class MutateBasic extends CouchbaseTestCommon
         $this->assertFalse($oo->cas($cas, $key, "dummy"));
         $this->assertTrue($oo->cas($ncas, $key, "dummy", 1));
 
-        $this->assertEquals($oo->get($key, NULL, $cas1),
-                            "dummy");
+        $this->assertEquals($oo->get($key, $cas1), "dummy");
 
         $this->assertNotEmpty($cas1);
     }
@@ -147,7 +146,7 @@ class MutateBasic extends CouchbaseTestCommon
         $this->assertTrue(couchbase_cas($h, $ncas, $key, "dummy", 1),
                           "Valid CAS returns true");
 
-        $this->assertEquals("dummy", couchbase_get($h, $key, NULL, $cas1),
+        $this->assertEquals("dummy", couchbase_get($h, $key, $cas1),
                             "Got back expected value");
     }
 

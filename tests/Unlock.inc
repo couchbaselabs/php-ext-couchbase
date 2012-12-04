@@ -10,7 +10,7 @@ class Unlock extends CouchbaseTestCommon {
         $cas = $oo->set($key, "foobar");
 
         # Its time to get the lock of the object
-        $valGet = $oo->get($key, NULL, $lockCAS, 100, true);
+        $valGet = $oo->getAndLock($key, $lockCAS);
 
         # validate that I can't overwrite it
         try {
@@ -32,7 +32,7 @@ class Unlock extends CouchbaseTestCommon {
         $cas = couchbase_set($h, $key, "foobar");
 
         # Its time to get the lock of the object
-        $valGet = couchbase_get($h, $key, NULL, $lockCAS, 100, true);
+        $valGet = couchbase_get_and_lock($h, $key, $lockCAS);
 
         # validate that I can't overwrite it
         try {

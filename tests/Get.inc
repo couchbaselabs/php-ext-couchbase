@@ -53,7 +53,7 @@ class Get extends CouchbaseTestCommon {
 	function testPlain() {
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
-		$valGet = couchbase_get($h, $key, NULL, $casGet);
+		$valGet = couchbase_get($h, $key, $casGet);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $casGet);
@@ -77,7 +77,7 @@ class Get extends CouchbaseTestCommon {
 	function testPlainOO() {
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
-		$valGet = $oo->get($key, NULL, $casGet);
+		$valGet = $oo->get($key, $casGet);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $casGet);
@@ -124,117 +124,6 @@ class Get extends CouchbaseTestCommon {
 	}
 
 	/**
-	 * @test get-with-callback (OO)
-	 *
-	 * @pre
-	 * setup run
-	 *
-	 * @post
-	 * gets with callback do the appropriate things
-	 *
-	 * @variants
-	 * OO, plain
-	 */
-	function testGetWithCallbackOO() {
-		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
-
-		$cb = function ($k, &$v) { $v = 'from db'; return true; };
-
-		$oo->get($key, $cb, $casGet);
-		$this->assertEquals($cas, $casGet);
-
-		$oo->delete($key);
-	}
-
-	/**
-	 * @test get-with-callback
-	 *
-	 * @pre
-	 * setup run
-	 *
-	 * @post
-	 * gets with callback do the appropriate things
-	 *
-	 * @variants
-	 * OO, plain
-	 */
-	function testGetWithCallback() {
-		list($h, $key, $val, $cas) = $this->_test_setup_common();
-
-		$cb = function ($k, &$v) { $v = 'from db'; return true; };
-
-		couchbase_get($h, $key, $cb, $casGet);
-		$this->assertEquals($cas, $casGet); // cas unchanged for existing key w/ cb
-
-		couchbase_delete($h, $key);
-	}
-
-	/**
-	 * @test get-with-callback for a missing/non-existent key
-	 *
-	 * @pre
-	 * setup run
-	 *
-	 * @post
-	 * gets with callback do the appropriate things
-	 *
-	 * @variants
-	 * OO, plain
-	 */
-	function testGetMissingWithCallback() {
-		$this->skipGetMissingWithCallback();
-
-		list($h, $key, $val, $cas) = $this->_test_setup_common();
-		couchbase_delete($h, $key); // since we don't actually want the key to exist for this test
-
-		// value is 'from db' and cas is null for NE key & true callback ret
-		$cb = function ($k, &$v) { $v = 'from db'; return true; };
-		$this->assertEquals('from db', couchbase_get($h, $key, $cb, $casGet));
-		$this->assertNull($casGet);
-
-		// value and cas are null for NE key & false callback ret
-		$cb = function ($k, &$v) { $v = 'from db'; return false; };
-		$this->assertNull(couchbase_get($h, $key, $cb, $casGet));
-		$this->assertNull($casGet);
-	}
-
-	function skipGetMissingWithCallback() {
-		$this->markTestSkipped("Callbacks with missing keys seem to have a known error condition at the moment.");
-	}
-
-
-	/**
-	 * @test get-with-callback for a missing/non-existent key (oo)
-	 *
-	 * @pre
-	 * setup run
-	 *
-	 * @post
-	 * gets with callback do the appropriate things
-	 *
-	 * @variants
-	 * OO, plain
-	 */
-	function testGetMissingWithCallbackOO() {
-		$this->skipGetMissingWithCallbackOO();
-		list($oo, $key, $val, $cas) = $this->_test_setup_common();
-		$oo->delete($oo, $key); // since we don't actually want the key to exist for this test
-
-		// value is 'from db' and cas is null for NE key & true callback ret
-		$cb = function ($k, &$v) { $v = 'from db'; return true; };
-		$this->assertEquals('from db', $oo->get($key, $cb, $casGet));
-		$this->assertNull($casGet);
-
-		// value and cas are null for NE key & false callback ret
-		$cb = function ($k, &$v) { $v = 'from db'; return false; };
-		$this->assertNull($oo->get($key, $cb, $casGet));
-		$this->assertNull($casGet);
-	}
-	function skipGetMissingWithCallbackOO() {
-		$this->markTestSkipped("Callbacks with missing keys seem to have a known error condition at the moment.");
-	}
-
-	/**
 	 * @test get-with-touch
 	 * @group slow
 	 *
@@ -249,7 +138,7 @@ class Get extends CouchbaseTestCommon {
 
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
-		$valGet = couchbase_get($h, $key, NULL, $expCAS, 1);
+		$valGet = couchbase_get($h, $key, $expCAS, 1);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $expCAS);
@@ -276,7 +165,7 @@ class Get extends CouchbaseTestCommon {
 
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
-		$valGet = $oo->get($key, NULL, $expCAS, 1);
+		$valGet = $oo->get($key, $expCAS, 1);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $expCAS);
@@ -303,7 +192,7 @@ class Get extends CouchbaseTestCommon {
 
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
-		$valGet = $oo->get($key, NULL, $lockCAS, 1, true);
+		$valGet = $oo->getAndLock($key, $lockCAS, 1);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertNotEquals($cas, $lockCAS);
@@ -331,7 +220,7 @@ class Get extends CouchbaseTestCommon {
 
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
-		$valGet = couchbase_get($h, $key, NULL, $lockCAS, 1, true);
+		$valGet = couchbase_get_and_lock($h, $key, $lockCAS, 1);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertNotEquals($cas, $lockCAS);

@@ -24,7 +24,7 @@ static void php_couchbase_unlock_callback(lcb_t instance,
 										  lcb_error_t error,
 										  const lcb_unlock_resp_t *resp)
 {
-	lcb_error_t *err = (lcb_error_t*)cookie;
+	lcb_error_t *err = (lcb_error_t *)cookie;
 	*err = error;
 }
 

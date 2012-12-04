@@ -15,7 +15,6 @@ GetMulti
 Info
 IntegerArgs
 MiscOptions
-MissCB
 MutateBasic
 NegativeExpiry
 NonASCII
