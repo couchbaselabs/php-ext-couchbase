@@ -138,7 +138,7 @@ class Get extends CouchbaseTestCommon {
 
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
-		$valGet = couchbase_get($h, $key, $expCAS, 1);
+		$valGet = couchbase_get_and_touch($h, $key, 1, $expCAS);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $expCAS);
@@ -165,7 +165,7 @@ class Get extends CouchbaseTestCommon {
 
 		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
 
-		$valGet = $oo->get($key, $expCAS, 1);
+		$valGet = $oo->getAndTouch($key, 1, $expCAS);
 
 		$this->assertEquals($val, $valGet);
 		$this->assertEquals($cas, $expCAS);

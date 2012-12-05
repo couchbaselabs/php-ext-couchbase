@@ -85,7 +85,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
     function testGetAndTouch() {
         $this->skipGetAndTouch();
         $this->assertExceptionRegexp(
-            create_function('$oo', '$oo->get("key",$ignored, -1);'),
+            create_function('$oo', '$oo->getAndTouch("key", -1);'),
             array($this->getPersistOO()),
             self::$expiryRegexp
         );
@@ -101,7 +101,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
 
         $this->assertExceptionRegexp(
             create_function('$oo,$kv',
-                            'var_dump($oo->getMulti($kv, $casary, -1));'),
+                            'var_dump($oo->getAndTouchMulti($kv, -1));'),
 
             array($this->getPersistOO(), $kv),
             self::$expiryRegexp
@@ -122,7 +122,7 @@ class NegativeExpiry extends CouchbaseTestCommon {
 
     function testTouchMulti() {
         $this->skipTouchMulti();
-        
+
         $kv = array("k1" => "v1", "k2" => "v2");
         $this->assertExceptionRegexp(
             create_function('$oo, $kv', '$oo->touchMulti($kv, -1);'),

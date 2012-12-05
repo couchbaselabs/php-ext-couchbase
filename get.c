@@ -145,7 +145,8 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 							int multi,
 							int oo,
-							int lock)
+							int lock,
+							int touch)
 {
 	char *key, **keys;
 	long *klens, klen = 0;
@@ -172,10 +173,14 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 											 "az|ll",
 											 &akeys, &cas_token,
 											 &flag, &expiry);
+		} else if (touch) {
+			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+											 "al|z",
+											 &akeys, &expiry, &cas_token);
 		} else {
 			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
 											 "a|zl",
-											 &akeys, &cas_token, &expiry);
+											 &akeys, &cas_token, &flag);
 		}
 
 		nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
@@ -229,10 +234,14 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
 											 "sz|l", &key, &klen,
 											 &cas_token, &expiry);
+		} else if (touch) {
+			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
+											 "sl|z", &key, &klen, &expiry,
+											 &cas_token);
 		} else {
 			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-											 "s|zl", &key, &klen,
-											 &cas_token, &expiry);
+											 "s|z", &key, &klen,
+											 &cas_token);
 		}
 
 		if (!klen) {
