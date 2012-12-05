@@ -76,11 +76,15 @@ static void simple_observe_callback(lcb_t instance,
 				ent->mutated = 1;
 			}
 		} else {
-			if (resp->v.v0.ttp) {
-				ent->persisted++;
+			/* This is the correct object */
+			if (resp->v.v0.from_master == 0) {
+				if ((resp->v.v0.status & LCB_OBSERVE_NOT_FOUND) == 0) {
+					ent->replicated++;
+				}
 			}
-			if (resp->v.v0.ttr) {
-				ent->replicated++;
+
+			if (resp->v.v0.status & LCB_OBSERVE_PERSISTED) {
+				ent->persisted++;
 			}
 		}
 	}
