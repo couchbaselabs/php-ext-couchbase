@@ -16,7 +16,7 @@ class Observe extends CouchbaseTestCommon {
     function _make_max_spec() {
         $spec = array();
         $h = $this->getPersistHandle();
-        $spec["persist_to"] = count(couchbase_get_servers($h));
+        $spec["persist_to"] = couchbase_get_num_replicas($h) + 1;
         $spec["replicate_to"] = couchbase_get_num_replicas($h);
         return $spec;
     }
