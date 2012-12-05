@@ -9,15 +9,25 @@ class Observe extends CouchbaseTestCommon {
 			$this->markTestSkipped("need 1.1.x for observe support");
 		}
 	}
-    
+
     /**
      * Gets us a durability spec appropriate for the cluster we're running on
      */
     function _make_max_spec() {
         $spec = array();
         $h = $this->getPersistHandle();
-        $spec["persist_to"] = couchbase_get_num_replicas($h) + 1;
-        $spec["replicate_to"] = couchbase_get_num_replicas($h);
+
+        /* The bucket may be configured with more replicas than
+         * we've got nodes...
+         */
+        $num_servers = count(couchbase_get_servers($h));
+        if ($num_servers <= couchbase_get_num_replicas($h)) {
+            $spec["persist_to"] = $num_servers;
+            $spec["replicate_to"] = $num_servers - 1;
+        } else {
+            $spec["persist_to"] = couchbase_get_num_replicas($h) + 1;
+            $spec["replicate_to"] = couchbase_get_num_replicas($h);
+        }
         return $spec;
     }
 
