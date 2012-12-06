@@ -135,6 +135,7 @@ long compression_threshold;
 double compression_factor;
 long durability_default_poll_interval;
 long durability_default_timeout;
+long view_timeout;
 ZEND_END_MODULE_GLOBALS(couchbase)
 
 PHP_GINIT_FUNCTION(couchbase);
@@ -236,6 +237,9 @@ PHP_FUNCTION(couchbase_set_timeout);
 
 #define PCBC_INIENT_OBS_TIMEOUT "couchbase.durability_default_timeout"
 #define PCBC_INIDEFL_OBS_TIMEOUT "40000000"
+
+#define PCBC_INIENT_VIEW_TIMEOUT "couchbase.view_timeout"
+#define PCBC_INIDEFL_VIEW_TIMEOUT "75"
 
 #define PCBC_INIENT_SERIALIZER "couchbase.serializer"
 #define PCBC_INIDEFL_SERIALIZER "php"

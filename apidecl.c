@@ -1468,6 +1468,10 @@ STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_INTERVAL, PCBC_INIDEFL_OBS_INTERVAL,
 
 STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_TIMEOUT, PCBC_INIDEFL_OBS_TIMEOUT,
 				  PHP_INI_ALL, OnUpdateLong, durability_default_timeout, zend_couchbase_globals, couchbase_globals) /* also units of microseconds, 40M = 40sec */
+
+STD_PHP_INI_ENTRY(PCBC_INIENT_VIEW_TIMEOUT, PCBC_INIDEFL_VIEW_TIMEOUT,
+				  PHP_INI_ALL, OnUpdateLong, view_timeout,
+				  zend_couchbase_globals, couchbase_globals)
 PHP_INI_END()
 /* }}} */
 

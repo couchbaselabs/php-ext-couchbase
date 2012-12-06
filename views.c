@@ -68,7 +68,6 @@ static void php_couchbase_complete_callback(lcb_http_request_t request,
 	hti->htstatus = resp->v.v0.status;
 }
 
-
 static int append_view_option(php_couchbase_res *res,
 							  smart_str *uri,
 							  const char *vopt, int nvopt, zval *input TSRMLS_DC)
@@ -240,28 +239,39 @@ static char *php_couchbase_view_convert_to_error(zval *decoded,
 	return ret;
 }
 
+struct tc_cookie {
+	lcb_t instance;
+	lcb_http_request_t request;
+};
+
+void timer_callback(lcb_timer_t timer, lcb_t instance, const void *cookie)
+{
+	struct tc_cookie *tc = (struct tc_cookie *)cookie;
+	lcb_cancel_http_request(tc->instance, tc->request);
+}
+
 PHP_COUCHBASE_LOCAL
 void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only) /* {{{ */
 {
-	lcb_http_request_t htreq;
 	zval *options = NULL;
 	char *doc_name = NULL, *view_name = NULL;
 	long doc_name_len = 0, view_name_len = 0;
 	zend_bool return_errors = 0;
-
 	lcb_error_t retval;
 	smart_str uri = {0};
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx ctx = {0};
 	lcb_http_cmd_t cmd = {0};
+	lcb_timer_t timer;
+	struct tc_cookie tcc;
+	long view_timeout = INI_INT(PCBC_INIENT_VIEW_TIMEOUT);
 
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
-	PHP_COUCHBASE_GET_PARAMS(
-		couchbase_res,
-		argflags,
-		"s|sab",
-		&doc_name, &doc_name_len, &view_name, &view_name_len, &options, &return_errors);
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "s|sab",
+							 &doc_name, &doc_name_len,
+							 &view_name, &view_name_len,
+							 &options, &return_errors);
 
 	APPEND_URI_s(&uri, "/");
 
@@ -274,8 +284,9 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 
 	if (uri_only) {
 		/**
-		 * Because PHP apparently has multiple personality disorder when it comes
-		 * to the memory allocators it uses, we'll need to copy and free the buf
+		 * Because PHP apparently has multiple personality disorder
+		 * when it comes to the memory allocators it uses, we'll need
+		 * to copy and free the buf
 		 */
 		ZVAL_STRINGL(return_value, uri.c, uri.len, 1);
 		smart_str_free(&uri);
@@ -285,27 +296,56 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	ctx.res = couchbase_res;
 
 	memset(&cmd, 0, sizeof(cmd));
-
 	cmd.v.v0.path = uri.c;
 	cmd.v.v0.npath = uri.len;
-
 	cmd.v.v0.method = LCB_HTTP_METHOD_GET;
 	cmd.v.v0.content_type = "application/json";
 
 	retval = lcb_make_http_request(couchbase_res->handle,
 								   (const void *)&ctx,
 								   LCB_HTTP_TYPE_VIEW,
-								   &cmd, &htreq);
-
+								   &cmd, &tcc.request);
 	smart_str_free(&uri);
 
-	if (LCB_SUCCESS != retval) {
+	if (retval != LCB_SUCCESS) {
+		couchbase_res->rc = retval;
 		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-						 "Failed to schedule couch request: %s", lcb_strerror(couchbase_res->handle, retval));
+						 "Failed to schedule couch request: %s",
+						 lcb_strerror(couchbase_res->handle, retval));
 		RETURN_FALSE;
 	}
 
+	/* Setup a timer to monitor the progress of the view request */
+	tcc.instance = couchbase_res->handle;
+
+	/* @todo: When we allow the user to specify connection_timeout
+	 *        as a parameter, we should ensure that the timer
+	 *        is set higher than that.
+	 */
+
+	/*
+	 * The view timeout is specified in secs, libcouchbase timers
+	 * operate in the usec range
+	 */
+	view_timeout *= 1000000;
+	timer = lcb_timer_create(couchbase_res->handle, &tcc,
+							 view_timeout, 0, timer_callback,
+							 &retval);
+
+	if (retval != LCB_SUCCESS) {
+		couchbase_res->rc = retval;
+		lcb_cancel_http_request(tcc.instance, tcc.request);
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+						 "Failed to setup timer to monitor view request: %s",
+						 lcb_strerror(couchbase_res->handle, retval));
+		RETURN_FALSE;
+	}
+
+	/* Run the view */
 	pcbc_start_loop(couchbase_res);
+
+
+	lcb_timer_destroy(couchbase_res->handle, timer);
 
 	if (ctx.extended_value) {
 		php_couchbase_htinfo *hti = ctx.extended_value;
