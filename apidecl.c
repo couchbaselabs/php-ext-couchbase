@@ -760,7 +760,7 @@ PHP_METHOD(couchbase, unlock)
  */
 PHP_METHOD(couchbase, touch)
 {
-	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
+	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
 /* }}} */
 
@@ -768,7 +768,7 @@ PHP_METHOD(couchbase, touch)
  */
 PHP_METHOD(couchbase, touchMulti)
 {
-	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
+	php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
 /* }}} */
 
@@ -1086,7 +1086,7 @@ PHP_FUNCTION(couchbase_unlock)
  */
 PHP_FUNCTION(couchbase_touch)
 {
-	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
+	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
 /* }}} */
 
@@ -1094,7 +1094,7 @@ PHP_FUNCTION(couchbase_touch)
  */
 PHP_FUNCTION(couchbase_touch_multi)
 {
-	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
+	php_couchbase_touch__multi_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
 /* }}} */
 

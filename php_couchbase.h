@@ -387,9 +387,6 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_remove_init(lcb_t handle);
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_callbacks_touch_init(lcb_t handle);
-
-PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_view_init(lcb_t handle);
 
 PHP_COUCHBASE_LOCAL

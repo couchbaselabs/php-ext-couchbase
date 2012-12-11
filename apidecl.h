@@ -52,7 +52,10 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo);
+void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo);

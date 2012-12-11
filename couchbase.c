@@ -89,7 +89,6 @@ void php_couchbase_setup_callbacks(lcb_t handle)
 	php_couchbase_callbacks_get_init(handle);
 	php_couchbase_callbacks_store_init(handle);
 	php_couchbase_callbacks_remove_init(handle);
-	php_couchbase_callbacks_touch_init(handle);
 	php_couchbase_callbacks_observe_init(handle);
 	php_couchbase_callbacks_view_init(handle);
 	php_couchbase_callbacks_stat_init(handle);
