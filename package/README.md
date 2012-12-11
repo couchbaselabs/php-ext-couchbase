@@ -1,4 +1,4 @@
-# Couchbase driver for PHP
+# PHP PECL extension for Couchbase Server
 
 Contents:
 
@@ -9,12 +9,24 @@ Contents:
 
 ## Installation
 
-Edit your `php.ini` to include this line:
+Edit your `php.ini` to include this line after putting the extension
+in the correct directory.:
 
     extension=couchbase.so
 
-To find where you `php.ini` file is, try `phpi -i | grep couchbase` or look
-at your `<?php phpinfo() ?>` output.
+If you're on a Red Hat Enterprise Linux or CentOS platform, this is
+best done as:
+
+    extension=json.so
+    extension=couchbase.so
+
+Note that in either case you can use a complete path, such as:
+
+    extension=/path/to/couchbase.so
+
+To find where you `php.ini` file is, try `phpi -i | grep couchbase` or
+look at your `<?php phpinfo() ?>` output. This can also identify the
+extension directory if you wish to copy the extension there.
 
 
 ## Verify Installation
