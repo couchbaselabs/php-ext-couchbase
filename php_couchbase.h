@@ -49,7 +49,7 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_ARG_PREFIX static
 #endif
 
-#define PHP_COUCHBASE_VERSION	  "1.1.0-dp5"
+#define PHP_COUCHBASE_VERSION	  "1.1.0"
 #define PHP_COUCHBASE_RESOURCE	  "Couchbase"
 #define PHP_COUCHBASE_PERSISTENT_RESOURCE "Persistent Couchbase"
 #define COUCHBASE_PROPERTY_HANDLE "_handle"
