@@ -22,7 +22,6 @@
 PHP_COUCHBASE_LOCAL
 void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
-	char errmsg[256];
 	long option;
 	zval *value;
 	php_couchbase_res *couchbase_res;
@@ -46,29 +45,17 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			}
 			RETURN_TRUE;
 #else
-			snprintf(errmsg, sizeof(errmsg), "%s",
-					 "json serializer is not supported");
-
-			if (oo) {
-				zend_throw_exception(cb_illegal_value_exception,
-									 errmsg, 0 TSRMLS_CC);
-				return ;
-			} else {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-				RETURN_FALSE;
-			}
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_illegal_value_exception,
+								   "json serializer is not supported");
+			return;
 #endif
-			break;
 		default:
-			snprintf(errmsg, sizeof(errmsg),
-					 "unsupported serializer: %ld", Z_LVAL_P(value));
-			if (oo) {
-				zend_throw_exception(cb_illegal_value_exception,
-									 errmsg, 0 TSRMLS_CC);
-			} else {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-				RETURN_FALSE;
-			}
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_illegal_value_exception,
+								   "unsupported serializer: %ld",
+								   Z_LVAL_P(value));
+			return;
 		}
 		break;
 
@@ -95,16 +82,11 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			RETURN_TRUE;
 			break;
 		default:
-			snprintf(errmsg, sizeof(errmsg), "unsupported compressor: %ld",
-					 Z_LVAL_P(value));
-			if (oo) {
-				zend_throw_exception(cb_illegal_value_exception,
-									 errmsg, 0 TSRMLS_CC);
-				return;
-			} else {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-				RETURN_FALSE;
-			}
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_illegal_value_exception,
+								   "unsupported compressor: %ld",
+								   Z_LVAL_P(value));
+			return;
 		}
 		break;
 
@@ -119,16 +101,10 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		break;
 
 	default:
-		snprintf(errmsg, sizeof(errmsg), "unknown option type: %ld", option);
-		if (oo) {
-			zend_throw_exception(cb_illegal_option_exception,
-								 errmsg, 0 TSRMLS_CC);
-
-			return;
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_value_exception,
+							   "unknown option type: %ld", option);
+		return;
 	}
 	RETURN_TRUE;
 }
@@ -167,18 +143,10 @@ void php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		RETURN_LONG(couchbase_res->viewopts_passthrough);
 		break;
 	default:
-		if (oo) {
-			char errmsg[256];
-			snprintf(errmsg, sizeof(errmsg), "unknown option type: %ld",
-					 option);
-			zend_throw_exception(cb_illegal_option_exception,
-								 errmsg, 0 TSRMLS_CC);
-
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "unknown option type: %ld", option);
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_value_exception,
+							   "unknown option type: %ld",
+							   option);
 	}
 }
 

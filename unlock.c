@@ -65,27 +65,17 @@ void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 							 "ss", &key, &klen, &cas, &cas_len);
 
 	if (klen == 0) {
-		if (oo) {
-			zend_throw_exception(cb_illegal_key_exception,
-								 "No key specified: Empty key",
-								 0 TSRMLS_CC);
-			return ;
-		} else {
-			couchbase_res->rc = LCB_EINVAL;
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_key_exception,
+							   "Failed to schedule set request: Empty key");
+		return ;
 	}
 
 	if (cas_len == 0) {
-		if (oo) {
-			zend_throw_exception(cb_illegal_key_exception,
-								 "No CAS specified: Empty cas",
-								 0 TSRMLS_CC);
-			return ;
-		} else {
-			couchbase_res->rc = LCB_EINVAL;
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_key_exception,
+							   "No CAS specified: Empty cas");
+		return ;
 	}
 
 	cas_v = (lcb_cas_t)strtoull(cas, 0, 10);
@@ -95,17 +85,10 @@ void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	if (retval == LCB_SUCCESS) {
 		RETVAL_TRUE;
 	} else {
-		if (oo) {
-			char errmsg[256];
-			sprintf(errmsg, "Failed to unlock the document: %s",
-					lcb_strerror(couchbase_res->handle, retval));
-			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to unlock the document: %s",
-							 lcb_strerror(couchbase_res->handle, retval));
-			RETVAL_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to unlock the document: %s",
+							   lcb_strerror(couchbase_res->handle, retval));
 	}
 }
 

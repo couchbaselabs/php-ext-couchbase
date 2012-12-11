@@ -5,7 +5,6 @@ struct arithmetic_cookie {
 	uint64_t value;
 };
 
-/* {{{ static void php_couchbase_arithmetic_callback(...) */
 static void php_couchbase_arithmetic_callback(lcb_t instance,
 											  const void *cookie,
 											  lcb_error_t error,
@@ -21,12 +20,15 @@ static void php_couchbase_arithmetic_callback(lcb_t instance,
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo) /* {{{ */
+void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo)
 {
 	char *key;
 	time_t exp;
-	long klen = 0, offset = 1, expire = 0;
-	long create = 0, initial = 0;
+	long klen = 0;
+	long offset = 1;
+	long expire = 0;
+	long create = 0;
+	long initial = 0;
 	php_couchbase_res *couchbase_res;
 	lcb_arithmetic_cmd_t cmd;
 	const lcb_arithmetic_cmd_t *const commands[] = { &cmd };
@@ -63,40 +65,31 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 	retval = lcb_arithmetic(instance, &cookie, 1, commands);
 	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
 
-	if (retval != LCB_SUCCESS || cookie.error != LCB_SUCCESS) {
-		char errmsg[256];
-		if (cookie.error == LCB_KEY_ENOENT && create == 0) {
+	if (retval == LCB_SUCCESS) {
+		retval = cookie.error ;
+	}
+	couchbase_res->rc = retval;
+
+	if (retval == LCB_SUCCESS) {
+		ZVAL_LONG(return_value, cookie.value);
+	} else {
+		if (retval == LCB_KEY_ENOENT && create == 0) {
 			/* The user told us to not create the key... */
 			RETURN_FALSE;
 		}
 
-		if (retval == LCB_SUCCESS) {
-			retval = cookie.error ;
-		}
-		couchbase_res->rc = retval;
-
-		snprintf(errmsg, sizeof(errmsg), "Failed to %s value in the server: %s",
-				 (op == '+') ? "increment" : "decrement",
-				 lcb_strerror(instance, retval));
-		if (oo) {
-			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
-			return;
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to %s value in the server: %s",
+							   (op == '+') ? "increment" : "decrement",
+							   lcb_strerror(instance, retval));
 	}
-
-	couchbase_res->rc = retval;
-	ZVAL_LONG(return_value, cookie.value);
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_arithmetic_init(lcb_t handle)
 {
-	php_ignore_value(
-		lcb_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback));
+	(void)lcb_set_arithmetic_callback(handle, php_couchbase_arithmetic_callback);
 }
 
 /*

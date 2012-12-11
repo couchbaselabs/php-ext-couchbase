@@ -169,7 +169,7 @@ class Connection extends CouchbaseTestCommon
         $this->assertExceptionRegexp(function ($u) { return couchbase_connect($u);},
                                      array($url),
                                      "/failed/i");
-		
+
 		$this->assertExceptionRegexp(function ($u) { return new Couchbase($u); },
                                      array($url),
                                      "/failed/i");
@@ -184,15 +184,14 @@ class Connection extends CouchbaseTestCommon
         $this->assertContains('Connection', $o->getResultMessage());
 
         # Try with a malformed uri
-        $this->setErrorsRaiseException(true);
-        $url = "http://";
 
-        $this->assertExceptionRegexp(function($u) { return new Couchbase($u); },
-                                     array($url),
-                                     "/malformed/i");
+	try {
+	    $cb = new Couchbase(array("http://"));
+            $his->assertNull("We should detect bogus url");
+        } catch (CouchbaseException $e) {
+            $this->assertRegexp('/malformed/i', $e->getMessage());
+        }
 
-        $this->setErrorsRaiseException(false); // then disable again
-        
         # try with an array. (not sure if we need to check for connection
         # warnings yet again here,
         # as it'd all be going through the same C code path re: connection...)

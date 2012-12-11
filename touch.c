@@ -1,7 +1,5 @@
 #include "internal.h"
 
-/* {{{ static void php_couchbase_touch_callback(...)
- */
 static void php_couchbase_touch_callback(lcb_t handle,
 										 const void *cookie,
 										 lcb_error_t error,
@@ -13,8 +11,9 @@ static void php_couchbase_touch_callback(lcb_t handle,
 	char *string_key;
 	php_ignore_value(handle);
 
-	// TODO: is cas needed? existing php docs don't say anything about it being used, but it's in the resp struct...
-	// lcb_cas_t cas = resp->v.v0.cas;
+	// TODO: is cas needed? existing php docs don't say anything about
+	// it being used, but it's in the resp struct...  lcb_cas_t cas =
+	// resp->v.v0.cas;
 
 	if (--ctx->res->seqno == 0) {
 		pcbc_stop_loop(ctx->res);
@@ -26,7 +25,8 @@ static void php_couchbase_touch_callback(lcb_t handle,
 		return;
 	} else if (nkey > 0) {
 		if (IS_ARRAY == Z_TYPE_P(ctx->rv)) {
-			// set (key name => true) within return value associative array (we did touch it)
+			// set (key name => true) within return value associative
+			// array (we did touch it)
 			string_key = emalloc(nkey + 1);
 			memcpy(string_key, key, nkey);
 			string_key[nkey] = '\0';
@@ -35,15 +35,15 @@ static void php_couchbase_touch_callback(lcb_t handle,
 
 			efree(string_key);
 		} else {
-			// set return val to true (we touched the one thing we set out to touch)
+			// set return val to true (we touched the one thing we set
+			// out to touch)
 			ZVAL_BOOL(ctx->rv, 1);
 		}
 	}
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* {{{ */
+void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo)
 {
 	char *single_key = NULL;   /* for a single key */
 	long single_nkey = 0;   /* (size of key string) */
@@ -102,7 +102,8 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 				keyslens[i] = Z_STRLEN_PP(ppzval);
 			}
 
-			/* set keyname => false in the return array (will get set to true in the touch callback when/if keyname seen) */
+			/* set keyname => false in the return array (will get set
+			   to true in the touch callback when/if keyname seen) */
 			add_assoc_bool(return_value, multi_keys[i], (zend_bool)0);
 		}
 
@@ -127,7 +128,8 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		multi_keys = &single_key;
 		keyslens = &single_nkey;
 
-		/* set return value false, will get set to true in the touch callback when/if the operation succeeds */
+		/* set return value false, will get set to true in the touch
+		   callback when/if the operation succeeds */
 		ZVAL_FALSE(return_value);
 	}
 
@@ -176,17 +178,21 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 
 			efree(ctx);
 
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to schedule touch request: %s",
-							 lcb_strerror(couchbase_res->handle, retval));
-
-			RETURN_FALSE;
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_lcb_exception,
+								   "Failed to schedule touch request: %s",
+								   lcb_strerror(couchbase_res->handle, retval));
+			return;
 		}
 
 		couchbase_res->seqno += keycount;
 		pcbc_start_loop(couchbase_res);
-		if (LCB_SUCCESS != ctx->res->rc) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed touch request: %s",
-							 lcb_strerror(couchbase_res->handle, ctx->res->rc));
+		if (ctx->res->rc != LCB_SUCCESS) {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_lcb_exception,
+								   "Failed touch request: %s",
+								   lcb_strerror(couchbase_res->handle,
+												ctx->res->rc));
 		}
 
 		efree(ctx);
@@ -203,7 +209,6 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /
 		}
 	}
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_touch_init(lcb_t handle)

@@ -24,7 +24,6 @@
 #include "config.h"
 #endif
 
-
 #ifdef PHP_WIN32
 #	 define PHP_COUCHBASE_API __declspec(dllexport)
 #    define PHP_COUCHBASE_LOCAL
@@ -67,10 +66,16 @@
 #include "Zend/zend_API.h"
 #include <zend_exceptions.h>
 
+#include <stdarg.h>
+
 #include "management/cluster.h"
 #include "exceptions.h"
 #include "apidecl.h"
 #include "simple_observe.h"
+
+PHP_COUCHBASE_LOCAL
+void couchbase_report_error(INTERNAL_FUNCTION_PARAMETERS, int oo,
+							zend_class_entry *exception, const char *fmt, ...);
 
 #endif
 

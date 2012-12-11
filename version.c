@@ -86,16 +86,10 @@ void php_couchbase_version_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 
 	efree(ctx);
 	if (retval != LCB_SUCCESS) {
-		char errmsg[256];
-		snprintf(errmsg, sizeof(errmsg), "Failed to fetch server version: %s",
-				 lcb_strerror(instance, retval));
-		if (oo) {
-			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
-			return ;
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to fetch server version: %s",
+							   lcb_strerror(instance, retval));
 	}
 }
 

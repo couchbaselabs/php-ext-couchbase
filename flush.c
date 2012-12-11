@@ -97,21 +97,14 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 
 	if (rc != LCB_SUCCESS) {
 		/* An error occured occurred on libcouchbase level */
-		char errmsg[256];
-		snprintf(errmsg, sizeof(errmsg), "Failed to flush bucket: %s",
-				 lcb_strerror(instance, rc));
-
 		if (ctx.payload) {
 			efree(ctx.payload);
 		}
 
-		if (oo) {
-			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
-			return ;
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception, "Failed to flush bucket: %s",
+							   lcb_strerror(instance, rc));
+		return;
 	}
 
 	switch (ctx.status)  {
@@ -121,44 +114,26 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		RETURN_TRUE;
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
-		if (oo) {
-			zend_throw_exception(cb_auth_exception, "Incorrect credentials",
-								 0 TSRMLS_CC);
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Incorrect credentials");
-			RETVAL_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_auth_exception, "Incorrect credentials");
 		break;
 
 	default:
 		if (ctx.payload == NULL) {
-			char message[200];
-			sprintf(message, "{\"errors\":{\"http response\": %d }}",
-					(int)ctx.status);
-			if (oo) {
-				zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
-			} else {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-								 "%s", message);
-				RETVAL_FALSE;
-			}
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_server_exception,
+								   "{\"errors\":{\"http response\": %d }}",
+								   (int)ctx.status);
 		} else {
-			if (oo) {
-				zend_throw_exception(cb_server_exception, ctx.payload,
-									 0 TSRMLS_CC);
-			} else {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-								 "%s", ctx.payload);
-				RETVAL_FALSE;
-			}
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_server_exception,
+								   ctx.payload);
 		}
 	}
 
 	if (ctx.payload != NULL) {
 		efree(ctx.payload);
 	}
-	/* exception already thrown */
 }
 
 /*

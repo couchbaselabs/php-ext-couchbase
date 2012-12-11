@@ -46,13 +46,11 @@ static int parse_host(const char *host,
 
 
 	if (!(url = php_url_parse_ex(host, host_len))) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "malformed host url %s", host);
 		return 0;
 	}
 
 	if (!url->host) {
 		php_url_free(url);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "malformed host url %s", host);
 		return 0;
 	}
 
@@ -212,25 +210,28 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 				zend_hash_get_current_data_ex(hthosts, (void **)&curzv, &htpos) == SUCCESS;
 				zend_hash_move_forward_ex(hthosts, &htpos), ii++) {
 			if (!Z_TYPE_PP(curzv) == IS_STRING) {
-
-				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-								 "Couldn't get string from node lists");
 				free_connparams(&cparams);
-				RETURN_FALSE;
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_exception,
+									   "Couldn't get string from node lists");
+				return;
 			}
 			if (!parse_host(Z_STRVAL_PP(curzv),
 							Z_STRLEN_PP(curzv),
 							&cparams TSRMLS_CC)) {
 				free_connparams(&cparams);
-				RETURN_FALSE;
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_exception,
+									   "malformed host URL");
+				return;
 			}
 		}
-
 	} else {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-						 "Hosts is neither a string nor an array");
 		free_connparams(&cparams);
-		RETURN_FALSE;
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_exception,
+							   "Hosts is neither a string nor an array");
+		return;
 	}
 
 	make_params(&cparams);
@@ -266,8 +267,10 @@ create_new_link:
 
 		if (lcb_create(&handle, &create_options) != LCB_SUCCESS) {
 			free_connparams(&cparams);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to create libcouchbase instance");
-			RETURN_FALSE;
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_lcb_exception,
+								   "Failed to create libcouchbase instance");
+			return;
 		}
 
 
@@ -314,7 +317,9 @@ create_new_link:
 			le.ptr = couchbase_res;
 			if (zend_hash_update(&EG(persistent_list), hashed_key, hashed_key_len + 1, (void *) &le, sizeof(zend_rsrc_list_entry), NULL) == FAILURE) {
 				free_connparams(&cparams);
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to store persistent link");
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_exception,
+									   "Failed to store persistent link");
 			}
 			efree(hashed_key);
 		}

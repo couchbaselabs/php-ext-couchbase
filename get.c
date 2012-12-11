@@ -302,20 +302,23 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 				zval_dtor(return_value);
 			}
 			efree(ctx);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to schedule get request: %s",
-							 lcb_strerror(couchbase_res->handle, retval));
-			RETURN_FALSE;
+
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_lcb_exception,
+								   "Failed to schedule get request: %s",
+								   lcb_strerror(couchbase_res->handle, retval));
+			return;
 		}
 
 		couchbase_res->seqno += nkey;
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
 			if (LCB_KEY_ENOENT != ctx->res->rc) {
-				php_error_docref(NULL TSRMLS_CC, E_WARNING,
-								 "Failed to get a value from server: %s",
-								 lcb_strerror(couchbase_res->handle,
-											  ctx->res->rc));
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_lcb_exception,
+									   "Failed to get a value from server: %s",
+									   lcb_strerror(couchbase_res->handle,
+													ctx->res->rc));
 			}
 		}
 		efree(ctx);
@@ -372,7 +375,9 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 
 	if (callback && Z_TYPE_P(callback) != IS_NULL
 			&& !zend_is_callable(callback, 0, NULL)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "third argument is expected to be a valid callback");
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_exception,
+							   "third argument is expected to be a valid callback");
 		return;
 	}
 #endif
@@ -458,9 +463,11 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 			efree(keys);
 			efree(klens);
 			efree(ctx);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to schedule delayed get request: %s", lcb_strerror(couchbase_res->handle, retval));
-			RETURN_FALSE;
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_lcb_exception,
+								   "Failed to schedule delayed get request: %s",
+								   lcb_strerror(couchbase_res->handle, retval));
+			return;
 		}
 		couchbase_res->async = 1;
 		couchbase_res->async_ctx = ctx;

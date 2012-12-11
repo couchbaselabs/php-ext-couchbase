@@ -5,7 +5,6 @@ struct remove_cookie {
 	uint64_t cas;
 };
 
-/* {{{ static void php_couchbase_remove_callback(...) */
 static void php_couchbase_remove_callback(lcb_t instance,
 										  const void *cookie,
 										  lcb_error_t error,
@@ -18,7 +17,6 @@ static void php_couchbase_remove_callback(lcb_t instance,
 		rmc->error = LCB_ERROR;
 	}
 }
-/* }}} */
 
 static lcb_error_t do_remove(lcb_t instance, const void *key, uint16_t klen,
 							 lcb_cas_t *cas)
@@ -46,7 +44,7 @@ static lcb_error_t do_remove(lcb_t instance, const void *key, uint16_t klen,
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
+void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	char *key;
 	char *cas = NULL;
@@ -67,14 +65,10 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 							 &persist_to, &replicate_to);
 
 	if (klen == 0) {
-		if (oo) {
-			zend_throw_exception(cb_illegal_key_exception,
-								 "No key specified: Empty key",
-								 0 TSRMLS_CC);
-			return ;
-		} else {
-			RETURN_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_key_exception,
+							   "No key specified: Empty key");
+		return ;
 	}
 
 	if (validate_simple_observe_clause(couchbase_res->handle,
@@ -102,24 +96,19 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		/* NOTREACHED */
 	case LCB_KEY_EEXISTS:
 		if (oo) {
-			sprintf(errmsg, "Failed to remove the value from the server: %s",
-					lcb_strerror(couchbase_res->handle, retval));
-			zend_throw_exception(cb_key_mutated_exception, errmsg, 0 TSRMLS_CC);
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_key_mutated_exception,
+								   "Failed to remove the value from the server: %s",
+								   lcb_strerror(couchbase_res->handle, retval));
+			return ;
 		} else {
-			RETVAL_FALSE;
+			RETURN_FALSE;
 		}
-		return ;
 	default:
-		if (oo) {
-			sprintf(errmsg, "Failed to remove the value from the server: %s",
-					lcb_strerror(couchbase_res->handle, retval));
-			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
-		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to remove a value from server: %s",
-							 lcb_strerror(couchbase_res->handle, retval));
-			RETVAL_FALSE;
-		}
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to remove the value from the server: %s",
+							   lcb_strerror(couchbase_res->handle, retval));
 		return ;
 	}
 
@@ -161,7 +150,6 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 		}
 	}
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_remove_init(lcb_t handle)

@@ -309,10 +309,11 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 
 	if (retval != LCB_SUCCESS) {
 		couchbase_res->rc = retval;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-						 "Failed to schedule couch request: %s",
-						 lcb_strerror(couchbase_res->handle, retval));
-		RETURN_FALSE;
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to schedule couch request: %s",
+							   lcb_strerror(couchbase_res->handle, retval));
+		return ;
 	}
 
 	/* Setup a timer to monitor the progress of the view request */
@@ -335,10 +336,11 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	if (retval != LCB_SUCCESS) {
 		couchbase_res->rc = retval;
 		lcb_cancel_http_request(tcc.instance, tcc.request);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-						 "Failed to setup timer to monitor view request: %s",
-						 lcb_strerror(couchbase_res->handle, retval));
-		RETURN_FALSE;
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to setup timer to monitor view request: %s",
+							   lcb_strerror(couchbase_res->handle, retval));
+		return;
 	}
 
 	/* Run the view */
@@ -352,25 +354,23 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 		pcbc_json_decode(return_value, hti->data, hti->ndata, 1 TSRMLS_CC);
 
 		if (ctx.res->rc != LCB_SUCCESS && return_errors == 0) {
-			char *errstr = php_couchbase_view_convert_to_error(
-							   return_value, hti);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING,
-							 "Failed to execute view: Server Response: %s",
-							 errstr);
-
-			efree(errstr);
+			char *errstr = php_couchbase_view_convert_to_error(return_value,
+															   hti);
 			zval_dtor(return_value);
 			ZVAL_FALSE(return_value);
-		}
 
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_server_exception, "%s", errstr);
+			efree(errstr);
+		}
 		efree(hti);
 		return;
-
 	} else {
 		ZVAL_FALSE(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,
-						 "Failed to execute view: %s",
-						 lcb_strerror(couchbase_res->handle, ctx.res->rc));
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception, "Failed to execute view: %s",
+							   lcb_strerror(couchbase_res->handle,
+											ctx.res->rc));
 	}
 }
 
