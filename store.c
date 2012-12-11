@@ -374,7 +374,7 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 			return;
 		} else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, errmsg);
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
 			RETURN_FALSE;
 		}
 	}
@@ -395,7 +395,7 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 			zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
 		} else {
 			ZVAL_FALSE(return_value);
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, errmsg);
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errmsg);
 		}
 	}
 	efree(ctx);
