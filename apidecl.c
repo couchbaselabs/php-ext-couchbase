@@ -1094,7 +1094,7 @@ PHP_FUNCTION(couchbase_touch)
  */
 PHP_FUNCTION(couchbase_touch_multi)
 {
-	php_couchbase_touch__multi_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
+	php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
 /* }}} */
 

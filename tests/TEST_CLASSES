@@ -26,5 +26,6 @@ ServerStats
 Store
 Sync
 Unlock
+Touch
 ViewSimple
 ViewQueryStrings
