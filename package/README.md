@@ -24,7 +24,7 @@ Note that in either case you can use a complete path, such as:
 
     extension=/path/to/couchbase.so
 
-To find where you `php.ini` file is, try `phpi -i | grep couchbase` or
+To find where your `php.ini` file is, try `php --ini` or
 look at your `<?php phpinfo() ?>` output. This can also identify the
 extension directory if you wish to copy the extension there.
 
