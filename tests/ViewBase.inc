@@ -9,7 +9,6 @@ class CouchbaseViewTestCommon extends CouchbaseTestCommon {
 
     static function setUpBeforeClass() {
         parent::setUpBeforeClass();
-        CouchbaseViewTestCommon::initDesign();
     }
 
     function insertTestId(&$ary) {
@@ -21,32 +20,21 @@ class CouchbaseViewTestCommon extends CouchbaseTestCommon {
         $ary['id'] = $this->mk_key();
     }
 
-    static function initDesign() {
-        $script = dirname(__FILE__) . "/designbootstrap.pl";
-
-        $cmd = $script;
-        if (COUCHBASE_CONFIG_USER) {
-            $cmd .= sprintf(" -u %s -p %s",
-                            COUCHBASE_CONFIG_USER,
-                            COUCHBASE_CONFIG_PASSWD);
+    function ensureView() {
+        $oo = $this->oo;
+        $ddoc = $oo->getDesignDoc(COUCHBASE_TEST_DESIGN_DOC_NAME);
+        if (!$ddoc) {
+            $key = "php";
+            $func = "function (doc, meta) { if (doc.testid__ == '" . $key . "') { emit(meta.id, NULL); }}";
+            $ddoc = json_encode('{"views":{"' . COUCHBASE_TEST_VIEW_NAME . '":{"map":"' . $func . '"}}}');
+            $ret = $oo->setDesignDoc(COUCHBASE_TEST_DESIGN_DOC_NAME,
+                                     json_decode($ddoc));
+            $this->assertTrue($ret);
         }
-        if (COUCHBASE_CONFIG_BUCKET) {
-            $cmd .= sprintf(" -b %s", COUCHBASE_CONFIG_BUCKET);
-        }
-
-        $cmd .= sprintf(" -h %s", COUCHBASE_CONFIG_HOST);
-
-        $cmd .= sprintf(' -d %s -V %s',
-                        COUCHBASE_TEST_DESIGN_DOC_NAME,
-                        COUCHBASE_TEST_VIEW_NAME);
-
-        $cmd .= " -t php";
-
-        system($cmd);
     }
 
     function getStdViewname() {
-        return COUCHBASE_TEST_DESIGN_DOC_NAME . "/php-test-view";
+        return COUCHBASE_TEST_DESIGN_DOC_NAME . "/" . COUCHBASE_TEST_VIEW_NAME;
     }
 }
 

@@ -25,6 +25,7 @@ class ViewSimple extends CouchbaseViewTestCommon {
      *
      */
     function testBasicView() {
+        $this->ensureView();
         $oo = $this->getPersistOO();
 
         $ary = array(
@@ -84,6 +85,7 @@ class ViewSimple extends CouchbaseViewTestCommon {
     }
 
     function testSingleUri() {
+        $this->ensureView();
         $uri = "/_design/" . COUCHBASE_TEST_DESIGN_DOC_NAME .
                 "/_view/" . COUCHBASE_TEST_VIEW_NAME . "?".
                 "stale=false&foo=bar";
