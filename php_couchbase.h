@@ -39,10 +39,6 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_G(v) (couchbase_globals.v)
 #endif
 
-#ifndef php_ignore_value
-#define php_ignore_value(x) ((void) (x))
-#endif
-
 #if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)
 #define COUCHBASE_ARG_PREFIX
 #else

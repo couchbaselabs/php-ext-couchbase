@@ -31,8 +31,6 @@ static void php_couchbase_stat_callback(lcb_t handle,
 	size_t nkey = resp->v.v0.nkey;
 	const void *bytes = resp->v.v0.bytes;
 
-	php_ignore_value(handle);
-
 	if (resp->version != 0) {
 		error = LCB_ERROR;
 	}

@@ -19,7 +19,6 @@ php_couchbase_get_callback(lcb_t instance,
 
 
 	TSRMLS_FETCH();
-	php_ignore_value(instance);
 
 	if (--ctx->res->seqno == 0) {
 		pcbc_stop_loop(ctx->res);

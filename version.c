@@ -28,7 +28,6 @@ static void php_couchbase_version_callback(lcb_t handle,
 	const char *server_endpoint = resp->v.v0.server_endpoint;
 	const char *version_string = resp->v.v0.vstring;
 	lcb_size_t nversion_string = resp->v.v0.nvstring;
-	php_ignore_value(handle);
 
 	if (error != LCB_SUCCESS) {
 		ctx->res->rc = error;

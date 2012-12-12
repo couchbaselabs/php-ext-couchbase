@@ -10,8 +10,6 @@ static void php_couchbase_store_callback(lcb_t instance,
 	const void *key;
 	size_t nkey;
 	uint64_t cas;
-	php_ignore_value(instance);
-	php_ignore_value(operation);
 
 	if (--ctx->res->seqno == 0) {
 		pcbc_stop_loop(ctx->res);
