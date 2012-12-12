@@ -12,6 +12,7 @@ if (PHP_COUCHBASE != "no") {
 		ADD_SOURCES(configure_module_dirname, "compress.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "convert.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "create.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "designdoc.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "error.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "exceptions.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "flush.c", "couchbase");

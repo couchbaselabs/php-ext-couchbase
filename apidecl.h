@@ -116,6 +116,13 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAMETERS,
 										 int style);
 
+PHP_COUCHBASE_LOCAL
+void php_couchbase_delget_design_doc_imp(INTERNAL_FUNCTION_PARAMETERS, int oo, int del);
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_set_design_doc_imp(INTERNAL_FUNCTION_PARAMETERS, int oo);
+
+
 #endif
 
 /*

@@ -178,6 +178,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      convert.c \
                      couchbase.c \
                      create.c \
+                     designdoc.c \
                      error.c \
                      exceptions.c \
                      fastlz/fastlz.c \
