@@ -131,6 +131,7 @@ void php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, 
 		/* not reached */
 
 	case LCB_HTTP_STATUS_NOT_FOUND:
+		efree(ctx.payload);
 		RETURN_FALSE;
 
 	case LCB_HTTP_STATUS_UNAUTHORIZED:
