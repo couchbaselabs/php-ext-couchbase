@@ -78,7 +78,7 @@ class Replace extends CouchbaseTestCommon {
         $rv = $oo->replace($k, $v, 0, $cas);
         $this->assertNotEmpty($rv);
 
-        $ret = $oo->get($k, $cas2);
+        $ret = $oo->get($k, NULL, $cas2);
         $this->assertEquals($v, $ret);
 		$this->assertNotEquals($cas, $cas2);
     }

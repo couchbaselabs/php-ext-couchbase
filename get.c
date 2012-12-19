@@ -139,7 +139,6 @@ php_couchbase_get_callback(lcb_t instance,
 }
 /* }}} */
 
-
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 							int multi,
@@ -158,6 +157,8 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 	lcb_error_t retval;
 	php_couchbase_res *couchbase_res;
 	php_couchbase_ctx *ctx;
+	zend_fcall_info fci = {0};
+	zend_fcall_info_cache fci_cache;
 
 	argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
 
@@ -239,7 +240,8 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 											 &cas_token);
 		} else {
 			PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-											 "s|z", &key, &klen,
+											 "s|f!z", &key, &klen,
+											 &fci, &fci_cache,
 											 &cas_token);
 		}
 
@@ -312,7 +314,44 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 		couchbase_res->seqno += nkey;
 		pcbc_start_loop(couchbase_res);
 		if (LCB_SUCCESS != ctx->res->rc) {
-			if (LCB_KEY_ENOENT != ctx->res->rc) {
+			if (LCB_KEY_ENOENT == ctx->res->rc) {
+				if (fci.size) {
+					zval *result;
+					zval *zkey;
+					zval *retval_ptr = NULL;
+					zval **params[3];
+					int cbret;
+
+					MAKE_STD_ZVAL(result);
+					MAKE_STD_ZVAL(zkey);
+					ZVAL_NULL(result);
+					ZVAL_STRINGL(zkey, key, klen, 1);
+
+					params[0] = &res;
+					params[1] = &zkey;
+					params[2] = &result;
+					fci.retval_ptr_ptr = &retval_ptr;
+					fci.param_count = 3;
+					fci.params = params;
+
+					cbret = zend_call_function(&fci, &fci_cache TSRMLS_CC);
+
+					if (cbret == SUCCESS && fci.retval_ptr_ptr && *fci.retval_ptr_ptr) {
+						if (Z_TYPE_P(retval_ptr) == IS_BOOL && Z_BVAL_P(retval_ptr)) {
+							zval_ptr_dtor(fci.retval_ptr_ptr);
+							zval_ptr_dtor(&zkey);
+							efree(ctx);
+							if (multi) {
+								zval_dtor(return_value);
+							}
+							RETURN_ZVAL(result, 1, 1);
+						}
+						zval_ptr_dtor(fci.retval_ptr_ptr);
+					}
+					zval_ptr_dtor(&zkey);
+					zval_ptr_dtor(&result);
+				}
+			} else {
 				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 									   cb_lcb_exception,
 									   "Failed to get a value from server: %s",
