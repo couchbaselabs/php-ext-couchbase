@@ -37,12 +37,6 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_G(v) (couchbase_globals.v)
 #endif
 
-#if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)
-#define COUCHBASE_ARG_PREFIX
-#else
-#define COUCHBASE_ARG_PREFIX static
-#endif
-
 #define PHP_COUCHBASE_VERSION	  "1.1.2"
 #define PHP_COUCHBASE_RESOURCE	  "Couchbase"
 #define PHP_COUCHBASE_PERSISTENT_RESOURCE "Persistent Couchbase"
