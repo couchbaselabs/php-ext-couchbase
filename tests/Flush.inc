@@ -12,7 +12,7 @@ class Flush extends CouchbaseTestCommon {
 
 		$key = $this->mk_key();
 		$val = uniqid('couchbase-value-');
-		
+
 		$cas = $oo->set($key, $val);
 
 		return array($oo, $key, $val, $cas);
@@ -32,6 +32,31 @@ class Flush extends CouchbaseTestCommon {
 	}
 
 	/**
+	 * @test flush (oo)
+	 *
+	 * @pre
+	 * setup run
+	 *
+	 * @post
+	 * key is not set
+	 */
+	function testFlushOO() {
+		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
+		try {
+			$oo->flush();
+			$this->assertNull($oo->get($key));
+		} catch (CouchbaseAuthenticationException $exp) {
+			$this->markTestSkipped("Flush command is currently inaccessible (need auth)");
+		} catch (CouchbaseServerException $exp) {
+			if (preg_match("/Flush is disabled for the bucket/", $exp->getMessage())) {
+				$this->markTestSkipped("Flush command is currently inaccessible (not enabled)");
+			} else {
+				die("Failed to flush bucket: " . $exp->getMessage() . "\n");
+			}
+		}
+	}
+
+	/**
 	 * @test flush
 	 *
 	 * @pre
@@ -42,26 +67,6 @@ class Flush extends CouchbaseTestCommon {
 	 */
 	function testFlush() {
 		$this->markTestSkipped("Flush command is currently inaccessible");
-
-		list($oo, $key, $val, $cas) = $this->_test_setup_common_oo();
-
-		$oo->flush();
-
-		$this->assertNull($oo->get($key));
-	}
-
-	/**
-	 * @test flush (oo)
-	 *
-	 * @pre 
-	 * setup run
-	 *
-	 * @post
-	 * key is not set
-	 */
-	function testFlushOO() {
-		$this->markTestSkipped("Flush command is currently inaccessible");
-
 		list($h, $key, $val, $cas) = $this->_test_setup_common();
 
 		couchbase_flush($h);
