@@ -3,13 +3,19 @@
 
 $VERSIONS = array(
 	"1.1.2" => "php-ext-couchbase",
+	"1.1.1" => "php-ext-couchbase",
+	"1.1.0" => "php-ext-couchbase",
+	"1.0.0" => "php-ext-couchbase-1.0",
+	"1.0.2" => "php-ext-couchbase-1.0",
+	"1.0.3" => "php-ext-couchbase-1.0",
+	"1.0.4" => "php-ext-couchbase-1.0",
 	"1.0.5" => "php-ext-couchbase-1.0");
 $OSes = array("centos55", "centos62", "ubuntu1004", "ubuntu1110");
 $BITs = array("32" => "i686","64" => "x86_64");
 # note, macos is php-ext-couchbase-$VERSION-macosx-x86_64.tar.gz
 
 foreach($VERSIONS AS $VERSION => $BUILDER) {
-  $srccmd = "git archive --format=tar.gz --prefix=php-ext-couchbase $VERSION > php-ext-couchbase-$VERSION.tar.gz";
+  $srccmd = "git archive --format=tar.gz --prefix=php-ext-couchbase-$VERSION/ $VERSION > php-ext-couchbase-$VERSION.tar.gz";
   echo $srccmd . PHP_EOL;
   echo `$srccmd`;
 }
