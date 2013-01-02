@@ -3,8 +3,13 @@
 Contents:
 
   ./
-  ./README.md       This file.
-  ./couchbase.so    The PHP extension as a shared library.
+  ./README.md            This file.
+  ./LICENSE              License information
+  ./couchbase.ini        Description of all of the tunables
+  ./couchbase.so         The PHP extension as a shared library.
+  ./couchbase-api.php    A PHP file containing a dummy definition of all
+                         classes and constants that you may use in your
+                         IDE to get code completion etc.
 
 
 ## Installation
