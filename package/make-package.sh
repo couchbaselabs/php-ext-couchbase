@@ -1,8 +1,6 @@
 #!/bin/sh -ex
 # creates a tar.gz file with a PHP extension
 # depends on libcouchbase and PHP > 5.3.6 being installed
-#   libcouchbase depends on libvbucket, we have OS packages
-#   for all of them
 #
 # Usage ./package/make-package.sh
 # Creates ./package/php-ext-couchbase.tar.gz
