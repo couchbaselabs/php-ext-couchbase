@@ -1015,7 +1015,6 @@ class CouchbaseIllegalOptionException extends CouchbaseException {
 }
 
 class CouchbaseIllegalValueException extends CouchbaseException {
->>>>>>> 4844656... PCBC-174: Add documentations of the Couchbase class
 
 }
 
