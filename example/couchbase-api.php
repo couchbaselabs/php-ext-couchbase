@@ -313,11 +313,17 @@ class Couchbase {
      * Retrieve a document from the cluster.
      *
      * @param string $id identifies the object to retrieve
+     * @param function $callback a callback function to call for missing
+     *                 objects. The function signature looks like:
+     *                 <code>bool function($res, $id, &$val)</code>
+     *                 if the function returns <code>true</code> the value
+     *                 returned through $val is returned. Please note that
+     *                 the cas field is not updated in these cases.
      * @param string $cas where to store the cas identifier of the object
      * @return object The document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function get($id, $cas = "") {
+    function get($id, $callback, $cas = "") {
 
     }
 
