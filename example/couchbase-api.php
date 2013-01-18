@@ -323,7 +323,7 @@ class Couchbase {
      * @return object The document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function get($id, $callback, $cas = "") {
+    function get($id, $callback = NULL, $cas = "") {
 
     }
 
