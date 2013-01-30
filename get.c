@@ -1,12 +1,9 @@
 #include "internal.h"
 
-/* {{{ static void php_couchbase_get_callback(...)
- */
-static void
-php_couchbase_get_callback(lcb_t instance,
-						   const void *cookie,
-						   lcb_error_t error,
-						   const lcb_get_resp_t *resp)
+static void php_couchbase_get_callback(lcb_t instance,
+                                       const void *cookie,
+                                       lcb_error_t error,
+                                       const lcb_get_resp_t *resp)
 {
 	zval *retval;
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
@@ -44,7 +41,9 @@ php_couchbase_get_callback(lcb_t instance,
 	if (ctx->res->async) { /* get_delayed */
 		zval *k, *v;
 		MAKE_STD_ZVAL(v);
-		if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes, flags, ctx->res->serializer, ctx->res->ignoreflags TSRMLS_CC)) {
+		if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes, flags,
+                                             ctx->res->serializer, ctx->res->ignoreflags
+                                             TSRMLS_CC)) {
 			ctx->res->rc = LCB_ERROR;
 			efree(v);
 			return;
@@ -59,20 +58,24 @@ php_couchbase_get_callback(lcb_t instance,
 
 		MAKE_STD_ZVAL(retval);
 		array_init(retval);
-		zend_hash_next_index_insert(Z_ARRVAL_P(ctx->rv), (void **)&retval, sizeof(zval *), NULL);
+		zend_hash_next_index_insert(Z_ARRVAL_P(ctx->rv), (void **)&retval,
+                                    sizeof(zval *), NULL);
 
 		MAKE_STD_ZVAL(k);
 		ZVAL_STRINGL(k, (char *)key, nkey, 1);
 
-		zend_hash_add(Z_ARRVAL_P(retval), "key", sizeof("key"), (void **)&k, sizeof(zval *), NULL);
-		zend_hash_add(Z_ARRVAL_P(retval), "value", sizeof("value"), (void **)&v, sizeof(zval *), NULL);
+		zend_hash_add(Z_ARRVAL_P(retval), "key", sizeof("key"),
+                      (void **)&k, sizeof(zval *), NULL);
+		zend_hash_add(Z_ARRVAL_P(retval), "value", sizeof("value"),
+                      (void **)&v, sizeof(zval *), NULL);
 
 		if (ctx->flags) {
 			zval *c;
 			MAKE_STD_ZVAL(c);
 			Z_TYPE_P(c) = IS_STRING;
 			Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%llu", cas);
-			zend_hash_add(Z_ARRVAL_P(retval), "cas", sizeof("cas"), (void **)&c, sizeof(zval *), NULL);
+			zend_hash_add(Z_ARRVAL_P(retval), "cas", sizeof("cas"),
+                          (void **)&c, sizeof(zval *), NULL);
 		}
 
 		if (ctx->res->prefix_key_len && nkey) {
@@ -87,7 +90,9 @@ php_couchbase_get_callback(lcb_t instance,
 			zval *v;
 			char *key_string = NULL;
 			MAKE_STD_ZVAL(v);
-			if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes, flags, ctx->res->serializer, ctx->res->ignoreflags TSRMLS_CC)) {
+			if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes,
+                                                 flags, ctx->res->serializer,
+                                                 ctx->res->ignoreflags TSRMLS_CC)) {
 				ctx->res->rc = LCB_ERROR;
 				efree(v);
 				return;
@@ -96,31 +101,37 @@ php_couchbase_get_callback(lcb_t instance,
 			if (ctx->res->prefix_key_len && nkey) {
 				if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
 					nkey -= (ctx->res->prefix_key_len + 1);
-					key_string = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1, nkey);
+					key_string = estrndup(((const char *)key) +
+                                          ctx->res->prefix_key_len + 1, nkey);
 				}
 			} else {
 				key_string = emalloc(nkey + 1);
 				memcpy(key_string, key, nkey);
 				key_string[nkey] = '\0';
 			}
-			zend_hash_update((Z_ARRVAL_P(ctx->rv)), (char *)key_string, nkey + 1, (void **)&v, sizeof(zval *), NULL);
+			zend_hash_update((Z_ARRVAL_P(ctx->rv)), (char *)key_string, nkey + 1,
+                             (void **)&v, sizeof(zval *), NULL);
 
 			if (ctx->cas) {
 				zval *c;
 				MAKE_STD_ZVAL(c);
 				Z_TYPE_P(c) = IS_STRING;
 				Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%llu", cas);
-				zend_hash_add(Z_ARRVAL_P(ctx->cas), (char *)key_string, nkey + 1, (void **)&c, sizeof(zval *), NULL);
+				zend_hash_add(Z_ARRVAL_P(ctx->cas), (char *)key_string, nkey + 1,
+                              (void **)&c, sizeof(zval *), NULL);
 			}
 			efree(key_string);
 		} else {
 			if (ctx->res->prefix_key_len && nkey) {
 				if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
 					nkey -= (ctx->res->prefix_key_len + 1);
-					key = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1, nkey);
+					key = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1,
+                                   nkey);
 				}
 			}
-			if (!php_couchbase_zval_from_payload(ctx->rv, (char *)bytes, nbytes, flags, ctx->res->serializer, ctx->res->ignoreflags TSRMLS_CC)) {
+			if (!php_couchbase_zval_from_payload(ctx->rv, (char *)bytes, nbytes,
+                                                 flags, ctx->res->serializer,
+                                                 ctx->res->ignoreflags TSRMLS_CC)) {
 				if (ctx->res->prefix_key_len && nkey) {
 					efree((void *)key);
 				}
@@ -137,13 +148,9 @@ php_couchbase_get_callback(lcb_t instance,
 		}
 	}
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
-							int multi,
-							int oo,
-							int lock,
+void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int lock,
 							int touch)
 {
 	char *key, **keys;
@@ -375,10 +382,9 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 		}
 	}
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
+void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	zval *res, *akeys;
 	long with_cas = 0;
@@ -527,10 +533,9 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 	}
 	RETURN_TRUE;
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo) /* {{{ */
+void php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo)
 {
 	php_couchbase_res *couchbase_res;
 	int argflags;
@@ -595,7 +600,6 @@ fetch_one: {
 		}
 	}
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_callbacks_get_init(lcb_t handle)
