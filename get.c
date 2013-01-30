@@ -387,9 +387,6 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 	zend_bool lock = 0;
 	int argflags = PHP_COUCHBASE_ARG_F_ASYNC;
 	php_couchbase_res *couchbase_res;
-
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-
 	zend_fcall_info fci = {0};
 	zend_fcall_info_cache fci_cache = {0};
 
@@ -403,25 +400,6 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 									 "a|lf!lb",
 									 &akeys, &with_cas, &fci, &fci_cache, &expiry, &lock);
 
-#else
-	if (oo) {
-		argflags |= PHP_COUCHBASE_ARG_F_OO;
-	} else {
-		argflags |= PHP_COUCHBASE_ARG_F_FUNCTIONAL;
-	}
-
-	zval *callback = NULL;
-	PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
-									 "a|lzlb", &akeys, &with_cas, &callback, &expiry, &lock);
-
-	if (callback && Z_TYPE_P(callback) != IS_NULL
-			&& !zend_is_callable(callback, 0, NULL)) {
-		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-							   cb_exception,
-							   "third argument is expected to be a valid callback");
-		return;
-	}
-#endif
 	{
 		zval **ppzval;
 		lcb_error_t retval;
@@ -520,13 +498,7 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 		}
 		efree(keys);
 		efree(klens);
-		if (
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
-			fci.size
-#else
-			callback
-#endif
-		) {
+		if (fci.size) {
 			zval *result, **ppzval, *retval_ptr = NULL;
 			zval **params[2];
 
@@ -544,14 +516,10 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 
 				params[0] = &res;
 				params[1] = ppzval;
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 2
 				fci.retval_ptr_ptr = &retval_ptr;
 				fci.param_count = 2;
 				fci.params = params;
 				zend_call_function(&fci, &fci_cache TSRMLS_CC);
-#else
-				call_user_function_ex(EG(function_table), NULL, callback, &retval_ptr, 2, params, 0, NULL TSRMLS_CC);
-#endif
 				if (retval_ptr != NULL) {
 					zval_ptr_dtor(&retval_ptr);
 				}
