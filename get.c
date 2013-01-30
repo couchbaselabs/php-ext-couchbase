@@ -389,6 +389,13 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 	php_couchbase_res *couchbase_res;
 	zend_fcall_info fci = {0};
 	zend_fcall_info_cache fci_cache = {0};
+	zval **ppzval;
+	lcb_error_t retval;
+	php_couchbase_ctx *ctx;
+	char **keys;
+	long nkey, *klens, i;
+	lcb_get_cmd_t **commands;
+	int ii;
 
 	if (oo) {
 		argflags |= PHP_COUCHBASE_ARG_F_OO;
@@ -398,135 +405,125 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{
 
 	PHP_COUCHBASE_GET_PARAMS_WITH_ZV(res, couchbase_res, argflags,
 									 "a|lf!lb",
-									 &akeys, &with_cas, &fci, &fci_cache, &expiry, &lock);
+									 &akeys, &with_cas, &fci, &fci_cache,
+									 &expiry, &lock);
 
-	{
-		zval **ppzval;
-		lcb_error_t retval;
-		php_couchbase_ctx *ctx;
-		char **keys;
-		long nkey, *klens, i;
+	nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
+	keys = ecalloc(nkey, sizeof(char *));
+	klens = ecalloc(nkey, sizeof(long));
 
-		nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
-		keys = ecalloc(nkey, sizeof(char *));
-		klens = ecalloc(nkey, sizeof(long));
-
-		for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
-				zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
-				zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
-			if (zend_hash_get_current_data(Z_ARRVAL_P(akeys), (void **)&ppzval) == FAILURE) {
-				nkey--;
-				continue;
-			}
-
-			if (IS_ARRAY != Z_TYPE_PP(ppzval)) {
-				convert_to_string_ex(ppzval);
-			}
-
-			if (!Z_STRLEN_PP(ppzval)) {
-				nkey--;
-				continue;
-			}
-
-			if (couchbase_res->prefix_key_len) {
-				klens[i] = spprintf(&(keys[i]), 0, "%s_%s", couchbase_res->prefix_key, Z_STRVAL_PP(ppzval));
-			} else {
-				keys[i] = Z_STRVAL_PP(ppzval);
-				klens[i] = Z_STRLEN_PP(ppzval);
-			}
+	for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
+		 zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
+		 zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
+		if (zend_hash_get_current_data(Z_ARRVAL_P(akeys),
+									   (void **)&ppzval) == FAILURE) {
+			nkey--;
+			continue;
 		}
 
-		if (!nkey) {
-			efree(keys);
-			efree(klens);
-			return;
+		if (IS_ARRAY != Z_TYPE_PP(ppzval)) {
+			convert_to_string_ex(ppzval);
 		}
 
-		couchbase_res->seqno += nkey;
-		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-		ctx->res = couchbase_res;
-		ctx->flags = with_cas;
-
-		{
-			lcb_get_cmd_t **commands = ecalloc(nkey, sizeof(lcb_get_cmd_t *));
-			int ii;
-
-			if (expiry) {
-				exp = pcbc_check_expiry(expiry);
-			}
-
-			for (ii = 0; ii < nkey; ++ii) {
-				lcb_get_cmd_t *cmd = ecalloc(1, sizeof(lcb_get_cmd_t));
-				commands[ii] = cmd;
-				cmd->v.v0.key = keys[ii];
-				cmd->v.v0.nkey = klens[ii];
-				cmd->v.v0.lock = (int)lock;
-				cmd->v.v0.exptime = exp; /* NB: this assumes that sizeof(lcb_time_t) == sizeof(long) */
-			}
-
-			retval = lcb_get(couchbase_res->handle, ctx,
-							 nkey, (const lcb_get_cmd_t * const *)commands);
-			for (ii = 0; ii < nkey; ++ii) {
-				efree(commands[ii]);
-			}
-			efree(commands);
+		if (!Z_STRLEN_PP(ppzval)) {
+			nkey--;
+			continue;
 		}
 
-		if (LCB_SUCCESS != retval) {
-			if (couchbase_res->prefix_key_len) {
-				int i;
-				for (i = 0; i < nkey; i++) {
-					efree(keys[i]);
-				}
-			}
-			efree(keys);
-			efree(klens);
-			efree(ctx);
-			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-								   cb_lcb_exception,
-								   "Failed to schedule delayed get request: %s",
-								   lcb_strerror(couchbase_res->handle, retval));
-			return;
-		}
-		couchbase_res->async = 1;
-		couchbase_res->async_ctx = ctx;
 		if (couchbase_res->prefix_key_len) {
-			int i;
-			for (i = 0; i < nkey; i++) {
-				efree(keys[i]);
+			klens[i] = spprintf(&(keys[i]), 0, "%s_%s",
+								couchbase_res->prefix_key, Z_STRVAL_PP(ppzval));
+		} else {
+			keys[i] = Z_STRVAL_PP(ppzval);
+			klens[i] = Z_STRLEN_PP(ppzval);
+		}
+	}
+
+	if (!nkey) {
+		efree(keys);
+		efree(klens);
+		return;
+	}
+
+	couchbase_res->seqno += nkey;
+	ctx = ecalloc(1, sizeof(php_couchbase_ctx));
+	ctx->res = couchbase_res;
+	ctx->flags = with_cas;
+
+	commands = ecalloc(nkey, sizeof(lcb_get_cmd_t *));
+	if (expiry) {
+		exp = pcbc_check_expiry(expiry);
+	}
+
+	for (ii = 0; ii < nkey; ++ii) {
+		lcb_get_cmd_t *cmd = ecalloc(1, sizeof(lcb_get_cmd_t));
+		commands[ii] = cmd;
+		cmd->v.v0.key = keys[ii];
+		cmd->v.v0.nkey = klens[ii];
+		cmd->v.v0.lock = (int)lock;
+		cmd->v.v0.exptime = exp; /* NB: this assumes that sizeof(lcb_time_t) == sizeof(long) */
+	}
+
+	retval = lcb_get(couchbase_res->handle, ctx,
+					 nkey, (const lcb_get_cmd_t * const *)commands);
+	for (ii = 0; ii < nkey; ++ii) {
+		efree(commands[ii]);
+	}
+	efree(commands);
+
+	if (LCB_SUCCESS != retval) {
+		if (couchbase_res->prefix_key_len) {
+			for (ii = 0; ii < nkey; ii++) {
+				efree(keys[ii]);
 			}
 		}
 		efree(keys);
 		efree(klens);
-		if (fci.size) {
-			zval *result, **ppzval, *retval_ptr = NULL;
-			zval **params[2];
-
-			MAKE_STD_ZVAL(result);
-			array_init(result);
-			ctx->rv = result;
-			pcbc_start_loop(couchbase_res);
-			couchbase_res->async = 0;
-			for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(result));
-					zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
-					zend_hash_move_forward(Z_ARRVAL_P(result))) {
-				if (zend_hash_get_current_data(Z_ARRVAL_P(result), (void **)&ppzval) == FAILURE) {
-					continue;
-				}
-
-				params[0] = &res;
-				params[1] = ppzval;
-				fci.retval_ptr_ptr = &retval_ptr;
-				fci.param_count = 2;
-				fci.params = params;
-				zend_call_function(&fci, &fci_cache TSRMLS_CC);
-				if (retval_ptr != NULL) {
-					zval_ptr_dtor(&retval_ptr);
-				}
-			}
-			zval_ptr_dtor(&result);
-			efree(ctx);
+		efree(ctx);
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to schedule delayed get request: %s",
+							   lcb_strerror(couchbase_res->handle, retval));
+		return;
+	}
+	couchbase_res->async = 1;
+	couchbase_res->async_ctx = ctx;
+	if (couchbase_res->prefix_key_len) {
+		for (ii = 0; ii < nkey; ii++) {
+			efree(keys[ii]);
 		}
+	}
+	efree(keys);
+	efree(klens);
+	if (fci.size) {
+		zval *result, **ppzval, *retval_ptr = NULL;
+		zval **params[2];
+
+		MAKE_STD_ZVAL(result);
+		array_init(result);
+		ctx->rv = result;
+		pcbc_start_loop(couchbase_res);
+		couchbase_res->async = 0;
+		for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(result));
+			 zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
+			 zend_hash_move_forward(Z_ARRVAL_P(result))) {
+			if (zend_hash_get_current_data(Z_ARRVAL_P(result),
+										   (void **)&ppzval) == FAILURE) {
+				continue;
+			}
+
+			params[0] = &res;
+			params[1] = ppzval;
+			fci.retval_ptr_ptr = &retval_ptr;
+			fci.param_count = 2;
+			fci.params = params;
+			zend_call_function(&fci, &fci_cache TSRMLS_CC);
+			if (retval_ptr != NULL) {
+				zval_ptr_dtor(&retval_ptr);
+			}
+		}
+		zval_ptr_dtor(&result);
+		efree(ctx);
 	}
 	RETURN_TRUE;
 }
