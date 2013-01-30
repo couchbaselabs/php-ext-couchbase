@@ -1,9 +1,9 @@
 #include "internal.h"
 
 static void php_couchbase_get_callback(lcb_t instance,
-                                       const void *cookie,
-                                       lcb_error_t error,
-                                       const lcb_get_resp_t *resp)
+									   const void *cookie,
+									   lcb_error_t error,
+									   const lcb_get_resp_t *resp)
 {
 	zval *retval;
 	php_couchbase_ctx *ctx = (php_couchbase_ctx *)cookie;
@@ -42,8 +42,8 @@ static void php_couchbase_get_callback(lcb_t instance,
 		zval *k, *v;
 		MAKE_STD_ZVAL(v);
 		if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes, flags,
-                                             ctx->res->serializer, ctx->res->ignoreflags
-                                             TSRMLS_CC)) {
+											 ctx->res->serializer, ctx->res->ignoreflags
+											 TSRMLS_CC)) {
 			ctx->res->rc = LCB_ERROR;
 			efree(v);
 			return;
@@ -59,15 +59,15 @@ static void php_couchbase_get_callback(lcb_t instance,
 		MAKE_STD_ZVAL(retval);
 		array_init(retval);
 		zend_hash_next_index_insert(Z_ARRVAL_P(ctx->rv), (void **)&retval,
-                                    sizeof(zval *), NULL);
+									sizeof(zval *), NULL);
 
 		MAKE_STD_ZVAL(k);
 		ZVAL_STRINGL(k, (char *)key, nkey, 1);
 
 		zend_hash_add(Z_ARRVAL_P(retval), "key", sizeof("key"),
-                      (void **)&k, sizeof(zval *), NULL);
+					  (void **)&k, sizeof(zval *), NULL);
 		zend_hash_add(Z_ARRVAL_P(retval), "value", sizeof("value"),
-                      (void **)&v, sizeof(zval *), NULL);
+					  (void **)&v, sizeof(zval *), NULL);
 
 		if (ctx->flags) {
 			zval *c;
@@ -75,7 +75,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 			Z_TYPE_P(c) = IS_STRING;
 			Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%llu", cas);
 			zend_hash_add(Z_ARRVAL_P(retval), "cas", sizeof("cas"),
-                          (void **)&c, sizeof(zval *), NULL);
+						  (void **)&c, sizeof(zval *), NULL);
 		}
 
 		if (ctx->res->prefix_key_len && nkey) {
@@ -91,8 +91,8 @@ static void php_couchbase_get_callback(lcb_t instance,
 			char *key_string = NULL;
 			MAKE_STD_ZVAL(v);
 			if (!php_couchbase_zval_from_payload(v, (char *)bytes, nbytes,
-                                                 flags, ctx->res->serializer,
-                                                 ctx->res->ignoreflags TSRMLS_CC)) {
+												 flags, ctx->res->serializer,
+												 ctx->res->ignoreflags TSRMLS_CC)) {
 				ctx->res->rc = LCB_ERROR;
 				efree(v);
 				return;
@@ -102,7 +102,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 				if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
 					nkey -= (ctx->res->prefix_key_len + 1);
 					key_string = estrndup(((const char *)key) +
-                                          ctx->res->prefix_key_len + 1, nkey);
+										  ctx->res->prefix_key_len + 1, nkey);
 				}
 			} else {
 				key_string = emalloc(nkey + 1);
@@ -110,7 +110,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 				key_string[nkey] = '\0';
 			}
 			zend_hash_update((Z_ARRVAL_P(ctx->rv)), (char *)key_string, nkey + 1,
-                             (void **)&v, sizeof(zval *), NULL);
+							 (void **)&v, sizeof(zval *), NULL);
 
 			if (ctx->cas) {
 				zval *c;
@@ -118,7 +118,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 				Z_TYPE_P(c) = IS_STRING;
 				Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%llu", cas);
 				zend_hash_add(Z_ARRVAL_P(ctx->cas), (char *)key_string, nkey + 1,
-                              (void **)&c, sizeof(zval *), NULL);
+							  (void **)&c, sizeof(zval *), NULL);
 			}
 			efree(key_string);
 		} else {
@@ -126,12 +126,12 @@ static void php_couchbase_get_callback(lcb_t instance,
 				if (!strncmp(key, ctx->res->prefix_key, ctx->res->prefix_key_len)) {
 					nkey -= (ctx->res->prefix_key_len + 1);
 					key = estrndup(((const char *)key) + ctx->res->prefix_key_len + 1,
-                                   nkey);
+								   nkey);
 				}
 			}
 			if (!php_couchbase_zval_from_payload(ctx->rv, (char *)bytes, nbytes,
-                                                 flags, ctx->res->serializer,
-                                                 ctx->res->ignoreflags TSRMLS_CC)) {
+												 flags, ctx->res->serializer,
+												 ctx->res->ignoreflags TSRMLS_CC)) {
 				if (ctx->res->prefix_key_len && nkey) {
 					efree((void *)key);
 				}
@@ -322,8 +322,8 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int
 		pcbc_start_loop(couchbase_res);
 		if (ctx->res->rc != LCB_SUCCESS) {
 			if (!multi) {
-                RETVAL_FALSE;
-            }
+				RETVAL_FALSE;
+			}
 			if (ctx->res->rc == LCB_KEY_ENOENT) {
 				if (fci.size) {
 					zval *result;
@@ -419,8 +419,8 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	klens = ecalloc(nkey, sizeof(long));
 
 	for (i = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
-		 zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
-		 zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
+			zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
+			zend_hash_move_forward(Z_ARRVAL_P(akeys)), i++) {
 		if (zend_hash_get_current_data(Z_ARRVAL_P(akeys),
 									   (void **)&ppzval) == FAILURE) {
 			nkey--;
@@ -511,8 +511,8 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		pcbc_start_loop(couchbase_res);
 		couchbase_res->async = 0;
 		for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(result));
-			 zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
-			 zend_hash_move_forward(Z_ARRVAL_P(result))) {
+				zend_hash_has_more_elements(Z_ARRVAL_P(result)) == SUCCESS;
+				zend_hash_move_forward(Z_ARRVAL_P(result))) {
 			if (zend_hash_get_current_data(Z_ARRVAL_P(result),
 										   (void **)&ppzval) == FAILURE) {
 				continue;
