@@ -61,6 +61,15 @@ class Get extends CouchbaseTestCommon {
 		couchbase_delete($h, $key);
 	}
 
+	function testPCBC187() {
+		$h = $this->getPersistHandle();
+		$val = couchbase_get($h, "missing-key");
+		$this->assertEquals($val, false);
+		$o = $this->getPersistOO();
+		$val = $o->get("missing-key");
+		$this->assertEquals($val, false);
+	}
+
 	/**
 	 * @test
 	 * Get (OO)

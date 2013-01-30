@@ -313,8 +313,11 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 		couchbase_res->seqno += nkey;
 		pcbc_start_loop(couchbase_res);
-		if (LCB_SUCCESS != ctx->res->rc) {
-			if (LCB_KEY_ENOENT == ctx->res->rc) {
+		if (ctx->res->rc != LCB_SUCCESS) {
+			if (!multi) {
+                RETVAL_FALSE;
+            }
+			if (ctx->res->rc == LCB_KEY_ENOENT) {
 				if (fci.size) {
 					zval *result;
 					zval *zkey;
