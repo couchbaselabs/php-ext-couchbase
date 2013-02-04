@@ -4,8 +4,8 @@ require_once 'Common.inc';
 class Compression extends CouchbaseTestCommon {
 
     function _comp_common($comptype) {
-        $h = make_handle();
-        $hnc = make_handle();
+        $h = make_handle(false);
+        $hnc = make_handle(false);
         couchbase_set_option($h, COUCHBASE_OPT_COMPRESSION,
                              $comptype);
 
@@ -54,7 +54,7 @@ class Compression extends CouchbaseTestCommon {
         if (!extension_loaded('zlib')) {
             $this->markTestSkipped("Need Zlib extension");
         }
-        $h = make_handle();
+        $h = make_handle(false);
         $curcomp = couchbase_get_option($h, COUCHBASE_OPT_COMPRESSION);
         $this->assertEquals(COUCHBASE::COMPRESSION_NONE, $curcomp);
 

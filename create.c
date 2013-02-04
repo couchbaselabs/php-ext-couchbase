@@ -217,7 +217,7 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	char *user = NULL, *passwd = NULL, *bucket = NULL;
 	int user_len = 0, passwd_len = 0, bucket_len = 0;
-	zend_bool persistent = 0;
+	zend_bool persistent = 1;
 	zval *zvhosts = NULL;
 	struct connparams_st cparams = { NULL };
 

@@ -160,7 +160,7 @@ class Couchbase {
      * @param string $bucket The name of the bucket to connect to
      * @param boolean $persistent If a persistent object should be used or not
      */
-    function __construct($hosts = array("localhost"), $user = "", $password = "", $bucket = "default", $persistent = false) {
+    function __construct($hosts = array("localhost"), $user = "", $password = "", $bucket = "default", $persistent = true) {
 
     }
 
