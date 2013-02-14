@@ -19,6 +19,69 @@ struct connparams_st {
 	char *password;
 };
 
+static int hostcmp(const void *a, const void *b)
+{
+	return strcmp(*(char * const *)a, *(char * const *)b);
+}
+
+static char *sort_hosts(const char *hosts)
+{
+	int num = 1;
+	char **ptrs;
+	char *copy = strdup(hosts);
+	char *ret = strdup(hosts);
+	char *curr = copy;
+	int ii;
+
+	if (copy == NULL || ret == NULL) {
+		free(copy);
+		free(ret);
+		return NULL;
+	}
+
+	while ((curr = strchr(curr, ';')) != NULL) {
+		*curr = '\0';
+		num++;
+		curr++;
+	}
+
+	if (num == 1) {
+		/* single entry */
+		free(copy);
+		return ret;
+	}
+
+	if ((ptrs = calloc(num, sizeof(char *))) == NULL) {
+		free(copy);
+		free(ret);
+		return NULL;
+	}
+
+	curr = copy;
+	for (ii = 0; ii < num; ++ii) {
+		ptrs[ii] = curr;
+		if (ii != (num - 1)) {
+			curr = strchr(curr + 1, '\0') + 1;
+		}
+	}
+
+	qsort(ptrs, num, sizeof(char *), hostcmp);
+
+	curr = ret;
+	for (ii = 0; ii < num; ++ii) {
+		strcpy(curr, ptrs[ii]);
+		curr += strlen(ptrs[ii]);
+		if (ii != (num - 1)) {
+			*curr = ';';
+			curr++;
+		}
+	}
+
+	free(copy);
+	free(ptrs);
+
+	return ret;
+}
 
 static int parse_host(const char *host,
 					  size_t host_len, struct connparams_st *cparams TSRMLS_DC)
@@ -239,9 +302,20 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 
 	if (persistent) {
 		zend_rsrc_list_entry *le;
+		char *sorted_hosts = sort_hosts(cparams.host_string);
+		if (sorted_hosts == NULL) {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_exception,
+								   "Failed to allocate memory");
+			return;
+		}
+
 		hashed_key_len = spprintf(&hashed_key, 0, "couchbase_%s_%s_%s_%s",
-								  cparams.host_string, user, passwd, bucket);
-		if (zend_hash_find(&EG(persistent_list), hashed_key, hashed_key_len + 1, (void **) &le) == FAILURE) {
+								  sorted_hosts, user, passwd, bucket);
+		free(sorted_hosts);
+
+		if (zend_hash_find(&EG(persistent_list), hashed_key,
+						   hashed_key_len + 1, (void **) &le) == FAILURE) {
 			goto create_new_link;
 		}
 		couchbase_res = le->ptr;
