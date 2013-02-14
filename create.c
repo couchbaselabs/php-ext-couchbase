@@ -160,7 +160,8 @@ static void make_params(struct connparams_st *cparams)
 				cparams->password = ni->url->pass;
 			}
 
-			if (cparams->bucket == NULL && ni->url->path != NULL && ni->url->path[0] == '/') {
+			if (cparams->bucket == NULL && ni->url->path != NULL &&
+                ni->url->path[0] == '/') {
 
 				char *bucket = ni->url->path;
 				int i = 0, j = strlen(bucket);
@@ -212,7 +213,7 @@ static void free_connparams(struct connparams_st *cparams)
 
 /* internal implementions */
 PHP_COUCHBASE_LOCAL
-void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
+void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	char *user = NULL, *passwd = NULL, *bucket = NULL;
 	int user_len = 0, passwd_len = 0, bucket_len = 0;
@@ -255,8 +256,8 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 				   &cparams TSRMLS_CC);
 
 	} else if (Z_TYPE_P(zvhosts) == IS_STRING) {
-		if (!parse_host(
-					Z_STRVAL_P(zvhosts), Z_STRLEN_P(zvhosts), &cparams TSRMLS_CC)) {
+		if (!parse_host(Z_STRVAL_P(zvhosts), Z_STRLEN_P(zvhosts),
+                        &cparams TSRMLS_CC)) {
 			free_connparams(&cparams);
 			RETURN_FALSE;
 		}
@@ -351,7 +352,9 @@ create_new_link:
 		retval = lcb_connect(handle);
 
 		if (LCB_SUCCESS != retval) {
-			php_error(E_WARNING, "Failed to connect libcouchbase to the server: %s", lcb_strerror(handle, retval));
+			php_error(E_WARNING,
+                      "Failed to connect libcouchbase to the server: %s",
+                      lcb_strerror(handle, retval));
 		}
 
 		php_couchbase_setup_callbacks(handle);
@@ -380,7 +383,9 @@ create_new_link:
 		if (LCB_SUCCESS != (retval = lcb_get_last_error(handle))) {
 			couchbase_res->rc = retval;
 			couchbase_res->is_connected = 0;
-			php_error(E_WARNING, "Failed to establish libcouchbase connection to server: %s", lcb_strerror(handle, retval));
+			php_error(E_WARNING,
+                      "Failed to establish libcouchbase connection to server: %s",
+                      lcb_strerror(handle, retval));
 		} else {
 			couchbase_res->is_connected = 1;
 		}
@@ -389,7 +394,10 @@ create_new_link:
 			zend_rsrc_list_entry le;
 			Z_TYPE(le) = le_pcouchbase;
 			le.ptr = couchbase_res;
-			if (zend_hash_update(&EG(persistent_list), hashed_key, hashed_key_len + 1, (void *) &le, sizeof(zend_rsrc_list_entry), NULL) == FAILURE) {
+			if (zend_hash_update(&EG(persistent_list), hashed_key,
+                                 hashed_key_len + 1, (void *) &le,
+                                 sizeof(zend_rsrc_list_entry),
+                                 NULL) == FAILURE) {
 				free_connparams(&cparams);
 				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 									   cb_exception,
@@ -399,10 +407,13 @@ create_new_link:
 		}
 	}
 
-	ZEND_REGISTER_RESOURCE(return_value, couchbase_res, persistent ? le_pcouchbase : le_couchbase);
+	ZEND_REGISTER_RESOURCE(return_value, couchbase_res,
+                           persistent ? le_pcouchbase : le_couchbase);
 	if (oo) {
 		zval *self = getThis();
-		zend_update_property(couchbase_ce, self, ZEND_STRL(COUCHBASE_PROPERTY_HANDLE), return_value TSRMLS_CC);
+		zend_update_property(couchbase_ce, self,
+                             ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
+                             return_value TSRMLS_CC);
 	} else if (!couchbase_res->is_connected) { /* !oo && !connected */
 		free_connparams(&cparams);
 		RETURN_FALSE;
@@ -410,7 +421,6 @@ create_new_link:
 
 	free_connparams(&cparams);
 }
-/* }}} */
 
 /*
  * Local variables:
