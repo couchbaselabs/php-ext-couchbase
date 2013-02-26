@@ -210,7 +210,6 @@ static void free_connparams(struct connparams_st *cparams)
 	}
 }
 
-
 /* internal implementions */
 PHP_COUCHBASE_LOCAL
 void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
@@ -327,6 +326,7 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		couchbase_res->ignoreflags = 0;
 		efree(hashed_key);
 	} else {
+		struct lcb_cached_config_st cached;
 		struct lcb_create_st create_options;
 
 create_new_link:
@@ -340,18 +340,53 @@ create_new_link:
 		create_options.v.v0.passwd = cparams.password;
 		create_options.v.v0.bucket = cparams.bucket;
 
-		if (lcb_create(&handle, &create_options) != LCB_SUCCESS) {
-			free_connparams(&cparams);
-			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-								   cb_lcb_exception,
-								   "Failed to create libcouchbase instance");
-			return;
+		if (strlen(COUCHBASE_G(config_cache)) == 0) {
+			if (lcb_create(&handle, &create_options) != LCB_SUCCESS) {
+				free_connparams(&cparams);
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_lcb_exception,
+									   "Failed to create libcouchbase instance");
+				return;
+			}
+		} else {
+			lcb_error_t err;
+			char cachefile[1024];
+
+			if (COUCHBASE_G(config_cache_error) != NULL) {
+				if (try_setup_cache_dir(COUCHBASE_G(config_cache),
+										&COUCHBASE_G(config_cache_error)) != 0) {
+					free_connparams(&cparams);
+					couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+										   cb_exception,
+										   COUCHBASE_G(config_cache_error));
+				}
+			}
+
+			memset(&cached, 0, sizeof(cached));
+			memcpy(&cached.createopt, &create_options, sizeof(create_options));
+			cached.cachefile = cachefile;
+			snprintf(cachefile, sizeof(cachefile), "%s/%s.cache",
+					 COUCHBASE_G(config_cache),
+					 create_options.v.v0.bucket);
+
+			err = lcb_create_compat(LCB_CACHED_CONFIG, &cached,
+									&handle, NULL);
+			if (err != LCB_SUCCESS) {
+				free_connparams(&cparams);
+				if (err == LCB_NOT_SUPPORTED) {
+					couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+										   cb_not_supported_exception,
+										   "Configuration cache is not supported in the installed version of libcouchbase");
+				} else {
+					couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+										   cb_lcb_exception,
+										   "Failed to create libcouchbase instance");
+				}
+				return;
+			}
 		}
 
-
-		retval = lcb_connect(handle);
-
-		if (LCB_SUCCESS != retval) {
+		if ((retval = lcb_connect(handle)) != LCB_SUCCESS) {
 			php_error(E_WARNING,
 					  "Failed to connect libcouchbase to the server: %s",
 					  lcb_strerror(handle, retval));

@@ -77,6 +77,8 @@ PHP_COUCHBASE_LOCAL
 void couchbase_report_error(INTERNAL_FUNCTION_PARAMETERS, int oo,
 							zend_class_entry *exception, const char *fmt, ...);
 
+PHP_COUCHBASE_LOCAL
+int try_setup_cache_dir(const char *path, char **emsg);
 #endif
 
 /*

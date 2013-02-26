@@ -152,6 +152,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                     [ \
                      apidecl.c \
                      arithmetic.c \
+                     ccache.c \
                      compress.c \
                      convert.c \
                      couchbase.c \

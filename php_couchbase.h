@@ -126,6 +126,8 @@ double compression_factor;
 long durability_default_poll_interval;
 long durability_default_timeout;
 long view_timeout;
+char *config_cache;
+char *config_cache_error;
 ZEND_END_MODULE_GLOBALS(couchbase)
 
 PHP_GINIT_FUNCTION(couchbase);
@@ -259,6 +261,8 @@ PHP_FUNCTION(couchbase_list_design_docs);
 #define PCBC_INIENT_INST_RESTFLUSH "couchbase.restflush"
 #define PCBC_INIDEFL_INST_RESTFLUSH "On"
 
+#define PCBC_INIENT_CONFIG_CACHE "couchbase.config_cache"
+#define PCBC_INIDEFL_CONFIG_CACHE ""
 
 /**
  * Hash table manipulation functions.

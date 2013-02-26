@@ -9,6 +9,7 @@ if (PHP_COUCHBASE != "no") {
 		EXTENSION("couchbase", "couchbase.c", PHP_COUCHBASE_SHARED, "");
 		ADD_SOURCES(configure_module_dirname, "apidecl.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "arithmetic.c", "couchbase");
+		ADD_SOURCES(configure_module_dirname, "ccache.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "compress.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "convert.c", "couchbase");
 		ADD_SOURCES(configure_module_dirname, "create.c", "couchbase");

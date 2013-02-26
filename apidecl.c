@@ -1199,6 +1199,10 @@ static PHP_INI_MH(OnUpdateSerializer)
 
 
 PHP_INI_BEGIN()
+STD_PHP_INI_ENTRY(PCBC_INIENT_CONFIG_CACHE, PCBC_INIDEFL_CONFIG_CACHE,
+				  PHP_INI_ALL, OnUpdateString, config_cache,
+				  zend_couchbase_globals, couchbase_globals)
+
 STD_PHP_INI_ENTRY(PCBC_INIENT_SERIALIZER, PCBC_INIDEFL_SERIALIZER,
 				  PHP_INI_ALL, OnUpdateSerializer, serializer, zend_couchbase_globals, couchbase_globals)
 
@@ -1310,11 +1314,18 @@ PHP_MINIT_FUNCTION(couchbase)
 	init_couchbase_cluster(module_number TSRMLS_CC);
 	init_couchbase_exceptions(TSRMLS_C);
 
+	COUCHBASE_G(config_cache_error) = NULL;
+	if (strlen(COUCHBASE_G(config_cache)) > 0) {
+		try_setup_cache_dir(COUCHBASE_G(config_cache),
+							&COUCHBASE_G(config_cache_error));
+	}
+
 	return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(couchbase)
 {
+	free(COUCHBASE_G(config_cache_error));
 	return SUCCESS;
 }
 
@@ -1346,6 +1357,12 @@ PHP_MINFO_FUNCTION(couchbase)
 #else
 	php_info_print_table_row(2, "zlib support", "no");
 #endif
+
+	if (COUCHBASE_G(config_cache_error) != NULL) {
+		php_info_print_table_row(2, "Configuration cache error",
+								 COUCHBASE_G(config_cache_error));
+	}
+
 
 	php_info_print_table_end();
 

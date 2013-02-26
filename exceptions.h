@@ -59,6 +59,10 @@ extern zend_class_entry *cb_illegal_value_exception;
 
 PHP_COUCHBASE_LOCAL
 extern zend_class_entry *cb_illegal_arguments_exception;
+
+PHP_COUCHBASE_LOCAL
+extern zend_class_entry *cb_not_supported_exception;
+
 #endif	  /* MANAGEMENT_EXCEPTION_H */
 
 /*
