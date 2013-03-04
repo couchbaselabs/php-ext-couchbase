@@ -25,8 +25,6 @@
 
 #include "internal.h"
 
-/* {{{ COUCHBASE_FUNCTIONS_ARG_INFO
- */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_connect, 0, 0, 1)
 ZEND_ARG_INFO(0, host)
 ZEND_ARG_INFO(0, user)
@@ -294,10 +292,6 @@ ZEND_ARG_INFO(0, resource)
 ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
-/* }}} */
-
-/* {{{ COUCHBASE_METHODS_ARG_INFO
- */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_construct, 0, 0, 1)
 ZEND_ARG_INFO(0, host)
 ZEND_ARG_INFO(0, user)
@@ -534,11 +528,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_m_set_timeout, 0, 0, 1)
 ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
-
-/* }}} */
-
-/* {{{ couchbase_functions[]
- */
 static zend_function_entry couchbase_functions[] = {
 	PHP_FE(couchbase_connect, arginfo_connect)
 	PHP_FE(couchbase_add, arginfo_add)
@@ -587,10 +576,7 @@ static zend_function_entry couchbase_functions[] = {
 		NULL, NULL, NULL
 	}
 };
-/* }}} */
 
-/* {{{ couchbase_methods[]
- */
 static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, __construct, arginfo_construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
 	PHP_ME(couchbase, add, arginfo_m_add, ZEND_ACC_PUBLIC)
@@ -639,226 +625,142 @@ static zend_function_entry couchbase_methods[] = {
 		NULL, NULL, NULL
 	}
 };
-/* }}} */
 
-
-/* OO style APIs */
-/* {{{ proto Couchbase::__construct(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
-*/
 PHP_METHOD(couchbase, __construct)
 {
 	php_couchbase_create_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::get(string $key[, callback $cache_cb[, string &$cas_tokey])
- */
 PHP_METHOD(couchbase, get)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getMulti(array $keys[, array &cas[, int $flag]])
- */
 PHP_METHOD(couchbase, getMulti)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getAndLock(string $key, string &$cas_tokey[, int $expiry])
- */
 PHP_METHOD(couchbase, getAndLock)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 1, 0);
 }
 
-/* {{{ proto Couchbase::getAndLockMulti(array $keys, array &cas[, int $flag[, int $expiry]])
- */
 PHP_METHOD(couchbase, getAndLockMulti)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 1, 0);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getAndTouch(string $key, string &$cas_tokey[, int $expiry])
- */
 PHP_METHOD(couchbase, getAndTouch)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 1);
 }
 
-/* {{{ proto Couchbase::getAndTouchMulti(array $keys, array &cas[, int $flag[, int $expiry]])
- */
 PHP_METHOD(couchbase, getAndTouchMulti)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::unlock(string $key, string $cas)
- */
 PHP_METHOD(couchbase, unlock)
 {
 	php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
 
-/* {{{ proto Couchbase::touch(string $key, int $expiry)
- */
 PHP_METHOD(couchbase, touch)
 {
 	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::touchMulti(array $keys, int $expiry)
- */
 PHP_METHOD(couchbase, touchMulti)
 {
 	php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::cas(string $cas, string $key, mixed $value[, int $expiration])
- */
 PHP_METHOD(couchbase, cas)
 {
 	php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::add(string $key, mixed $value[, int $expiration])
- */
 PHP_METHOD(couchbase, add)
 {
 	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_ADD);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::set(string $key, mixed $value[, int $expiration])
- */
 PHP_METHOD(couchbase, set)
 {
 	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::setMulti(array $values[, int $expiration])
- */
 PHP_METHOD(couchbase, setMulti)
 {
 	php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::prepend(string $key[, string $cas = '0'])
- */
 PHP_METHOD(couchbase, prepend)
 {
 	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_PREPEND);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::append(string $key[, string $cas = '0'])
- */
 PHP_METHOD(couchbase, append)
 {
 	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_APPEND);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::replace(string $key, mixed $value[, int $expiration[, string $cas = '0']])
- */
 PHP_METHOD(couchbase, replace)
 {
 	php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_REPLACE);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::increment(string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
- */
 PHP_METHOD(couchbase, increment)
 {
 	php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '+', 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::decrement(string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
- */
 PHP_METHOD(couchbase, decrement)
 {
 	php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '-', 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getStats(void)
- */
 PHP_METHOD(couchbase, getStats)
 {
 	php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getDelayed(array $keys[, bool $with_cas[, callback $value_cb[, int $expiry[, bool $locking]]]])
- */
 PHP_METHOD(couchbase, getDelayed)
 {
 	php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::fetch(void)
- */
 PHP_METHOD(couchbase, fetch)
 {
 	php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::fetchAll(void)
- */
 PHP_METHOD(couchbase, fetchAll)
 {
 	php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::view(string $doc_name, string $view_name[, array $options])
- */
 PHP_METHOD(couchbase, view)
 {
 	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::viewGenQuery(string $doc_name, string $view_name[, array $options)
- */
 PHP_METHOD(couchbase, viewGenQuery)
 {
 	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
 }
-/* }}} */
 
-
-/* {{{ proto Couchbase::delete(string $key[, string $cas = '0'])
- */
 PHP_METHOD(couchbase, delete)
 {
 	php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::flush(void)
- */
 PHP_METHOD(couchbase, flush)
 {
 	php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getResultCode(void)
- */
 PHP_METHOD(couchbase, getResultCode)
 {
 	php_couchbase_res *couchbase_res;
@@ -866,47 +768,31 @@ PHP_METHOD(couchbase, getResultCode)
 							 PHP_COUCHBASE_ARG_F_OO | PHP_COUCHBASE_ARG_F_ONLYVALID, "");
 	RETURN_LONG(couchbase_res->rc);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getResultMessage(void)
- */
 PHP_METHOD(couchbase, getResultMessage)
 {
 	php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::setOption(int $option, int $value)
- */
 PHP_METHOD(couchbase, setOption)
 {
 	php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getOption(int $option)
- */
 PHP_METHOD(couchbase, getOption)
 {
 	php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getVersion(void)
- */
 PHP_METHOD(couchbase, getVersion)
 {
 	php_couchbase_version_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getClientVersion(void)
- */
 PHP_METHOD(couchbase, getClientVersion)
 {
 	RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
 }
-/* }}} */
 
 PHP_METHOD(couchbase, getNumReplicas)
 {
@@ -920,291 +806,189 @@ PHP_METHOD(couchbase, getServers)
 								   PHP_COUCHBASE_ARG_F_OO);
 }
 
-/* {{{ proto Couchbase::observe(string $key, string $cas, &$details)
- */
 PHP_METHOD(couchbase, observe)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto Couchbase::observeMulti(array $key_to_cas, &$details)
- */
 PHP_METHOD(couchbase, observeMulti)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto Couchbase::keyDurability(string $key, string $cas, array $durability)
- */
 PHP_METHOD(couchbase, keyDurability)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 1); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto Couchbase::keyDurability(array $key_to_cas, array $durability)
- */
 PHP_METHOD(couchbase, keyDurabilityMulti)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 1); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getDesignDoc(string $name) */
 PHP_METHOD(couchbase, getDesignDoc)
 {
 	php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::deleteDesignDoc(string $name) */
 PHP_METHOD(couchbase, deleteDesignDoc)
 {
 	php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::setDesignDoc(string $name, string $content) */
 PHP_METHOD(couchbase, setDesignDoc)
 {
 	php_couchbase_set_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::getTimeout() */
 PHP_METHOD(couchbase, getTimeout)
 {
 	php_couchbase_get_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
 
-/* {{{ proto Couchbase::setTimeout(int $timeout) */
+
 PHP_METHOD(couchbase, setTimeout)
 {
 	php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
-/* }}} */
+
 
 /* procedural APIs*/
-/* {{{ proto couchbase_connect(string $host[, string $user[, string $password[, string $bucket[, bool $persistent = false]]]])
-*/
 PHP_FUNCTION(couchbase_connect)
 {
 	php_couchbase_create_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get(resource $couchbase, string $key[, string &$cas])
- */
 PHP_FUNCTION(couchbase_get)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_and_lock(resource $couchbase, string $key, string &$cas[, int $expiry])
- */
 PHP_FUNCTION(couchbase_get_and_lock)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 1, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_and_lock_multi(resource $couchbase, array $keys, array &cas[, int $flag[, int $expiry]])
- */
 PHP_FUNCTION(couchbase_get_and_lock_multi)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 1, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_and_touch(resource $couchbase, string $key, string &$cas[, int $expiry])
- */
 PHP_FUNCTION(couchbase_get_and_touch)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0, 1);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_and_touch_multi(resource $couchbase, array $keys, array &cas[, int $flag[, int $expiry]])
- */
 PHP_FUNCTION(couchbase_get_and_touch_multi)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0, 1);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_multi(resource $couchbase, array $keys[, array &cas[, int $flag]])
- */
 PHP_FUNCTION(couchbase_get_multi)
 {
 	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_unlock(resource $couchbase, string $key, string $cas)
- */
 PHP_FUNCTION(couchbase_unlock)
 {
 	php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
 
-/* {{{ proto couchbase_touch(resource $couchbase, string $key, int $expiry)
- */
 PHP_FUNCTION(couchbase_touch)
 {
 	php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_touch_multi(resource $couchbase, array $keys, int $expiry)
- */
 PHP_FUNCTION(couchbase_touch_multi)
 {
 	php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_cas(resource $couchbase, string $cas, string $key, mixed $value[, int $expiration])
- */
 PHP_FUNCTION(couchbase_cas)
 {
 	php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_add(resource $couchbase, string $key, mixed $value[, int $expiration])
- */
 PHP_FUNCTION(couchbase_add)
 {
 	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_ADD, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_set(resource $couchbase, string $key, mixed $value[, int $expiration])
- */
 PHP_FUNCTION(couchbase_set)
 {
 	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_set_multi(resource $couchbase, array $values[, int $expiration])
- */
 PHP_FUNCTION(couchbase_set_multi)
 {
 	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_SET, 1);
 }
-/* }}} */
 
-/* {{{ proto couchbase_prepend(resource $couchbase, string $key[, string $cas = '0'])
- */
 PHP_FUNCTION(couchbase_prepend)
 {
 	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_PREPEND, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_append(resource $couchbase, string $key[, string $cas = '0'])
- */
 PHP_FUNCTION(couchbase_append)
 {
 	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_APPEND, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_replace(resource $couchbase, string $key, mixed $value[, int $expiration[, string $cas = '0']])
- */
 PHP_FUNCTION(couchbase_replace)
 {
 	php_couchbase_store_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, LCB_REPLACE, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_increment(resource $couchbase, string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
- */
 PHP_FUNCTION(couchbase_increment)
 {
 	php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '+', 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_decrement(resource $couchbase, string $key[, int $offset = 1[, bool $create = false[, int $expiration = 0[, int $initial = 0]]]])
- */
 PHP_FUNCTION(couchbase_decrement)
 {
 	php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, '-', 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_stats(resource $couchbase)
- */
 PHP_FUNCTION(couchbase_get_stats)
 {
 	php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_delayed(resource $couchbase, array $keys[, bool $with_cas[, callback $value_cb[, int $expiry[, bool $lock]]]])
- */
 PHP_FUNCTION(couchbase_get_delayed)
 {
 	php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_fetch(resource $couchbase)
- */
 PHP_FUNCTION(couchbase_fetch)
 {
 	php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_fetch_all(resource $couchbase)
- */
 PHP_FUNCTION(couchbase_fetch_all)
 {
 	php_couchbase_fetch_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_view(resource $couchbase, string $doc_name, string $view_name[, array $options])
- */
 PHP_FUNCTION(couchbase_view)
 {
 	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_view_gen_query(resource $couchbase string $doc_name, string $view_name[,array $options])
- */
 PHP_FUNCTION(couchbase_view_gen_query)
 {
 	php_couchbase_view_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
 }
-/* }}} */
 
-/* {{{ proto couchbase_delete(resource $couchbase, string $key[, string $cas = '0'])
- */
 PHP_FUNCTION(couchbase_delete)
 {
 	php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_flush(resource $couchbase)
- */
 PHP_FUNCTION(couchbase_flush)
 {
 	php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_result_code(resource $couchbase)
- */
 PHP_FUNCTION(couchbase_get_result_code)
 {
 	php_couchbase_res *couchbase_res;
@@ -1214,137 +998,88 @@ PHP_FUNCTION(couchbase_get_result_code)
 
 	RETURN_LONG(couchbase_res->rc);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_result_message(resource $couchbase)
- */
 PHP_FUNCTION(couchbase_get_result_message)
 {
 	php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-
-/* {{{ proto couchbase_set_option(resource $couchbase, int $option, int $value)
- */
 PHP_FUNCTION(couchbase_set_option)
 {
 	php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_option(resource $couchbase, int $option)
- */
 PHP_FUNCTION(couchbase_get_option)
 {
 	php_couchbase_get_option_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_version(void)
- */
 PHP_FUNCTION(couchbase_get_version)
 {
 	php_couchbase_version_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_client_version(void)
- */
 PHP_FUNCTION(couchbase_get_client_version)
 {
 	RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
 }
-/* }}} */
 
-
-/* {{ proto couchbase_get_num_replicas(void)
- */
 PHP_FUNCTION(couchbase_get_num_replicas)
 {
 	php_couchbase_get_num_replicas_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 										PHP_COUCHBASE_ARG_F_FUNCTIONAL);
 }
-/* }}} */
 
-
-/* {{{ proto couchbase_get_servers(void)
- */
 PHP_FUNCTION(couchbase_get_servers)
 {
 	php_couchbase_get_servers_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 								   PHP_COUCHBASE_ARG_F_FUNCTIONAL);
 }
-/* }}} */
 
-/* {{{ proto couchbase_observe(resource $couchbase, string $key, string $cas, &$details)
- */
 PHP_FUNCTION(couchbase_observe)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto couchbase_observe_multi(resource $couchbase, array $key_to_cas, &$details)
- */
 PHP_FUNCTION(couchbase_observe_multi)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto couchbase_key_durability(resource $couchbase, string $key, string $cas, array $durability)
- */
 PHP_FUNCTION(couchbase_key_durability)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 1); /* multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto couchbase_key_durability_multi(resource $couchbase, string $key_to_cas, array $durability)
- */
 PHP_FUNCTION(couchbase_key_durability_multi)
 {
 	php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 1); /*multi, oo, poll */
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_design_doc(resource $couchbase, string $name) */
 PHP_FUNCTION(couchbase_get_design_doc)
 {
 	php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_delete_design_doc(resource $couchbase, string $name) */
 PHP_FUNCTION(couchbase_delete_design_doc)
 {
 	php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
 }
-/* }}} */
 
-/* {{{ proto couchbase_set_design_doc(resource $couchbase, string $name, string $content) */
 PHP_FUNCTION(couchbase_set_design_doc)
 {
 	php_couchbase_set_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_get_timeout(resource $couchbase) */
 PHP_FUNCTION(couchbase_get_timeout)
 {
 	php_couchbase_get_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
 
-/* {{{ proto couchbase_set_timeout(resource $couchbase, int $timeout) */
 PHP_FUNCTION(couchbase_set_timeout)
 {
 	php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
-/* }}} */
-
-
 
 ZEND_DECLARE_MODULE_GLOBALS(couchbase)
 
@@ -1355,8 +1090,6 @@ int le_pcouchbase;
 zend_class_entry *couchbase_ce;
 
 
-/* {{{ couchbase_module_entry
- */
 #if ZEND_MODULE_API_NO >= 20050922
 static const zend_module_dep coucubase_deps[] = {
 #ifdef HAVE_JSON_API
@@ -1391,14 +1124,12 @@ zend_module_entry couchbase_module_entry = {
 	NULL,
 	STANDARD_MODULE_PROPERTIES_EX
 };
-/* }}} */
+
 
 #ifdef COMPILE_DL_COUCHBASE
 ZEND_GET_MODULE(couchbase)
 #endif
 
-/* {{{ OnUpdateCompressor
- */
 static PHP_INI_MH(OnUpdateCompressor)
 {
 	if (!new_value || !strcmp(new_value, "none")) {
@@ -1414,10 +1145,8 @@ static PHP_INI_MH(OnUpdateCompressor)
 	}
 	return OnUpdateString(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
 }
-/* }}} */
 
-/* {{{ OnUpdateSerializer
- */
+
 static PHP_INI_MH(OnUpdateSerializer)
 {
 	if (!new_value) {
@@ -1436,10 +1165,8 @@ static PHP_INI_MH(OnUpdateSerializer)
 
 	return OnUpdateString(entry, new_value, new_value_length, mh_arg1, mh_arg2, mh_arg3, stage TSRMLS_CC);
 }
-/* }}} */
 
-/* {{{ PHP_INI
- */
+
 PHP_INI_BEGIN()
 STD_PHP_INI_ENTRY(PCBC_INIENT_SERIALIZER, PCBC_INIDEFL_SERIALIZER,
 				  PHP_INI_ALL, OnUpdateSerializer, serializer, zend_couchbase_globals, couchbase_globals)
@@ -1463,16 +1190,14 @@ STD_PHP_INI_ENTRY(PCBC_INIENT_VIEW_TIMEOUT, PCBC_INIDEFL_VIEW_TIMEOUT,
 				  PHP_INI_ALL, OnUpdateLong, view_timeout,
 				  zend_couchbase_globals, couchbase_globals)
 PHP_INI_END()
-/* }}} */
+
 
 
 /* module functions */
-/* {{{ PHP_GINIT_FUNCTION
-*/
 PHP_GINIT_FUNCTION(couchbase)
 {
 }
-/* }}} */
+
 
 
 #define PCBC_XAPIOPTIONS \
@@ -1511,8 +1236,6 @@ PHP_GINIT_FUNCTION(couchbase)
 	XX("GET_PRESERVE_ORDER", COUCHBASE_GET_PRESERVE_ORDER) \
 	XX("OPT_VOPTS_PASSTHROUGH", COUCHBASE_OPT_VOPTS_PASSTHROUGH)
 
-/* {{{ PHP_MINIT_FUNCTION
- */
 PHP_MINIT_FUNCTION(couchbase)
 {
 	zend_class_entry ce;
@@ -1541,34 +1264,22 @@ PHP_MINIT_FUNCTION(couchbase)
 
 	return SUCCESS;
 }
-/* }}} */
 
-/* {{{ PHP_MSHUTDOWN_FUNCTION
- */
 PHP_MSHUTDOWN_FUNCTION(couchbase)
 {
 	return SUCCESS;
 }
-/* }}} */
 
-/* {{{ PHP_RINIT_FUNCTION
- */
 PHP_RINIT_FUNCTION(couchbase)
 {
 	return SUCCESS;
 }
-/* }}} */
 
-/* {{{ PHP_RSHUTDOWN_FUNCTION
- */
 PHP_RSHUTDOWN_FUNCTION(couchbase)
 {
 	return SUCCESS;
 }
-/* }}} */
 
-/* {{{ PHP_MINFO_FUNCTION
-*/
 PHP_MINFO_FUNCTION(couchbase)
 {
 	php_info_print_table_start();
@@ -1592,7 +1303,7 @@ PHP_MINFO_FUNCTION(couchbase)
 
 	DISPLAY_INI_ENTRIES();
 }
-/* }}} */
+
 
 /*
  * Local variables:
