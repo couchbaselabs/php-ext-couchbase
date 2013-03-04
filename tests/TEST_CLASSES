@@ -13,6 +13,7 @@ Extension
 Flush
 Get
 GetMulti
+GetReplica
 Info
 IntegerArgs
 MiscOptions

@@ -43,7 +43,7 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi,
-							int oo, int lock, int touch);
+							int oo, int lock, int touch, int replica);
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);

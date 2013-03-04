@@ -150,8 +150,8 @@ static void php_couchbase_get_callback(lcb_t instance,
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int lock,
-							int touch)
+void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
+							int multi, int oo, int lock, int touch, int replica)
 {
 	char *key, **keys;
 	long *klens, klen = 0;
@@ -268,7 +268,29 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int
 			ZVAL_NULL(cas_token);
 		}
 	}
-	{
+	if (replica) {
+		lcb_get_replica_cmd_t **commands = ecalloc(nkey, sizeof(lcb_get_replica_cmd_t *));
+		int ii;
+
+		for (ii = 0; ii < nkey; ++ii) {
+			lcb_get_replica_cmd_t *cmd = ecalloc(1, sizeof(lcb_get_replica_cmd_t));
+			commands[ii] = cmd;
+			cmd->v.v0.key = keys[ii];
+			cmd->v.v0.nkey = klens[ii];
+		}
+
+		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
+		ctx->res = couchbase_res;
+		ctx->rv	 = return_value;
+		ctx->cas = cas_token;
+
+		retval = lcb_get_replica(couchbase_res->handle, ctx,
+								 nkey, (const lcb_get_replica_cmd_t * const *)commands);
+		for (ii = 0; ii < nkey; ++ii) {
+			efree(commands[ii]);
+		}
+		efree(commands);
+	} else {
 		lcb_get_cmd_t **commands = ecalloc(nkey, sizeof(lcb_get_cmd_t *));
 		int ii;
 
@@ -296,80 +318,9 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int
 			efree(commands[ii]);
 		}
 		efree(commands);
+	}
 
-		if (LCB_SUCCESS != retval) {
-			if (couchbase_res->prefix_key_len) {
-				int i;
-				for (i = 0; i < nkey; i++) {
-					efree(keys[i]);
-				}
-			}
-			if (multi) {
-				efree(keys);
-				efree(klens);
-				zval_dtor(return_value);
-			}
-			efree(ctx);
-
-			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-								   cb_lcb_exception,
-								   "Failed to schedule get request: %s",
-								   lcb_strerror(couchbase_res->handle, retval));
-			return;
-		}
-
-		couchbase_res->seqno += nkey;
-		pcbc_start_loop(couchbase_res);
-		if (ctx->res->rc != LCB_SUCCESS) {
-			if (!multi) {
-				RETVAL_FALSE;
-			}
-			if (ctx->res->rc == LCB_KEY_ENOENT) {
-				if (fci.size) {
-					zval *result;
-					zval *zkey;
-					zval *retval_ptr = NULL;
-					zval **params[3];
-					int cbret;
-
-					MAKE_STD_ZVAL(result);
-					MAKE_STD_ZVAL(zkey);
-					ZVAL_NULL(result);
-					ZVAL_STRINGL(zkey, key, klen, 1);
-
-					params[0] = &res;
-					params[1] = &zkey;
-					params[2] = &result;
-					fci.retval_ptr_ptr = &retval_ptr;
-					fci.param_count = 3;
-					fci.params = params;
-
-					cbret = zend_call_function(&fci, &fci_cache TSRMLS_CC);
-
-					if (cbret == SUCCESS && fci.retval_ptr_ptr && *fci.retval_ptr_ptr) {
-						if (Z_TYPE_P(retval_ptr) == IS_BOOL && Z_BVAL_P(retval_ptr)) {
-							zval_ptr_dtor(fci.retval_ptr_ptr);
-							zval_ptr_dtor(&zkey);
-							efree(ctx);
-							if (multi) {
-								zval_dtor(return_value);
-							}
-							RETURN_ZVAL(result, 1, 1);
-						}
-						zval_ptr_dtor(fci.retval_ptr_ptr);
-					}
-					zval_ptr_dtor(&zkey);
-					zval_ptr_dtor(&result);
-				}
-			} else {
-				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-									   cb_lcb_exception,
-									   "Failed to get a value from server: %s",
-									   lcb_strerror(couchbase_res->handle,
-													ctx->res->rc));
-			}
-		}
-		efree(ctx);
+	if (LCB_SUCCESS != retval) {
 		if (couchbase_res->prefix_key_len) {
 			int i;
 			for (i = 0; i < nkey; i++) {
@@ -379,7 +330,78 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS, int multi, int oo, int
 		if (multi) {
 			efree(keys);
 			efree(klens);
+			zval_dtor(return_value);
 		}
+		efree(ctx);
+
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to schedule get request: %s",
+							   lcb_strerror(couchbase_res->handle, retval));
+		return;
+	}
+
+	couchbase_res->seqno += nkey;
+	pcbc_start_loop(couchbase_res);
+	if (ctx->res->rc != LCB_SUCCESS) {
+		if (!multi) {
+			RETVAL_FALSE;
+		}
+		if (ctx->res->rc == LCB_KEY_ENOENT) {
+			if (fci.size) {
+				zval *result;
+				zval *zkey;
+				zval *retval_ptr = NULL;
+				zval **params[3];
+				int cbret;
+
+				MAKE_STD_ZVAL(result);
+				MAKE_STD_ZVAL(zkey);
+				ZVAL_NULL(result);
+				ZVAL_STRINGL(zkey, key, klen, 1);
+
+				params[0] = &res;
+				params[1] = &zkey;
+				params[2] = &result;
+				fci.retval_ptr_ptr = &retval_ptr;
+				fci.param_count = 3;
+				fci.params = params;
+
+				cbret = zend_call_function(&fci, &fci_cache TSRMLS_CC);
+
+				if (cbret == SUCCESS && fci.retval_ptr_ptr && *fci.retval_ptr_ptr) {
+					if (Z_TYPE_P(retval_ptr) == IS_BOOL && Z_BVAL_P(retval_ptr)) {
+						zval_ptr_dtor(fci.retval_ptr_ptr);
+						zval_ptr_dtor(&zkey);
+						efree(ctx);
+						if (multi) {
+							zval_dtor(return_value);
+						}
+						RETURN_ZVAL(result, 1, 1);
+					}
+					zval_ptr_dtor(fci.retval_ptr_ptr);
+				}
+				zval_ptr_dtor(&zkey);
+				zval_ptr_dtor(&result);
+			}
+		} else {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_lcb_exception,
+								   "Failed to get a value from server: %s",
+								   lcb_strerror(couchbase_res->handle,
+												ctx->res->rc));
+		}
+	}
+	efree(ctx);
+	if (couchbase_res->prefix_key_len) {
+		int i;
+		for (i = 0; i < nkey; i++) {
+			efree(keys[i]);
+		}
+	}
+	if (multi) {
+		efree(keys);
+		efree(klens);
 	}
 }
 

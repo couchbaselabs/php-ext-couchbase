@@ -144,6 +144,8 @@ PHP_METHOD(couchbase, append);
 PHP_METHOD(couchbase, cas);
 PHP_METHOD(couchbase, get);
 PHP_METHOD(couchbase, getMulti);
+PHP_METHOD(couchbase, getReplica);
+PHP_METHOD(couchbase, getReplicaMulti);
 PHP_METHOD(couchbase, getDelayed);
 PHP_METHOD(couchbase, getAndLock);
 PHP_METHOD(couchbase, getAndLockMulti);

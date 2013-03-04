@@ -588,6 +588,8 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, cas, arginfo_m_cas, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, get, arginfo_m_get, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getMulti, arginfo_m_getmulti, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, getReplica, arginfo_m_get, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, getReplicaMulti, arginfo_m_getmulti, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getDelayed, arginfo_m_getdelayed, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getAndLock, arginfo_m_get_and_lock, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getAndLockMulti, arginfo_m_get_and_lock_multi, ZEND_ACC_PUBLIC)
@@ -633,32 +635,42 @@ PHP_METHOD(couchbase, __construct)
 
 PHP_METHOD(couchbase, get)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 0, 0);
 }
 
 PHP_METHOD(couchbase, getMulti)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 0, 0);
+}
+
+PHP_METHOD(couchbase, getReplica)
+{
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 0, 1);
+}
+
+PHP_METHOD(couchbase, getReplicaMulti)
+{
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 0, 1);
 }
 
 PHP_METHOD(couchbase, getAndLock)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 1, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 1, 0, 0);
 }
 
 PHP_METHOD(couchbase, getAndLockMulti)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 1, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 1, 0, 0);
 }
 
 PHP_METHOD(couchbase, getAndTouch)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 1);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 1, 0);
 }
 
 PHP_METHOD(couchbase, getAndTouchMulti)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 1);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 1, 0);
 }
 
 PHP_METHOD(couchbase, unlock)
@@ -852,7 +864,6 @@ PHP_METHOD(couchbase, setTimeout)
 	php_couchbase_set_timeout_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
 
-
 /* procedural APIs*/
 PHP_FUNCTION(couchbase_connect)
 {
@@ -861,32 +872,32 @@ PHP_FUNCTION(couchbase_connect)
 
 PHP_FUNCTION(couchbase_get)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0, 0, 0);
 }
 
 PHP_FUNCTION(couchbase_get_and_lock)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 1, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 1, 0, 0);
 }
 
 PHP_FUNCTION(couchbase_get_and_lock_multi)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 1, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 1, 0, 0);
 }
 
 PHP_FUNCTION(couchbase_get_and_touch)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0, 1);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 0, 0, 1, 0);
 }
 
 PHP_FUNCTION(couchbase_get_and_touch_multi)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0, 1);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0, 1, 0);
 }
 
 PHP_FUNCTION(couchbase_get_multi)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0, 0);
+	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 0, 0, 0, 0);
 }
 
 PHP_FUNCTION(couchbase_unlock)

@@ -340,6 +340,42 @@ class Couchbase {
     }
 
     /**
+     * Retrieve a replica of a document from the cluster.
+     *
+     * Please note that this method is currently experimental and its
+     * signature may change in a future release.
+     *
+     * @param string $id identifies the object to retrieve
+     * @param function $callback a callback function to call for missing
+     *                 objects. The function signature looks like:
+     *                 <code>bool function($res, $id, &$val)</code>
+     *                 if the function returns <code>true</code> the value
+     *                 returned through $val is returned. Please note that
+     *                 the cas field is not updated in these cases.
+     * @param string $cas where to store the cas identifier of the object
+     * @return object The document from the cluster
+     * @throws CouchbaseException if an error occurs
+     */
+    function getReplica($id, $callback = NULL, $cas = "") {
+
+    }
+
+    /**
+     * Retrieve multiple replica documents from the cluster.
+     *
+     * Please note that this method is currently experimental and its
+     * signature may change in a future release.
+     *
+     * @param array $ids an array containing all of the document identifiers
+     * @param array $cas an array to store the cas identifiers of the documents
+     * @return array an array containing the documents
+     * @throws CouchbaseException if an error occurs
+     */
+    function getReplicaMulti($ids, $cas = array()) {
+
+    }
+
+    /**
      * Retrieve an object from the cache and lock it from modifications.
      *
      * While the object is locked it may only be modified by providing the
