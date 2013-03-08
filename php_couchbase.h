@@ -115,6 +115,7 @@ typedef struct _php_couchbase_ctx {
 } php_couchbase_ctx;
 
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
+zend_bool persistent;
 char serializer_real;
 char *serializer;
 char compressor_real;
@@ -246,6 +247,10 @@ PHP_FUNCTION(couchbase_delete_design_doc);
 
 #define PCBC_INIENT_COMPTHRESH "couchbase.compression_threshold"
 #define PCBC_INIDEFL_COMPTHRESH "2000"
+
+#define PCBC_INIENT_INST_PERSIST "couchbase.instance.persistent"
+#define PCBC_INIDEFL_INST_PERSIST "1"
+
 
 /**
  * Hash table manipulation functions.

@@ -1189,6 +1189,14 @@ STD_PHP_INI_ENTRY(PCBC_INIENT_OBS_TIMEOUT, PCBC_INIDEFL_OBS_TIMEOUT,
 STD_PHP_INI_ENTRY(PCBC_INIENT_VIEW_TIMEOUT, PCBC_INIDEFL_VIEW_TIMEOUT,
 				  PHP_INI_ALL, OnUpdateLong, view_timeout,
 				  zend_couchbase_globals, couchbase_globals)
+
+STD_PHP_INI_BOOLEAN(PCBC_INIENT_INST_PERSIST,
+					PCBC_INIDEFL_INST_PERSIST,
+					PHP_INI_ALL,
+					OnUpdateBool,
+					persistent,
+					zend_couchbase_globals,
+					couchbase_globals)
 PHP_INI_END()
 
 
