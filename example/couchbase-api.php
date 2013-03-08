@@ -1008,6 +1008,14 @@ class CouchbaseClusterManager {
 
     }
 
+    /**
+     * Flush (delete the content) the named bucket.
+     *
+     * @param string $name the bucket to flush
+     */
+    function flushBucket($name) {
+
+    }
 }
 
 ////////////////////////////////////////////////////////

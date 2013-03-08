@@ -36,6 +36,7 @@
  *                                         "password" => "secret",
  *                                         "port" => 11212));
  *     $cb->deleteBucket("mybucket");
+ *     $cb->flushBucket("mybucket");
  */
 
 #include "instance.h"
@@ -651,6 +652,96 @@ void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS)
 
 	/* exception is already thrown */
 	efree(ctx.payload);
+}
+
+PHP_COUCHBASE_LOCAL
+void ccm_flush_bucket_impl(INTERNAL_FUNCTION_PARAMETERS)
+{
+	zval *res;
+	char *name = NULL;
+	int name_len = 0;
+	lcb_t instance;
+	struct lcb_http_ctx ctx = { 0 };
+	lcb_http_cmd_t cmd = { 0 };
+	lcb_error_t rc;
+	char *path;
+	int plen;
+
+	res = zend_read_property(couchbase_ce, getThis(),
+							 ZEND_STRL(COUCHBASE_PROPERTY_HANDLE),
+							 1 TSRMLS_CC);
+	if (ZVAL_IS_NULL(res) || IS_RESOURCE != Z_TYPE_P(res)) {
+		zend_throw_exception(cb_exception, "unintilized couchbase",
+							 0 TSRMLS_CC);
+		return;
+	}
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name,
+							  &name_len) == FAILURE) {
+		return;
+	}
+
+	ZEND_FETCH_RESOURCE2(instance, lcb_t, &res, -1,
+						 PHP_COUCHBASE_CLUSTER_RESOURCE,
+						 le_couchbase_cluster, le_pcouchbase_cluster);
+
+	path = calloc(80 + name_len, 1);
+	if (path == NULL) {
+		zend_throw_exception(cb_exception, "Failed to allocate memory",
+							 0 TSRMLS_CC);
+		return ;
+	}
+
+	plen = sprintf(path, "/pools/default/buckets/");
+	memcpy(path + plen, name, name_len);
+	plen += name_len;
+	plen += sprintf(path + plen, "/controller/doFlush");
+	cmd.v.v0.path = path;
+	cmd.v.v0.npath = strlen(path);
+	cmd.v.v0.method = LCB_HTTP_METHOD_POST;
+	cmd.v.v0.content_type = "application/x-www-form-urlencoded";
+
+	rc = lcb_make_http_request(instance, &ctx,
+							   LCB_HTTP_TYPE_MANAGEMENT, &cmd, NULL);
+	free(path);
+
+	if (rc != LCB_SUCCESS || ctx.error != LCB_SUCCESS) {
+		char errmsg[512];
+		if (rc == LCB_SUCCESS) {
+			rc = ctx.error;
+		}
+		snprintf(errmsg, sizeof(errmsg), "Failed to flush bucket \"%s\": %s",
+				 name, lcb_strerror(instance, rc));
+		zend_throw_exception(cb_lcb_exception, errmsg, 0 TSRMLS_CC);
+		free(ctx.payload);
+		return ;
+	}
+
+	switch (ctx.status) {
+	case LCB_HTTP_STATUS_OK:
+	case LCB_HTTP_STATUS_ACCEPTED:
+		free(ctx.payload);
+		RETURN_TRUE;
+		;
+
+	case LCB_HTTP_STATUS_UNAUTHORIZED:
+		zend_throw_exception(cb_auth_exception, "Incorrect credentials",
+							 0 TSRMLS_CC);
+		break;
+
+	default:
+		if (ctx.payload == NULL) {
+			char message[200];
+			sprintf(message, "{\"errors\":{\"http response\": %d }}",
+					(int)ctx.status);
+			zend_throw_exception(cb_server_exception, message, 0 TSRMLS_CC);
+		} else {
+			zend_throw_exception(cb_server_exception, ctx.payload,
+								 0 TSRMLS_CC);
+		}
+	}
+
+	free(ctx.payload);
 }
 
 /*

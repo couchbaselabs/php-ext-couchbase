@@ -108,6 +108,13 @@ class Cluster extends CouchbaseTestCommon
             $vbm = $info->{"vBucketServerMap"}->{"vBucketMap"};
         } while (count($vbm) < 1024);
 
+	// Test flush as part of the create test ;)
+        try {
+            $cb->flushBucket("php-ext-test-bucket");
+        } catch (CouchbaseException $e) {
+            die($e->getMessage());
+        }
+
         // Clean up after ourself
         $this->doDeleteBucket($cb, "php-ext-test-bucket");
     }

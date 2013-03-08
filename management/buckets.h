@@ -31,6 +31,9 @@ PHP_COUCHBASE_LOCAL
 extern void ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAMETERS);
 
 PHP_COUCHBASE_LOCAL
+extern void ccm_flush_bucket_impl(INTERNAL_FUNCTION_PARAMETERS);
+
+PHP_COUCHBASE_LOCAL
 extern void ccm_get_bucket_info_impl(INTERNAL_FUNCTION_PARAMETERS);
 
 #endif

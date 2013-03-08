@@ -26,6 +26,7 @@ PHP_METHOD(couchbaseclustermanager, __construct);
 PHP_METHOD(couchbaseclustermanager, createBucket);
 PHP_METHOD(couchbaseclustermanager, modifyBucket);
 PHP_METHOD(couchbaseclustermanager, deleteBucket);
+PHP_METHOD(couchbaseclustermanager, flushBucket);
 PHP_METHOD(couchbaseclustermanager, getBucketInfo);
 PHP_METHOD(couchbaseclustermanager, getInfo);
 
@@ -56,6 +57,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_delete_bucket, 0, 0, 1)
 ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_flush_bucket, 0, 0, 1)
+ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_bucket_info, 0, 0, 0)
 ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
@@ -65,6 +70,7 @@ static zend_function_entry methods[] = {
 	PHP_ME(couchbaseclustermanager, createBucket, arginfo_create_bucket, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbaseclustermanager, modifyBucket, arginfo_modify_bucket, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbaseclustermanager, deleteBucket, arginfo_delete_bucket, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbaseclustermanager, flushBucket, arginfo_flush_bucket, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbaseclustermanager, getBucketInfo, arginfo_get_bucket_info, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbaseclustermanager, getInfo, NULL, ZEND_ACC_PUBLIC) {
 		NULL, NULL, NULL
@@ -96,6 +102,13 @@ PHP_METHOD(couchbaseclustermanager, modifyBucket)
 PHP_METHOD(couchbaseclustermanager, deleteBucket)
 {
 	ccm_delete_bucket_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/* }}} */
+
+/* {{{ proto Couchbaseclustermanager::flushBucket(string $name) */
+PHP_METHOD(couchbaseclustermanager, flushBucket)
+{
+	ccm_flush_bucket_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
