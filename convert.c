@@ -4,21 +4,13 @@ PHP_COUCHBASE_LOCAL
 void pcbc_json_decode(zval *zv, char *data, int ndata, zend_bool assoc
 					  TSRMLS_DC)
 {
-#if HAVE_JSON_API_5_2
-	php_json_decode(zv, data, ndata, assoc TSRMLS_CC);
-#else
 	php_json_decode(zv, data, ndata, assoc, 512 TSRMLS_CC);
-#endif
 }
 
 PHP_COUCHBASE_LOCAL
 void pcbc_json_encode(smart_str *buf, zval *value TSRMLS_DC)
 {
-#if HAVE_JSON_API_5_2
-	php_json_encode(buf, value TSRMLS_CC);
-#else
 	php_json_encode(buf, value, 0 TSRMLS_CC);
-#endif
 }
 
 PHP_COUCHBASE_LOCAL
