@@ -1208,6 +1208,15 @@ STD_PHP_INI_BOOLEAN(PCBC_INIENT_INST_PERSIST,
 					persistent,
 					zend_couchbase_globals,
 					couchbase_globals)
+
+STD_PHP_INI_BOOLEAN(PCBC_INIENT_INST_RESTFLUSH,
+					PCBC_INIDEFL_INST_RESTFLUSH,
+					PHP_INI_ALL,
+					OnUpdateBool,
+					restflush,
+					zend_couchbase_globals,
+					couchbase_globals)
+
 PHP_INI_END()
 
 

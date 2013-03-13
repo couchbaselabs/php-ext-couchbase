@@ -116,6 +116,7 @@ typedef struct _php_couchbase_ctx {
 
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
 zend_bool persistent;
+zend_bool restflush;
 char serializer_real;
 char *serializer;
 char compressor_real;
@@ -252,6 +253,9 @@ PHP_FUNCTION(couchbase_delete_design_doc);
 
 #define PCBC_INIENT_INST_PERSIST "couchbase.instance.persistent"
 #define PCBC_INIDEFL_INST_PERSIST "1"
+
+#define PCBC_INIENT_INST_RESTFLUSH "couchbase.restflush"
+#define PCBC_INIDEFL_INST_RESTFLUSH "On"
 
 
 /**

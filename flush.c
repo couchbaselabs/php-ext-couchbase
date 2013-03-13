@@ -30,11 +30,11 @@ struct flush_ctx {
 	char *payload;
 };
 
-static void flush_callback(lcb_http_request_t request,
-						   lcb_t instance,
-						   const void *cookie,
-						   lcb_error_t error,
-						   const lcb_http_resp_t *resp)
+static void rest_flush_callback(lcb_http_request_t request,
+								lcb_t instance,
+								const void *cookie,
+								lcb_error_t error,
+								const lcb_http_resp_t *resp)
 {
 	struct flush_ctx *ctx = (void *)cookie;
 	assert(cookie != NULL);
@@ -56,10 +56,10 @@ static void flush_callback(lcb_http_request_t request,
 	}
 }
 
-PHP_COUCHBASE_LOCAL
-void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
+static void do_rest_flush(INTERNAL_FUNCTION_PARAMETERS,
+						  int oo,
+						  php_couchbase_res *res)
 {
-	php_couchbase_res *couchbase_res;
 	struct flush_ctx ctx;
 	lcb_error_t rc;
 	lcb_http_cmd_t cmd;
@@ -67,13 +67,10 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	char *path;
 	lcb_http_complete_callback old;
 
-	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
-	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
-
-	instance = couchbase_res->handle;
-	path = ecalloc(strlen(couchbase_res->bucket) + 80, 1);
+	instance = res->handle;
+	path = ecalloc(strlen(res->bucket) + 80, 1);
 	sprintf(path, "/pools/default/buckets/%s/controller/doFlush",
-			couchbase_res->bucket);
+			res->bucket);
 
 	memset(&ctx, 0, sizeof(ctx));
 	memset(&cmd, 0, sizeof(cmd));
@@ -82,18 +79,16 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	cmd.v.v0.method = LCB_HTTP_METHOD_POST;
 	cmd.v.v0.content_type = "application/x-www-form-urlencoded";
 
-	old = lcb_set_http_complete_callback(instance, flush_callback);
-	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
+	old = lcb_set_http_complete_callback(instance, rest_flush_callback);
 	rc = lcb_make_http_request(instance, &ctx, LCB_HTTP_TYPE_MANAGEMENT,
 							   &cmd, NULL);
-	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
 	old = lcb_set_http_complete_callback(instance, old);
 
 	efree(path);
 	if (rc == LCB_SUCCESS) {
 		rc = ctx.error;
 	}
-	couchbase_res->rc = rc;
+	res->rc = rc;
 
 	if (rc != LCB_SUCCESS) {
 		/* An error occured occurred on libcouchbase level */
@@ -134,6 +129,70 @@ void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	if (ctx.payload != NULL) {
 		efree(ctx.payload);
 	}
+}
+
+static void memcached_flush_callback(lcb_t handle,
+									 const void *cookie,
+									 lcb_error_t error,
+									 const lcb_flush_resp_t *resp)
+{
+	if (error != LCB_SUCCESS) {
+		*((lcb_error_t *)cookie) = error;
+	}
+}
+
+static void do_memcached_flush(INTERNAL_FUNCTION_PARAMETERS,
+							   int oo,
+							   php_couchbase_res *res)
+{
+	lcb_error_t retval;
+	lcb_error_t cberr = LCB_SUCCESS;
+	php_couchbase_ctx *ctx;
+	lcb_flush_cmd_t cmd;
+	const lcb_flush_cmd_t *const commands[] = { &cmd };
+	lcb_t instance;
+
+	instance = res->handle;
+
+	memset(&cmd, 0, sizeof(cmd));
+	lcb_set_flush_callback(instance, memcached_flush_callback);
+	retval = lcb_flush(instance, (const void *)&cberr, 1, commands);
+
+	if (retval == LCB_SUCCESS) {
+		retval = cberr;
+	}
+	res->rc = retval;
+
+	if (retval == LCB_SUCCESS) {
+		RETURN_TRUE;
+	} else {
+		char errmsg[256];
+		sprintf(errmsg, "Failed to flush bucket: %s",
+				lcb_strerror(instance, retval));
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception, errmsg);
+	}
+}
+
+PHP_COUCHBASE_LOCAL
+void php_couchbase_flush_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
+{
+	php_couchbase_res *res;
+	lcb_t instance;
+
+	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
+	PHP_COUCHBASE_GET_PARAMS(res, argflags, "");
+
+	instance = res->handle;
+	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
+
+	if (COUCHBASE_G(restflush)) {
+		do_rest_flush(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo, res);
+	} else {
+		do_memcached_flush(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo, res);
+	}
+
+	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
 }
 
 /*
