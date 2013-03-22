@@ -353,7 +353,7 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 		php_couchbase_htinfo *hti = ctx.extended_value;
 		pcbc_json_decode(return_value, hti->data, hti->ndata, 1 TSRMLS_CC);
 
-		if (ctx.res->rc != LCB_SUCCESS && return_errors == 0) {
+		if ((ctx.res->rc != LCB_SUCCESS || (hti->htstatus) / 100 != 2) && return_errors == 0) {
 			char *errstr = php_couchbase_view_convert_to_error(return_value,
 															   hti);
 			zval_dtor(return_value);
