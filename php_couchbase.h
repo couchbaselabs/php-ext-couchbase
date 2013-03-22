@@ -37,7 +37,7 @@ extern zend_class_entry *couchbase_ce;
 #define COUCHBASE_G(v) (couchbase_globals.v)
 #endif
 
-#define PHP_COUCHBASE_VERSION	  "1.1.2"
+#define PHP_COUCHBASE_VERSION	  "1.1.3"
 #define PHP_COUCHBASE_RESOURCE	  "Couchbase"
 #define PHP_COUCHBASE_PERSISTENT_RESOURCE "Persistent Couchbase"
 #define COUCHBASE_PROPERTY_HANDLE "_handle"

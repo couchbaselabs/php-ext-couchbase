@@ -2,6 +2,7 @@
 <?php
 
 $VERSIONS = array(
+	"1.1.3" => "php-ext-couchbase",
 	"1.1.2" => "php-ext-couchbase",
 	"1.1.1" => "php-ext-couchbase",
 	"1.1.0" => "php-ext-couchbase",
