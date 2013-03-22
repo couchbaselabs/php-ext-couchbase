@@ -359,7 +359,7 @@ create_new_link:
 
 		php_couchbase_setup_callbacks(handle);
 
-		couchbase_res = pecalloc(1, sizeof(php_couchbase_res), persistent);
+		couchbase_res = calloc(1, sizeof(php_couchbase_res));
 		couchbase_res->handle = handle;
 		if (cparams.bucket) {
 			couchbase_res->bucket = strdup(cparams.bucket);

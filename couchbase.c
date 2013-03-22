@@ -44,9 +44,9 @@ void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		}
 		free(couchbase_res->bucket);
 		if (couchbase_res->prefix_key) {
-			efree((void *)couchbase_res->prefix_key);
+			free((void *)couchbase_res->prefix_key);
 		}
-		efree(couchbase_res);
+		free(couchbase_res);
 	}
 }
 /* }}} */

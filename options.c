@@ -61,12 +61,16 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 
 	case COUCHBASE_OPT_PREFIX_KEY:
 		convert_to_string_ex(&value);
-		if (couchbase_res->prefix_key) {
-			efree(couchbase_res->prefix_key);
-		}
-		couchbase_res->prefix_key = estrndup(Z_STRVAL_P(value),
-											 Z_STRLEN_P(value));
+		free(couchbase_res->prefix_key);
+		couchbase_res->prefix_key = NULL;
 		couchbase_res->prefix_key_len = Z_STRLEN_P(value);
+		if (couchbase_res->prefix_key_len) {
+			couchbase_res->prefix_key = malloc(couchbase_res->prefix_key_len + 1);
+			memcpy(couchbase_res->prefix_key,
+				   Z_STRVAL_P(value),
+				   couchbase_res->prefix_key_len);
+			couchbase_res->prefix_key[couchbase_res->prefix_key_len] = '\0';
+		}
 		break;
 
 	case COUCHBASE_OPT_COMPRESSION:
