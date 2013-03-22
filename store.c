@@ -84,6 +84,12 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 								 &expire,
 								 &cas, &cas_len);
 
+		if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+							  expire, &exp) == -1) {
+			/* Incorrect expiry time */
+			return;
+		}
+
 		if (!klen) {
 			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
 								   cb_illegal_key_exception,
@@ -108,10 +114,6 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 		ctx->res = couchbase_res;
 		ctx->rv	 = return_value;
 		couchbase_res->seqno += 1;
-
-		if (expire) {
-			exp = pcbc_check_expiry(expire);
-		}
 
 		if (cas) {
 			cas_v = strtoull(cas, 0, 10);
@@ -159,14 +161,16 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 								 "a|l",
 								 &akeys, &expire);
 
+		if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+							  expire, &exp) == -1) {
+			/* Incorrect expiry time */
+			return;
+		}
+
 		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
 		ctx->res = couchbase_res;
 		ctx->rv	 = return_value;
 		array_init(ctx->rv);
-
-		if (expire) {
-			exp = pcbc_check_expiry(expire);
-		}
 
 		for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
 				zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;
@@ -304,6 +308,12 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 							 &key, &klen, &value, &expire, &persist_to,
 							 &replicate_to);
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+						  expire, &exp) == -1) {
+		/* Incorrect expiry time */
+		return;
+	}
+
 	if (validate_simple_observe_clause(couchbase_res->handle,
 									   persist_to,
 									   replicate_to TSRMLS_CC) == -1) {
@@ -328,10 +338,6 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	ctx = ecalloc(1, sizeof(php_couchbase_ctx));
 	ctx->res = couchbase_res;
 	ctx->rv = return_value;
-
-	if (expire) {
-		exp = pcbc_check_expiry(expire);
-	}
 
 	if (cas) {
 		cas_v = strtoull(cas, 0, 10);
@@ -431,6 +437,12 @@ void php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op)
 								 &cas, &cas_len, &persist_to, &replicate_to);
 	}
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1,
+						  expire, &exp) == -1) {
+		/* Incorrect expiry time */
+		return;
+	}
+
 	if (validate_simple_observe_clause(couchbase_res->handle,
 									   persist_to,
 									   replicate_to TSRMLS_CC) == -1) {
@@ -462,10 +474,6 @@ void php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op)
 	ctx->res = couchbase_res;
 	ctx->rv = return_value;
 	couchbase_res->seqno += 1;
-
-	if (expire) {
-		exp = pcbc_check_expiry(expire);
-	}
 
 	if (cas) {
 		cas_v = strtoull(cas, 0, 10);
@@ -597,6 +605,12 @@ void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS)
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, PHP_COUCHBASE_ARG_F_OO, "a|lll",
 							 &akeys, &expire, &persist_to, &replicate_to);
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1,
+						  expire, &exp) == -1) {
+		/* Incorrect expiry time */
+		return;
+	}
+
 	if (validate_simple_observe_clause(couchbase_res->handle,
 									   persist_to,
 									   replicate_to TSRMLS_CC) == -1) {
@@ -624,10 +638,6 @@ void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS)
 	ctx->res = couchbase_res;
 	ctx->rv	= return_value;
 	array_init(ctx->rv);
-
-	if (expire) {
-		exp = pcbc_check_expiry(expire);
-	}
 
 	for (ii = 0, zend_hash_internal_pointer_reset(Z_ARRVAL_P(akeys));
 			zend_hash_has_more_elements(Z_ARRVAL_P(akeys)) == SUCCESS;

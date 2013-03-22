@@ -99,12 +99,21 @@ void php_couchbase_setup_callbacks(lcb_t handle)
 }
 
 PHP_COUCHBASE_LOCAL
-long pcbc_check_expiry(long expiry)
+int pcbc_check_expiry(INTERNAL_FUNCTION_PARAMETERS, int oo, long expiry, long *out)
 {
 	if (expiry < 0) {
-		php_error(E_RECOVERABLE_ERROR, "Expiry must not be negative (%ld given).", expiry);
+
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_arguments_exception,
+							   "Expiry must not be negative (%ld given).",
+							   expiry);
+
+		/* php_error(E_RECOVERABLE_ERROR, "Expiry must not be negative (%ld given).", expiry); */
+		return -1;
 	}
-	return expiry;
+
+	*out = (time_t)expiry;
+	return 0;
 }
 
 PHP_COUCHBASE_LOCAL

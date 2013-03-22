@@ -45,6 +45,12 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "sl", &key, &nkey, &expiry);
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+						  expiry, &exp) == -1) {
+		/* Incorrect expiry time */
+		return;
+	}
+
 	if (!nkey) {
 		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 							   cb_illegal_key_exception,
@@ -54,10 +60,6 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 
 	if (couchbase_res->prefix_key_len) {
 		nkey = spprintf(&key, 0, "%s_%s", couchbase_res->prefix_key, key);
-	}
-
-	if (expiry) {
-		exp = pcbc_check_expiry(expiry);
 	}
 
 	memset(&cmd, 0, sizeof(cmd));
@@ -153,6 +155,12 @@ void php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "al", &arr_keys, &expiry);
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+						  expiry, &exp) == -1) {
+		/* Incorrect expiry time */
+		return;
+	}
+
 	instance = couchbase_res->handle;
 	memset(&cookie, 0, sizeof(cookie));
 	cookie.nkeys = zend_hash_num_elements(Z_ARRVAL_P(arr_keys));
@@ -192,10 +200,6 @@ void php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 							   cb_illegal_key_exception,
 							   "No keys specified");
 		return;
-	}
-
-	if (expiry) {
-		exp = pcbc_check_expiry(expiry);
 	}
 
 	cmd = ecalloc(idx, sizeof(lcb_touch_cmd_t));

@@ -190,6 +190,11 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 											 &akeys, &cas_token, &flag);
 		}
 
+		if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							  expiry, &exp) == -1) {
+			return ;
+		}
+
 		nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
 		keys = ecalloc(nkey, sizeof(char *));
 		klens = ecalloc(nkey, sizeof(long));
@@ -252,6 +257,11 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 											 &cas_token);
 		}
 
+		if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo, expiry,
+							  &exp) == -1) {
+			return ;
+		}
+
 		if (!klen) {
 			return;
 		}
@@ -293,10 +303,6 @@ void php_couchbase_get_impl(INTERNAL_FUNCTION_PARAMETERS,
 	} else {
 		lcb_get_cmd_t **commands = ecalloc(nkey, sizeof(lcb_get_cmd_t *));
 		int ii;
-
-		if (expiry) {
-			exp = pcbc_check_expiry(expiry);
-		}
 
 		for (ii = 0; ii < nkey; ++ii) {
 			lcb_get_cmd_t *cmd = ecalloc(1, sizeof(lcb_get_cmd_t));
@@ -436,6 +442,11 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 									 &akeys, &with_cas, &fci, &fci_cache,
 									 &expiry, &lock);
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+						  expiry, &exp) == -1) {
+		return ;
+	}
+
 	nkey = zend_hash_num_elements(Z_ARRVAL_P(akeys));
 	keys = ecalloc(nkey, sizeof(char *));
 	klens = ecalloc(nkey, sizeof(long));
@@ -479,10 +490,6 @@ void php_couchbase_get_delayed_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	ctx->flags = with_cas;
 
 	commands = ecalloc(nkey, sizeof(lcb_get_cmd_t *));
-	if (expiry) {
-		exp = pcbc_check_expiry(expiry);
-	}
-
 	for (ii = 0; ii < nkey; ++ii) {
 		lcb_get_cmd_t *cmd = ecalloc(1, sizeof(lcb_get_cmd_t));
 		commands[ii] = cmd;

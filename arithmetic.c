@@ -42,16 +42,16 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags,
 							 "s|llll", &key, &klen, &offset, &create,
 							 &expire, &initial);
-	instance = couchbase_res->handle;
 
+	if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+						  expire, &exp) == -1) {
+		/* Incorrect expiry time */
+		return;
+	}
+
+	instance = couchbase_res->handle;
 	memset(&cookie, 0, sizeof(cookie));
 	delta = (op == '+') ? offset : -offset;
-
-	if (expire) {
-		exp = pcbc_check_expiry(expire);
-	} else {
-		exp = 0;
-	}
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.v.v0.key = key;

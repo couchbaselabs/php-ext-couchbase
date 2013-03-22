@@ -53,6 +53,9 @@ zend_class_entry *cb_illegal_option_exception;
 PHP_COUCHBASE_LOCAL
 zend_class_entry *cb_illegal_value_exception;
 
+PHP_COUCHBASE_LOCAL
+zend_class_entry *cb_illegal_arguments_exception;
+
 #define setup(var, name, parent)										\
 	do {																\
 		zend_class_entry cbe;											\
@@ -88,6 +91,8 @@ void init_couchbase_exceptions(TSRMLS_D)
 	setup(cb_illegal_option_exception, "CouchbaseIllegalOptionException",
 		  cb_exception);
 	setup(cb_illegal_value_exception, "CouchbaseIllegalValueException",
+		  cb_exception);
+	setup(cb_illegal_arguments_exception, "CouchbaseIllegalArgumentsException",
 		  cb_exception);
 }
 

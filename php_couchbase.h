@@ -363,7 +363,7 @@ PHP_COUCHBASE_LOCAL
 void pcbc_stop_loop(struct _php_couchbase_res *res);
 
 PHP_COUCHBASE_LOCAL
-long pcbc_check_expiry(long expiry);
+int pcbc_check_expiry(INTERNAL_FUNCTION_PARAMETERS, int oo, long expiry, long *out);
 
 PHP_COUCHBASE_LOCAL
 char *php_couchbase_zval_to_payload(zval *value,
