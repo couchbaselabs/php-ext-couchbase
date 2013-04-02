@@ -34,7 +34,7 @@ Create a new script `test.php`:
 
 # Compatibility
 
-PHP 5.2.9 or later.
+PHP 5.3 or later.
 
 Windows support is coming in the next release.
 
@@ -48,7 +48,7 @@ See CREDITS file. Thanks all!
 
 ## Copyright
 
-(c) 2011, 2012 Couchbase
+(c) 2011, 2012, 2013 Couchbase
 
 ## Contributions
 
