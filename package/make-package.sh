@@ -28,7 +28,8 @@ cd package
      ../.libs/couchbase.so \
      php-ext-couchbase
 
-  cp ../example/view.php \
+  cp ../example/buckets.php \
+     ../example/view.php \
      php-ext-couchbase/example
 
   tar cf - php-ext-couchbase | gzip -9 - > php-ext-couchbase.tar.gz
