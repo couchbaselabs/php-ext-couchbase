@@ -19,7 +19,7 @@ make
 
 # package
 cd package
-  mkdir -p php-ext-couchbase
+  mkdir -p php-ext-couchbase/example
   cp ../CREDITS \
      ../LICENSE \
      README.md \
@@ -27,6 +27,9 @@ cd package
      ../example/couchbase.ini \
      ../.libs/couchbase.so \
      php-ext-couchbase
+
+  cp ../example/view.php \
+     php-ext-couchbase/example
 
   tar cf - php-ext-couchbase | gzip -9 - > php-ext-couchbase.tar.gz
   rm -rf php-ext-couchbase
