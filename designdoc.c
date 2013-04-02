@@ -86,9 +86,8 @@ void php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, 
 	memset(&ctx, 0, sizeof(ctx));
 	memset(&cmd, 0, sizeof(cmd));
 	instance = couchbase_res->handle;
-	path = ecalloc(1, strlen(couchbase_res->bucket) + nname + 4);
-	len = sprintf(path, "/_design/%*s", (int)nname,
-				  name);
+	path = ecalloc(1, 80 + nname);
+	len = sprintf(path, "/_design/%*s", (int)nname, name);
 	cmd.v.v0.path = path;
 	cmd.v.v0.npath = len;
 	if (rem) {
@@ -197,9 +196,8 @@ void php_couchbase_set_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	memset(&ctx, 0, sizeof(ctx));
 	memset(&cmd, 0, sizeof(cmd));
 	instance = couchbase_res->handle;
-	path = ecalloc(1, strlen(couchbase_res->bucket) + nname + 4);
-	len = sprintf(path, "/_design/%*s", (int)nname,
-				  name);
+	path = ecalloc(1, 80 + nname);
+	len = sprintf(path, "/_design/%*s", (int)nname, name);
 	cmd.v.v0.path = path;
 	cmd.v.v0.npath = len;
 	cmd.v.v0.body = doc;
@@ -224,7 +222,7 @@ void php_couchbase_set_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		efree(ctx.payload);
 		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 							   cb_lcb_exception,
-							   "Failed to retrieve design doc: %s",
+							   "Failed to store design doc: %s",
 							   lcb_strerror(instance, rc));
 		return;
 	}
