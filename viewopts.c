@@ -54,6 +54,7 @@ static view_param Recognized_View_Params[] = {
 	{ "startkey", jval_param_handler },
 	{ "startkey_docid", string_param_handler },
 	{ "debug", bool_param_handler },
+	{ "connection_timeout", num_param_handler },
 	{ NULL, NULL }
 };
 

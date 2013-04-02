@@ -613,6 +613,7 @@ class Couchbase {
      * <tr><td>startkey</td><td>JSON</td></tr>
      * <tr><td>startkey_docid</td><td>string</td></tr>
      * <tr><td>debug</td><td>boolean</td></tr>
+     * <tr><td>connection_timeout</td><td>numeric</td></tr>
      * </table>
      *
      * @todo update the table above with a description.

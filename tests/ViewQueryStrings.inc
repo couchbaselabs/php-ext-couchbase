@@ -137,6 +137,7 @@ class ViewQueryStrings extends CouchbaseViewTestCommon {
      */
     function testMiscNumeric() {
         $pnames = array(
+            "connection_timeout",
             "group_level",
             "skip",
             "limit"
