@@ -6,8 +6,9 @@ class GetReplica extends CouchbaseTestCommon {
     function testGetReplica() {
 	$oo = $this->oo;
 	$num = $oo->getNumReplicas();
+	$numServers = count($oo->getServers());
 
-	if ($num == 0) {
+	if ($num == 0 || $num <= $numServers) {
 	   // @todo figure out how to print this out as skipped...
 	   return ;
 	}
@@ -33,8 +34,9 @@ class GetReplica extends CouchbaseTestCommon {
     function testGetReplicaMulti() {
 	$oo = $this->oo;
 	$num = $oo->getNumReplicas();
+	$numServers = count($oo->getServers());
 
-	if ($num == 0) {
+	if ($num == 0 || $num <= $numServers) {
 	   // @todo figure out how to print this out as skipped...
 	   return ;
 	}
