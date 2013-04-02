@@ -283,6 +283,10 @@ ZEND_ARG_INFO(0, name)
 ZEND_ARG_INFO(0, doc)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_list_design_docs, 0, 0, 1)
+ZEND_ARG_INFO(0, resource)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_get_timeout, 0, 0, 1)
 ZEND_ARG_INFO(0, resource)
 ZEND_END_ARG_INFO()
@@ -521,6 +525,10 @@ ZEND_ARG_INFO(0, name)
 ZEND_ARG_INFO(0, doc)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_list_design_docs, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_get_timeout, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
@@ -571,6 +579,7 @@ static zend_function_entry couchbase_functions[] = {
 	PHP_FE(couchbase_get_design_doc, arginfo_delget_design_doc)
 	PHP_FE(couchbase_set_design_doc, arginfo_set_design_doc)
 	PHP_FE(couchbase_delete_design_doc, arginfo_delget_design_doc)
+	PHP_FE(couchbase_list_design_docs, arginfo_list_design_docs)
 	PHP_FE(couchbase_get_timeout, arginfo_get_timeout)
 	PHP_FE(couchbase_set_timeout, arginfo_set_timeout) {
 		NULL, NULL, NULL
@@ -622,6 +631,7 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, getDesignDoc, arginfo_m_delget_design_doc, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, setDesignDoc, arginfo_m_set_design_doc, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, deleteDesignDoc, arginfo_m_delget_design_doc, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, listDesignDocs, arginfo_m_list_design_docs, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getTimeout, arginfo_m_get_timeout, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, setTimeout, arginfo_m_set_timeout, ZEND_ACC_PUBLIC) {
 		NULL, NULL, NULL
@@ -846,6 +856,11 @@ PHP_METHOD(couchbase, getDesignDoc)
 PHP_METHOD(couchbase, deleteDesignDoc)
 {
 	php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1);
+}
+
+PHP_METHOD(couchbase, listDesignDocs)
+{
+	php_couchbase_list_design_docs_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1);
 }
 
 PHP_METHOD(couchbase, setDesignDoc)
@@ -1075,6 +1090,11 @@ PHP_FUNCTION(couchbase_get_design_doc)
 PHP_FUNCTION(couchbase_delete_design_doc)
 {
 	php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1);
+}
+
+PHP_FUNCTION(couchbase_list_design_docs)
+{
+	php_couchbase_list_design_docs_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0);
 }
 
 PHP_FUNCTION(couchbase_set_design_doc)

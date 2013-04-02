@@ -257,6 +257,87 @@ void php_couchbase_set_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	efree(ctx.payload);
 }
 
+PHP_COUCHBASE_LOCAL
+void php_couchbase_list_design_docs_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
+{
+	php_couchbase_res *couchbase_res;
+	int argflags;
+	lcb_t instance;
+	lcb_error_t rc;
+	struct http_ctx ctx;
+	lcb_http_cmd_t cmd;
+	lcb_http_complete_callback old;
+	int len;
+	char *path;
+
+	if (oo) {
+		argflags = PHP_COUCHBASE_ARG_F_OO;
+	} else {
+		argflags = PHP_COUCHBASE_ARG_F_FUNCTIONAL;
+	}
+
+	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
+	instance = couchbase_res->handle;
+
+	memset(&ctx, 0, sizeof(ctx));
+	memset(&cmd, 0, sizeof(cmd));
+
+	path = ecalloc(strlen(couchbase_res->bucket) + 80, 1);
+	len = sprintf(path, "/pools/default/buckets/%s/ddocs",
+				  couchbase_res->bucket);
+	cmd.v.v0.path = path;
+	cmd.v.v0.npath = len;
+	cmd.v.v0.method = LCB_HTTP_METHOD_GET;
+	cmd.v.v0.content_type = "application/json";
+
+	old = lcb_set_http_complete_callback(instance, http_callback);
+	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
+	rc = lcb_make_http_request(instance, &ctx, LCB_HTTP_TYPE_MANAGEMENT,
+							   &cmd, NULL);
+	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
+	old = lcb_set_http_complete_callback(instance, old);
+	efree(path);
+
+	if (rc == LCB_SUCCESS) {
+		rc = ctx.error;
+	}
+	couchbase_res->rc = rc;
+
+	if (rc != LCB_SUCCESS) {
+		/* An error occured occurred on libcouchbase level */
+		efree(ctx.payload);
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_lcb_exception,
+							   "Failed to retrieve design doc: %s",
+							   lcb_strerror(instance, rc));
+		return;
+	}
+
+	switch (ctx.status)  {
+	case LCB_HTTP_STATUS_OK:
+		RETURN_STRING(ctx.payload, 0);
+
+	case LCB_HTTP_STATUS_UNAUTHORIZED:
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_auth_exception, "Incorrect credentials");
+		break;
+
+	default:
+		if (ctx.payload == NULL) {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_server_exception,
+								   "{\"errors\":{\"http response\": %d }}",
+								   (int)ctx.status);
+		} else {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_server_exception,
+								   ctx.payload);
+		}
+	}
+
+	efree(ctx.payload);
+}
+
 /*
  * Local variables:
  * tab-width: 4

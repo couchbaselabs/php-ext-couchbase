@@ -120,6 +120,9 @@ PHP_COUCHBASE_LOCAL
 void php_couchbase_delget_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int del);
 
 PHP_COUCHBASE_LOCAL
+void php_couchbase_list_design_docs_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
+
+PHP_COUCHBASE_LOCAL
 void php_couchbase_set_design_doc_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);
 
 

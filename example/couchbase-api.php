@@ -898,6 +898,17 @@ class Couchbase {
 
     }
 
+    /**
+     * List all design documents for this bucket
+     *
+     * @return string A JSON encoded string containing all information about
+     *                the design documents
+     * @throws CouchbaseException if an error occurs
+     */
+    function listDesignDocs() {
+
+    }
+
 }
 
 class CouchbaseClusterManager {

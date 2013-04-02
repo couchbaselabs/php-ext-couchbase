@@ -108,4 +108,15 @@ class DesignDoc extends CouchbaseTestCommon {
            $this->assertContains("invalid UTF-8 JSON", $e->getMessage());
        }
    }
+
+   function testListDesignDocs() {
+       $cb = $this->oo;
+       try {
+          $msg = "not thrown";
+          $num = $cb->listDesignDocs();
+       } catch (CouchbaseException $e) {
+          $msg = $e->getMessage();
+       }
+       $this->assertEquals("not thrown", $msg);
+   }
 }

@@ -181,6 +181,7 @@ PHP_METHOD(couchbase, setTimeout);
 PHP_METHOD(couchbase, getDesignDoc);
 PHP_METHOD(couchbase, setDesignDoc);
 PHP_METHOD(couchbase, deleteDesignDoc);
+PHP_METHOD(couchbase, listDesignDocs);
 
 PHP_FUNCTION(couchbase_connect);
 PHP_FUNCTION(couchbase_add);
@@ -226,6 +227,7 @@ PHP_FUNCTION(couchbase_set_timeout);
 PHP_FUNCTION(couchbase_get_design_doc);
 PHP_FUNCTION(couchbase_set_design_doc);
 PHP_FUNCTION(couchbase_delete_design_doc);
+PHP_FUNCTION(couchbase_list_design_docs);
 
 /**
  * INI Entries. The naming scheme here should be self-evident
