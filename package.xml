@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
+<package xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" packagerversion="1.4.11" version="2.0" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+  <name>couchbase</name>
+  <channel>pecl.php.net</channel>
+  <summary>Couchbase Server PHP extension</summary>
+  <description>
+    The PHP client library provides fast access to documents stored in
+    a Couchbase Server.
+  </description>
+  <lead>
+    <name>Trond Norbye</name>
+    <user>trondn</user>
+    <email>trond.norbye@couchbase.com</email>
+    <active>yes</active>
+  </lead>
+  <lead>
+    <name>Xinchen Hui</name>
+    <user>laruence</user>
+    <email>laruence@php.net</email>
+    <active>no</active>
+  </lead>
+  <lead>
+    <name>Pierre Joye</name>
+    <user>pajoye</user>
+    <email/>
+    <active>yes</active>
+  </lead>
+  <lead>
+    <name>Jan Lehnardt</name>
+    <user/>
+    <email>jan@php.net</email>
+    <active>no</active>
+  </lead>
+  <developer>
+    <name>Matt Ingenthron</name>
+    <user/>
+    <email>ingenthr@cep.net</email>
+    <active>yes</active>
+  </developer>
+  <developer>
+    <name>Michael Nitschinger</name>
+    <user/>
+    <email>michael@nitschinger.at</email>
+    <active>yes</active>
+  </developer>
+  <developer>
+    <name>Sergey Avseyev</name>
+    <user/>
+    <email>sergey.avseyev@gmail.com</email>
+    <active>yes</active>
+  </developer>
+  <contributor>
+    <name>Mark Nunberg</name>
+    <user/>
+    <email>mnunberg@haskalah.org</email>
+    <active>yes</active>
+  </contributor>
+  <contributor>
+    <name>Michael Orion Jackson</name>
+    <user/>
+    <email>mjackson@omniti.com</email>
+    <active>no</active>
+  </contributor>
+  <contributor>
+    <name>Brett Lawson</name>
+    <user/>
+    <email>brett19@gmail.com</email>
+    <active>no</active>
+  </contributor>
+  <contributor>
+    <name>Eugene</name>
+    <user/>
+    <email>normandiggs@gmail.com</email>
+    <active>no</active>
+  </contributor>
+  <date>2013-04-08</date>
+  <version>
+    <release>1.1.4</release>
+    <api>1.1.4</api>
+  </version>
+  <stability>
+    <release>devel</release>
+    <api>devel</api>
+  </stability>
+  <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
+  <notes>
+    - Prototype trying to get the thing working for PECL
+  </notes>
+  <contents>
+    <dir name="/">
+      <file role="doc" name="CONTRIBUTING.md"/>
+      <file role="doc" name="CREDITS"/>
+      <file role="doc" name="LICENSE"/>
+      <file role="doc" name="README.md"/>
+      <file role="doc" name="example/couchbase-api.php"/>
+      <file role="doc" name="example/couchbase.ini"/>
+      <file role="doc" name="fastlz/LICENSE"/>
+      <file role="doc" name="package/README.md"/>
+      <file role="src" name="apidecl.c"/>
+      <file role="src" name="apidecl.h"/>
+      <file role="src" name="arithmetic.c"/>
+      <file role="src" name="ccache.c"/>
+      <file role="src" name="compress.c"/>
+      <file role="src" name="config.m4"/>
+      <file role="src" name="config.w32"/>
+      <file role="src" name="convert.c"/>
+      <file role="src" name="couchbase.c"/>
+      <file role="src" name="couchbase.php"/>
+      <file role="src" name="create.c"/>
+      <file role="src" name="designdoc.c"/>
+      <file role="src" name="error.c"/>
+      <file role="src" name="exceptions.c"/>
+      <file role="src" name="exceptions.h"/>
+      <file role="src" name="fastlz/fastlz.c"/>
+      <file role="src" name="fastlz/fastlz.h"/>
+      <file role="src" name="flush.c"/>
+      <file role="src" name="get.c"/>
+      <file role="src" name="ht.c"/>
+      <file role="src" name="ht.h"/>
+      <file role="src" name="internal.h"/>
+      <file role="src" name="management/buckets.c"/>
+      <file role="src" name="management/buckets.h"/>
+      <file role="src" name="management/cluster.h"/>
+      <file role="src" name="management/instance.c"/>
+      <file role="src" name="management/instance.h"/>
+      <file role="src" name="management/management.c"/>
+      <file role="src" name="misc.c"/>
+      <file role="src" name="observe.c"/>
+      <file role="src" name="options.c"/>
+      <file role="src" name="package.xml"/>
+      <file role="src" name="package/make-package.sh"/>
+      <file role="src" name="package/release-tool.php"/>
+      <file role="src" name="php_couchbase.h"/>
+      <file role="src" name="remove.c"/>
+      <file role="src" name="resget.h"/>
+      <file role="src" name="resmgr.c"/>
+      <file role="src" name="simple_observe.c"/>
+      <file role="src" name="simple_observe.h"/>
+      <file role="src" name="stat.c"/>
+      <file role="src" name="store.c"/>
+      <file role="src" name="timeout.c"/>
+      <file role="src" name="touch.c"/>
+      <file role="src" name="unlock.c"/>
+      <file role="src" name="version.c"/>
+      <file role="src" name="viewopts.c"/>
+      <file role="src" name="views.c"/>
+      <file role="src" name="views.h"/>
+    </dir>
+  </contents>
+  <dependencies>
+    <required>
+      <php>
+        <min>5.3.0</min>
+      </php>
+      <pearinstaller>
+        <min>1.4.8</min>
+      </pearinstaller>
+    </required>
+  </dependencies>
+  <providesextension>couchbase</providesextension>
+  <extsrcrelease/>
+  <changelog>
+    <release>
+      <stability>
+        <release>devel</release>
+        <api>devel</api>
+      </stability>
+      <version>
+        <release>1.1.4</release>
+        <api>1.1.4</api>
+      </version>
+      <date>2013-04-08</date>
+      <notes>
+        - Experimenting with PECL integration
+        - Remove gettimeofday implementation for win32
+        - PCBC-206: Prototype for configuration caching
+        - Fixup memory allocation for URL path
+        - PCBC-186: Add method to list all design docs
+        - PCBC-178: Add support for connection_timeout
+        - Update GetReplica test
+        - PCBC-218: Detect invalid characters in CAS
+        - Add bucket manipulation example
+        - PCBC-172: Add design document examples
+        - PCBC-191 Don't coredump for invalid argument
+        - Update the list of supported PHP versions
+      </notes>
+    </release>
+  </changelog>
+</package>
