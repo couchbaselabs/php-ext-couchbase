@@ -23,6 +23,7 @@ NegativeExpiry
 NonASCII
 Observe
 Prefix
+Regression
 Replace
 Serialization
 ServerStats
