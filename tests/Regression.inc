@@ -21,4 +21,17 @@ class Regression extends CouchbaseTestCommon {
         $this->assertEquals("Invalid key specified (not a string)",
                             $msg);
     }
+
+    function testPCBC_218() {
+        $cb = $this->oo;
+        $msg = "not thrown";
+        try {
+           $cb->cas("yay", "foo", "bar", 0);
+        } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+        }
+
+        $this->assertEquals("Illegal CAS specified", $msg);
+    }
+
 }

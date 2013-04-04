@@ -335,13 +335,20 @@ void php_couchbase_cas_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		return;
 	}
 
+	if (cas) {
+		char *end;
+		cas_v = strtoull(cas, &end, 10);
+		if (*end != '\0') {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_exception,
+								   "Illegal CAS specified");
+			return;
+		}
+	}
+
 	ctx = ecalloc(1, sizeof(php_couchbase_ctx));
 	ctx->res = couchbase_res;
 	ctx->rv = return_value;
-
-	if (cas) {
-		cas_v = strtoull(cas, 0, 10);
-	}
 
 	payload = php_couchbase_zval_to_payload(value, &payload_len, &flags,
 											couchbase_res->serializer,
