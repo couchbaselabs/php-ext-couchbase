@@ -53,6 +53,7 @@ void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	char *key;
 	char *cas = NULL;
+	char *cas_e;
 	long klen = 0;
 	long cas_len = 0;
 	lcb_cas_t cas_v = 0;
@@ -78,7 +79,14 @@ void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		return ;
 	}
 
-	cas_v = (lcb_cas_t)strtoull(cas, 0, 10);
+	cas_v = (lcb_cas_t)strtoull(cas, &cas_e, 10);
+	if (*cas_e != '\0') {
+		couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+							   cb_illegal_key_exception,
+							   "Invalid CAS specified");
+		return;
+	}
+
 	retval = do_unlock(couchbase_res->handle, key, klen, cas_v);
 	couchbase_res->rc = retval;
 

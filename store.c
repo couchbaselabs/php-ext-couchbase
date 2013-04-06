@@ -97,6 +97,17 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 			return;
 		}
 
+		if (cas) {
+			char *e;
+			cas_v = (lcb_cas_t)strtoull(cas, &e, 10);
+			if (*e != '\0') {
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+									   cb_illegal_key_exception,
+									   "Invalid CAS specified");
+				return;
+			}
+		}
+
 		payload = php_couchbase_zval_to_payload(value, &payload_len,
 												&flags,
 												couchbase_res->serializer,
@@ -114,10 +125,6 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 		ctx->res = couchbase_res;
 		ctx->rv	 = return_value;
 		couchbase_res->seqno += 1;
-
-		if (cas) {
-			cas_v = strtoull(cas, 0, 10);
-		}
 
 		{
 			lcb_store_cmd_t cmd;
@@ -464,6 +471,17 @@ void php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op)
 		return ;
 	}
 
+	if (cas) {
+		char *e;
+		cas_v = (lcb_cas_t)strtoull(cas, &e, 10);
+		if (*e != '\0') {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1,
+								   cb_illegal_key_exception,
+								   "Invalid CAS specified");
+			return;
+		}
+	}
+
 	payload = php_couchbase_zval_to_payload(value, &payload_len, &flags,
 											couchbase_res->serializer,
 											couchbase_res->compressor
@@ -481,10 +499,6 @@ void php_couchbase_store_impl_oo(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op)
 	ctx->res = couchbase_res;
 	ctx->rv = return_value;
 	couchbase_res->seqno += 1;
-
-	if (cas) {
-		cas_v = strtoull(cas, 0, 10);
-	}
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.v.v0.operation = op;

@@ -79,7 +79,14 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	}
 
 	if (cas_len > 0) {
-		cas_v = (lcb_cas_t)strtoull(cas, 0, 10);
+		char *e;
+		cas_v = (lcb_cas_t)strtoull(cas, &e, 10);
+		if (*e != '\0') {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+								   cb_illegal_key_exception,
+								   "Invalid CAS specified");
+			return;
+		}
 	}
 
 	retval = do_remove(couchbase_res->handle, key, klen, &cas_v);
