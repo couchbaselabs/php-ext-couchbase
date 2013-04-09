@@ -1344,6 +1344,7 @@ PHP_MINFO_FUNCTION(couchbase)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "couchbase support", "enabled");
 	php_info_print_table_row(2, "version", PHP_COUCHBASE_VERSION);
+	php_info_print_table_row(2, "libcouchbase version", lcb_get_version(NULL));
 
 #ifdef HAVE_JSON_API
 	php_info_print_table_row(2, "json support", "yes");
