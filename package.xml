@@ -74,14 +74,14 @@
     <email>normandiggs@gmail.com</email>
     <active>no</active>
   </contributor>
-  <date>2013-04-08</date>
+  <date>2013-04-11</date>
   <version>
     <release>1.1.4</release>
     <api>1.1.4</api>
   </version>
   <stability>
-    <release>devel</release>
-    <api>devel</api>
+    <release>snapshot</release>
+    <api>stable</api>
   </stability>
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
   <notes>
@@ -170,7 +170,7 @@
         <release>1.1.4</release>
         <api>1.1.4</api>
       </version>
-      <date>2013-04-08</date>
+      <date>2013-04-11</date>
       <notes>
         - Experimenting with PECL integration
         - Reset the error code between each request of a persistent connection
