@@ -324,6 +324,7 @@ void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		couchbase_res->serializer = COUCHBASE_G(serializer_real);
 		couchbase_res->compressor = COUCHBASE_G(compressor_real);
 		couchbase_res->ignoreflags = 0;
+		couchbase_res->rc = LCB_SUCCESS;
 		efree(hashed_key);
 	} else {
 		struct lcb_cached_config_st cached;

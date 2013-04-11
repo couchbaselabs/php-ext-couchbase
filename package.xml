@@ -173,6 +173,7 @@
       <date>2013-04-08</date>
       <notes>
         - Experimenting with PECL integration
+        - Reset the error code between each request of a persistent connection
         - Report libcouchbase version in phpinfo
         - Remove gettimeofday implementation for win32
         - PCBC-206: Prototype for configuration caching
