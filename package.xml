@@ -28,52 +28,10 @@
   </lead>
   <lead>
     <name>Jan Lehnardt</name>
-    <user/>
+    <user>jan</user>
     <email>jan@php.net</email>
     <active>no</active>
   </lead>
-  <developer>
-    <name>Matt Ingenthron</name>
-    <user/>
-    <email>ingenthr@cep.net</email>
-    <active>yes</active>
-  </developer>
-  <developer>
-    <name>Michael Nitschinger</name>
-    <user/>
-    <email>michael@nitschinger.at</email>
-    <active>yes</active>
-  </developer>
-  <developer>
-    <name>Sergey Avseyev</name>
-    <user/>
-    <email>sergey.avseyev@gmail.com</email>
-    <active>yes</active>
-  </developer>
-  <contributor>
-    <name>Mark Nunberg</name>
-    <user/>
-    <email>mnunberg@haskalah.org</email>
-    <active>yes</active>
-  </contributor>
-  <contributor>
-    <name>Michael Orion Jackson</name>
-    <user/>
-    <email>mjackson@omniti.com</email>
-    <active>no</active>
-  </contributor>
-  <contributor>
-    <name>Brett Lawson</name>
-    <user/>
-    <email>brett19@gmail.com</email>
-    <active>no</active>
-  </contributor>
-  <contributor>
-    <name>Eugene</name>
-    <user/>
-    <email>normandiggs@gmail.com</email>
-    <active>no</active>
-  </contributor>
   <date>2013-04-11</date>
   <version>
     <release>1.1.4</release>
@@ -86,6 +44,19 @@
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
   <notes>
     - Prototype trying to get the thing working for PECL
+    - Reset the error code between each request of a persistent connection
+    - Report libcouchbase version in phpinfo
+    - Remove gettimeofday implementation for win32
+    - PCBC-206: Prototype for configuration caching
+    - Fixup memory allocation for URL path
+    - PCBC-186: Add method to list all design docs
+    - PCBC-178: Add support for connection_timeout
+    - Update GetReplica test
+    - PCBC-218: Detect invalid characters in CAS
+    - Add bucket manipulation example
+    - PCBC-172: Add design document examples
+    - PCBC-191 Don't coredump for invalid argument
+    - Update the list of supported PHP versions
   </notes>
   <contents>
     <dir name="/">
