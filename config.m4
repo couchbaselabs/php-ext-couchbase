@@ -182,4 +182,6 @@ if test "$PHP_COUCHBASE" != "no"; then
                      viewopts.c \
                      views.c \
                     ], [$ext_shared])
+    PHP_ADD_BUILD_DIR($ext_builddir/fastlz, 1)
+    PHP_ADD_BUILD_DIR($ext_builddir/management, 1)
 fi
