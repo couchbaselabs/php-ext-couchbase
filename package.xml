@@ -99,7 +99,6 @@
       <file role="src" name="misc.c"/>
       <file role="src" name="observe.c"/>
       <file role="src" name="options.c"/>
-      <file role="src" name="package.xml"/>
       <file role="src" name="package/make-package.sh"/>
       <file role="src" name="package/release-tool.php"/>
       <file role="src" name="php_couchbase.h"/>
