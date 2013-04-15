@@ -1123,9 +1123,7 @@ zend_class_entry *couchbase_ce;
 
 #if ZEND_MODULE_API_NO >= 20050922
 static const zend_module_dep coucubase_deps[] = {
-#ifdef HAVE_JSON_API
 	ZEND_MOD_REQUIRED("json")
-#endif
 	{
 		NULL, NULL, NULL
 	}
@@ -1184,12 +1182,10 @@ static PHP_INI_MH(OnUpdateSerializer)
 		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_DEFAULT;
 	} else if (!strcmp(new_value, "php")) {
 		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_PHP;
-#ifdef HAVE_JSON_API
 	} else if (!strcmp(new_value, "json")) {
 		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_JSON;
 	} else if (!strcmp(new_value, "json_array")) {
 		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_JSON_ARRAY;
-#endif
 	} else {
 		return FAILURE;
 	}
@@ -1345,12 +1341,7 @@ PHP_MINFO_FUNCTION(couchbase)
 	php_info_print_table_header(2, "couchbase support", "enabled");
 	php_info_print_table_row(2, "version", PHP_COUCHBASE_VERSION);
 	php_info_print_table_row(2, "libcouchbase version", lcb_get_version(NULL));
-
-#ifdef HAVE_JSON_API
 	php_info_print_table_row(2, "json support", "yes");
-#else
-	php_info_print_table_row(2, "json support", "no");
-#endif
 	php_info_print_table_row(2, "fastlz support", "yes");
 
 #ifdef HAVE_COMPRESSION_ZLIB

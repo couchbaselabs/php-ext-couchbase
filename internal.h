@@ -29,7 +29,6 @@
 #    define PHP_COUCHBASE_LOCAL
 #	 define strtoull _strtoui64
 #    define PHP_COUCHBASE_UNUSED
-#    define HAVE_JSON_API 1
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
 #    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
@@ -50,9 +49,7 @@
 #include "ext/standard/url.h"
 #include "ext/standard/php_smart_str.h"
 #include "ext/standard/php_var.h"
-#ifdef HAVE_JSON_API
-# include "ext/json/php_json.h"
-#endif
+#include "ext/json/php_json.h"
 #include "ext/standard/php_var.h"
 #include <libcouchbase/couchbase.h>
 #include "php_couchbase.h"

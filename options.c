@@ -38,18 +38,11 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		case COUCHBASE_SERIALIZER_PHP:
 		case COUCHBASE_SERIALIZER_JSON:
 		case COUCHBASE_SERIALIZER_JSON_ARRAY:
-#ifdef HAVE_JSON_API
 			couchbase_res->serializer = Z_LVAL_P(value);
 			if (oo) {
 				RETURN_ZVAL(getThis(), 1, 0);
 			}
 			RETURN_TRUE;
-#else
-			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-								   cb_illegal_value_exception,
-								   "json serializer is not supported");
-			return;
-#endif
 		default:
 			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 								   cb_illegal_value_exception,

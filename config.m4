@@ -8,9 +8,6 @@ if test "$PHP_COUCHBASE" != "no"; then
 
   PHP_ADD_LIBRARY(couchbase, 1, COUCHBASE_SHARED_LIBADD)
 
-  dnl The JSON api is part of the core as of 5.2
-  AC_DEFINE(HAVE_JSON_API,1,[Whether JSON API is available])
-
   AC_CHECK_HEADER([zlib.h])
   AS_IF([test "x$ac_cv_header_zlib_h" = "xyes"], [
         AC_DEFINE(HAVE_COMPRESSION_ZLIB,1,[Whether zlib lib is available])
