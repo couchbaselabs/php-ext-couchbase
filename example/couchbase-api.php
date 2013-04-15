@@ -464,7 +464,7 @@ class Couchbase {
      * @return boolean true upon success
      * @throws CouchbaseException if an error occurs
      */
-    function touch($id, $exptime) {
+    function touch($id, $expiry) {
 
     }
 
@@ -476,7 +476,7 @@ class Couchbase {
      * @return boolean true upon success
      * @throws CouchbaseException if an error occurs
      */
-    function touchMulti($ids, $exptime) {
+    function touchMulti($ids, $expiry) {
 
     }
 
@@ -620,6 +620,8 @@ class Couchbase {
      * @param string $document The design document containing the view to call
      * @param string $view The view to execute
      * @param array $options extra options to add to the view request (see above)
+     * @param boolean $return_errors Should error messages be returned upon
+     *                failures
      * @return array an array with the result of the view request upon success,
      *               or an array containing an error message
      * @throws CouchbaseException if an error occurs
@@ -794,11 +796,11 @@ class Couchbase {
      * Get information about multiple keys in the cluster.
      *
      * @param array $ids an array containing the identifiers to look up
-     * @param array $detail an array to store the details about the documents
+     * @param array $details an array to store the details about the documents
      * @return array with the keys with true on success, false otherwise
      * @throws CouchbaseException if an error occurs
      */
-    function observeMulti($ids, $detail = array()) {
+    function observeMulti($ids, $details = array()) {
 
     }
 
@@ -831,12 +833,12 @@ class Couchbase {
      * Wait for multiple documents to reach a certain state.
      *
      * @param array $ids an array containing "identifier" =&gt; "cas" pairs
-     * @param array $detail is an array containing the options to wait for.
+     * @param array $details is an array containing the options to wait for.
      *                      See keyDurability() for a description.
      * @return array with the keys with true on success, false otherwise
      * @throws CouchbaseException if an error occurs
      */
-    function keyDurabilityMulti($ids, $detail = array()) {
+    function keyDurabilityMulti($ids, $details = array()) {
 
     }
 

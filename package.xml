@@ -43,6 +43,7 @@
   </stability>
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
   <notes>
+    - Adjust parameter names in reflection to match couchbase-api.php
     - Prototype trying to get the thing working for PECL
     - Reset the error code between each request of a persistent connection
     - Report libcouchbase version in phpinfo
@@ -142,6 +143,7 @@
       </version>
       <date>2013-04-11</date>
       <notes>
+        - Adjust parameter names in reflection to match couchbase-api.php
         - Experimenting with PECL integration
         - Reset the error code between each request of a persistent connection
         - Report libcouchbase version in phpinfo

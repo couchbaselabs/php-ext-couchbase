@@ -38,19 +38,19 @@ PHP_COUCHBASE_LOCAL
 zend_class_entry *couchbase_cluster_ce;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_construct, 0, 0, 3)
-ZEND_ARG_INFO(0, host)
+ZEND_ARG_INFO(0, hosts)
 ZEND_ARG_INFO(0, user)
 ZEND_ARG_INFO(0, password)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_create_bucket, 0, 0, 2)
 ZEND_ARG_INFO(0, name)
-ZEND_ARG_INFO(0, properties)
+ZEND_ARG_INFO(0, attributes)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_modify_bucket, 0, 0, 2)
 ZEND_ARG_INFO(0, name)
-ZEND_ARG_INFO(0, properties)
+ZEND_ARG_INFO(0, attributes)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_delete_bucket, 0, 0, 1)
