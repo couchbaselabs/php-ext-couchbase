@@ -30,7 +30,6 @@
 #	 define strtoull _strtoui64
 #    define PHP_COUCHBASE_UNUSED
 #    define HAVE_JSON_API 1
-#    define HAVE_JSON_API_5_3 1
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #	 define PHP_COUCHBASE_API __attribute__ ((visibility("default")))
 #    define PHP_COUCHBASE_LOCAL __attribute__ ((visibility("hidden")))
@@ -60,7 +59,7 @@
 #include "fastlz/fastlz.h"
 
 #ifdef HAVE_COMPRESSION_ZLIB
-# include "zlib.h"
+# include <zlib.h>
 #endif
 
 #include "Zend/zend_API.h"
