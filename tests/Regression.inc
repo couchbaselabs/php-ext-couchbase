@@ -34,4 +34,18 @@ class Regression extends CouchbaseTestCommon {
         $this->assertEquals("Illegal CAS specified", $msg);
     }
 
+    function testPCBC_219() {
+         $cb = $this->oo;
+         $msg = "";
+         try {
+             $value = 50.00;
+             $cb->set("pcbc-219", $value);
+	     $this->assertEquals(50.00, floatval($cb->get("pcbc-219")));
+	     $this->assertEquals(50.00, $cb->get("pcbc-219"));
+         } catch (Exception $exp) {
+             $msg = $exp->getMessage();
+         }
+         $this->assertEquals("", $msg);
+    }
+
 }
