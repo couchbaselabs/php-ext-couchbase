@@ -55,6 +55,20 @@ char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned i
 			COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_JSON);
 			break;
 
+#ifdef HAVE_IGBINARY
+		case COUCHBASE_SERIALIZER_IGBINARY:
+			if (igbinary_serialize((uint8_t**)&buf.c,
+                                   &buf.len,
+                                   value TSRMLS_CC) != 0) {
+				smart_str_free(&buf);
+				php_error_docref(NULL TSRMLS_CC, E_WARNING,
+                                 "Failed to serialize value with igbinary");
+				return NULL;
+			}
+			COUCHBASE_VAL_SET_TYPE(*flags, COUCHBASE_VAL_IS_IGBINARY);
+			break;
+#endif
+
 		default: {
 			php_serialize_data_t var_hash;
 			PHP_VAR_SERIALIZE_INIT(var_hash);
@@ -245,6 +259,21 @@ int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_l
 						 (serializer == COUCHBASE_SERIALIZER_JSON_ARRAY)
 						 TSRMLS_CC);
 		break;
+
+	case COUCHBASE_VAL_IS_IGBINARY:
+#if HAVE_IGBINARY
+		if (igbinary_unserialize((void*)payload,
+								 payload_len, &value TSRMLS_CC)) {
+			ZVAL_FALSE(value);
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+							 "Failed to deserialize with igbinary");
+			return 1;
+		}
+#else
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+						 "Could not deserialize. The extension is built without support for igbinary");
+		return 1;
+#endif
 
 	default:
 		if (payload_emalloc) {

@@ -1124,6 +1124,9 @@ zend_class_entry *couchbase_ce;
 #if ZEND_MODULE_API_NO >= 20050922
 static const zend_module_dep coucubase_deps[] = {
 	ZEND_MOD_REQUIRED("json")
+#ifdef HAVE_IGBINARY
+	ZEND_MOD_REQUIRED("igbinary")
+#endif
 	{
 		NULL, NULL, NULL
 	}
@@ -1186,6 +1189,10 @@ static PHP_INI_MH(OnUpdateSerializer)
 		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_JSON;
 	} else if (!strcmp(new_value, "json_array")) {
 		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_JSON_ARRAY;
+#ifdef HAVE_IGBINARY
+	} else if (!strcmp(new_value, "igbinary")) {
+		COUCHBASE_G(serializer_real) = COUCHBASE_SERIALIZER_IGBINARY;
+#endif
 	} else {
 		return FAILURE;
 	}
@@ -1277,6 +1284,7 @@ PHP_GINIT_FUNCTION(couchbase)
 	XX("SERIALIZER_PHP", COUCHBASE_SERIALIZER_PHP) \
 	XX("SERIALIZER_JSON", COUCHBASE_SERIALIZER_JSON) \
 	XX("SERIALIZER_JSON_ARRAY", COUCHBASE_SERIALIZER_JSON_ARRAY) \
+	XX("SERIALIZER_IGBINARY", COUCHBASE_SERIALIZER_IGBINARY) \
 	/* compressors */ \
 	XX("COMPRESSION_NONE", COUCHBASE_COMPRESSION_NONE) \
 	XX("COMPRESSION_FASTLZ", COUCHBASE_COMPRESSION_FASTLZ) \
@@ -1350,17 +1358,21 @@ PHP_MINFO_FUNCTION(couchbase)
 	php_info_print_table_row(2, "zlib support", "no");
 #endif
 
+#ifdef HAVE_IGBINARY
+	php_info_print_table_row(2, "igbinary support", "yes");
+#else
+	php_info_print_table_row(2, "igbinary support", "no");
+#endif
+
 	if (COUCHBASE_G(config_cache_error) != NULL) {
 		php_info_print_table_row(2, "Configuration cache error",
 								 COUCHBASE_G(config_cache_error));
 	}
 
-
 	php_info_print_table_end();
 
 	DISPLAY_INI_ENTRIES();
 }
-
 
 /*
  * Local variables:

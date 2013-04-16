@@ -38,6 +38,9 @@ void php_couchbase_set_option_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		case COUCHBASE_SERIALIZER_PHP:
 		case COUCHBASE_SERIALIZER_JSON:
 		case COUCHBASE_SERIALIZER_JSON_ARRAY:
+#ifdef HAVE_IGBINARY
+		case COUCHBASE_SERIALIZER_IGBINARY:
+#endif
 			couchbase_res->serializer = Z_LVAL_P(value);
 			if (oo) {
 				RETURN_ZVAL(getThis(), 1, 0);

@@ -129,6 +129,13 @@
         <min>1.4.8</min>
       </pearinstaller>
     </required>
+    <optional>
+      <package>
+        <name>igbinary</name>
+        <channel>pecl.php.net</channel>
+        <providesextension>igbinary</providesextension>
+      </package>
+     </optional>
   </dependencies>
   <providesextension>couchbase</providesextension>
   <extsrcrelease/>

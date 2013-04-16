@@ -2,16 +2,30 @@ PHP_ARG_WITH([couchbase], [for Couchbase support],
              [  --with-couchbase=[DIR]    Include Couchbase support])
 
 if test "$PHP_COUCHBASE" != "no"; then
-  AC_CHECK_HEADER([libcouchbase/couchbase.h])
+  dnl PCBC-180 Add support for igbinary.
+  dnl The PHP include directories is not searched by default, so
+  dnl we need to add $INCLUDES to $CPPFLAGS
+  saved_cppflags="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $INCLUDES"
+
+  AC_CHECK_HEADERS_ONCE([libcouchbase/couchbase.h
+                         zlib.h
+                         ext/igbinary/igbinary.h])
+
+  dnl Reset the CPPFLAGS
+  CPPFLAGS="$saved_cppflags"
+
   AS_IF([test "x$ac_cv_header_libcouchbase_couchbase" = "xno"], [
          AC_MSG_ERROR([The Couchbase extension require libcouchbase])])
-
   PHP_ADD_LIBRARY(couchbase, 1, COUCHBASE_SHARED_LIBADD)
 
-  AC_CHECK_HEADER([zlib.h])
   AS_IF([test "x$ac_cv_header_zlib_h" = "xyes"], [
         AC_DEFINE(HAVE_COMPRESSION_ZLIB,1,[Whether zlib lib is available])
         PHP_ADD_LIBRARY(z, 1, COUCHBASE_SHARED_LIBADD)])
+
+    AS_IF([test "x$ac_cv_header_ext_igbinary_igbinary_h" = "xyes"], [
+          PHP_ADD_EXTENSION_DEP(couchbase, igbinary)
+          ])
 
   PHP_SUBST(COUCHBASE_SHARED_LIBADD)
   PHP_NEW_EXTENSION([couchbase],

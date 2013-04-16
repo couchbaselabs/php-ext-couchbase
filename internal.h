@@ -59,6 +59,12 @@
 # include <zlib.h>
 #endif
 
+#ifdef HAVE_EXT_IGBINARY_IGBINARY_H
+#include <ext/igbinary/igbinary.h>
+#define HAVE_IGBINARY 1
+#endif
+
+
 #include "Zend/zend_API.h"
 #include <zend_exceptions.h>
 
@@ -92,6 +98,7 @@
 #define COUCHBASE_SERIALIZER_DEFAULT_NAME	"php"
 #define COUCHBASE_SERIALIZER_JSON			1
 #define COUCHBASE_SERIALIZER_JSON_ARRAY		2
+#define COUCHBASE_SERIALIZER_IGBINARY		3
 
 #define COUCHBASE_VAL_TYPE_MASK				0xf
 #define COUCHBASE_VAL_GET_TYPE(f)			((f) & COUCHBASE_VAL_TYPE_MASK)
