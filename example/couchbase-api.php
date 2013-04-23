@@ -145,6 +145,12 @@
  */
         const COUCHBASE_COMPRESSION_FASTLZ = 2;
 
+/**
+ * Constant representing preserve order for multiget
+ */
+        const COUCHBASE_PRESERVE_ORDER = 1;
+
+
 class Couchbase {
 
     /**
@@ -332,10 +338,11 @@ class Couchbase {
      *
      * @param array $ids an array containing all of the document identifiers
      * @param array $cas an array to store the cas identifiers of the documents
+     * @param int $flags may be 0 or COUCHBASE_GET_PRESERVE_ORDER
      * @return array an array containing the documents
      * @throws CouchbaseException if an error occurs
      */
-    function getMulti($ids, &$cas = array()) {
+    function getMulti($ids, &$cas = array(), $flags = 0) {
 
     }
 
