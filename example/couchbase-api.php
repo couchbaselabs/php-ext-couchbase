@@ -13,78 +13,78 @@
 /**
  * Everything is OK.
  */
-        const COUCHBASE_SUCCESS = LCB_SUCCESS;
+        const COUCHBASE_SUCCESS = 0x00; //LCB_SUCCESS
 /**
  * This is an internal error message.
  */
-        const COUCHBASE_AUTH_CONTINUE = LCB_AUTH_CONTINUE;
+        const COUCHBASE_AUTH_CONTINUE = 0x01; //LCB_AUTH_CONTINUE
 /**
  * Increment/decrement on an object that isn't a number.
  */
-        const COUCHBASE_DELTA_BADVAL = LCB_DELTA_BADVAL;
+        const COUCHBASE_DELTA_BADVAL = 0x03; //LCB_DELTA_BADVAL
 /**
  * The object is too big to be stored on the server.
  */
-        const COUCHBASE_E2BIG = LCB_E2BIG;
+        const COUCHBASE_E2BIG = 0x04; //LCB_E2BIG
 /**
  * The server is too busy to handle your request. Please try again later.
  */
-        const COUCHBASE_EBUSY = LCB_EBUSY;
+        const COUCHBASE_EBUSY = 0x05; //LCB_EBUSY
 /**
  * An internal error in the Couchbase extension.
  * You should probably submit a bug report for this.
  */
-        const COUCHBASE_EINTERNAL = LCB_EINTERNAL;
+        const COUCHBASE_EINTERNAL = 0x06; //LCB_EINTERNAL
 /**
  * Out of resources.
  */
-        const COUCHBASE_ENOMEM = LCB_ENOMEM;
+        const COUCHBASE_ENOMEM = 0x08; //LCB_ENOMEM
 /**
  * Generic error code.
  */
-        const COUCHBASE_ERROR = LCB_ERROR;
+        const COUCHBASE_ERROR = 0x0a; //LCB_ERROR
 /**
  * Temporarily cannot handle request. A later retry may succeed.
  */
-        const COUCHBASE_ETMPFAIL = LCB_ETMPFAIL;
+        const COUCHBASE_ETMPFAIL = 0x0b; //LCB_ETMPFAIL
 /**
  * The key exists, but the CAS identifier provided did not match the one for
  * the object in the cluster.
  */
-        const COUCHBASE_KEY_EEXISTS = LCB_KEY_EEXISTS;
+        const COUCHBASE_KEY_EEXISTS = 0x0c; //LCB_KEY_EEXISTS
 /**
  * The key does not exist.
  */
-        const COUCHBASE_KEY_ENOENT = LCB_KEY_ENOENT;
+        const COUCHBASE_KEY_ENOENT = 0x0d; //LCB_KEY_ENOENT
 /**
  * An error occurred while trying to read/write data to the network.
  */
-        const COUCHBASE_NETWORK_ERROR = LCB_NETWORK_ERROR;
+        const COUCHBASE_NETWORK_ERROR = 0x10; //LCB_NETWORK_ERROR
 /**
  * The command was sent to the wrong server. This problem may occur if
  * someone added/removed a node to the cluster. Retrying the operation may
  * solve the problem.
  */
-        const COUCHBASE_NOT_MY_VBUCKET = LCB_NOT_MY_VBUCKET;
+        const COUCHBASE_NOT_MY_VBUCKET = 0x11; //LCB_NOT_MY_VBUCKET
 /**
  * The document was not stored.
  */
-        const COUCHBASE_NOT_STORED = LCB_NOT_STORED;
+        const COUCHBASE_NOT_STORED = 0x12; //LCB_NOT_STORED
 /**
  * The server knows about this command, but the datastore doesn't support it
  * for some reason.
  */
-        const COUCHBASE_NOT_SUPPORTED = LCB_NOT_SUPPORTED;
+        const COUCHBASE_NOT_SUPPORTED = 0x13; //LCB_NOT_SUPPORTED
 /**
  * The server did not understand the command we sent. This may occur if you
  * are attempting to use an operation not supported on an older version of
  * Couchbase Server.
  */
-        const COUCHBASE_UNKNOWN_COMMAND = LCB_UNKNOWN_COMMAND;
+        const COUCHBASE_UNKNOWN_COMMAND = 0x14; //LCB_UNKNOWN_COMMAND
 /**
  * Failed to lookup the host.
  */
-        const COUCHBASE_UNKNOWN_HOST = LCB_UNKNOWN_HOST;
+        const COUCHBASE_UNKNOWN_HOST = 0x15; //LCB_UNKNOWN_HOST
 
 
 ////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ class Couchbase {
      * as the one specified in this request.
      *
      * @param string $id the identifier to store the document under
-     * @param object $document the document to store
+     * @param object|string $document the document to store
      * @param integer $expiry the lifetime of the document (0 == infinite)
      * @param string $cas a cas identifier to restrict the store operation
      * @param integer $persist_to wait until the document is persisted to (at least)
@@ -206,7 +206,7 @@ class Couchbase {
      * @return string the cas value of the object if success
      * @throws CouchbaseException if an error occurs
      */
-    function set($key, $document, $expiry = 0, $cas = "", $persist_to = 0, $replicate_to = 0) {
+    function set($id, $document, $expiry = 0, $cas = "", $persist_to = 0, $replicate_to = 0) {
 
     }
 
@@ -313,7 +313,7 @@ class Couchbase {
      * Retrieve a document from the cluster.
      *
      * @param string $id identifies the object to retrieve
-     * @param function $callback a callback function to call for missing
+     * @param callable $callback a callback function to call for missing
      *                 objects. The function signature looks like:
      *                 <code>bool function($res, $id, &$val)</code>
      *                 if the function returns <code>true</code> the value
@@ -323,7 +323,7 @@ class Couchbase {
      * @return object The document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function get($id, $callback = NULL, $cas = "") {
+    function get($id, $callback = NULL, &$cas = "") {
 
     }
 
@@ -335,7 +335,7 @@ class Couchbase {
      * @return array an array containing the documents
      * @throws CouchbaseException if an error occurs
      */
-    function getMulti($ids, $cas = array()) {
+    function getMulti($ids, &$cas = array()) {
 
     }
 
@@ -346,7 +346,7 @@ class Couchbase {
      * signature may change in a future release.
      *
      * @param string $id identifies the object to retrieve
-     * @param function $callback a callback function to call for missing
+     * @param callable $callback a callback function to call for missing
      *                 objects. The function signature looks like:
      *                 <code>bool function($res, $id, &$val)</code>
      *                 if the function returns <code>true</code> the value
@@ -356,7 +356,7 @@ class Couchbase {
      * @return object The document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function getReplica($id, $callback = NULL, $cas = "") {
+    function getReplica($id, $callback = NULL, &$cas = "") {
 
     }
 
@@ -371,7 +371,7 @@ class Couchbase {
      * @return array an array containing the documents
      * @throws CouchbaseException if an error occurs
      */
-    function getReplicaMulti($ids, $cas = array()) {
+    function getReplicaMulti($ids, &$cas = array()) {
 
     }
 
@@ -391,7 +391,7 @@ class Couchbase {
      * @return object The requested document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function getAndLock($id, $cas = "", $expiry = 0) {
+    function getAndLock($id, &$cas = "", $expiry = 0) {
 
     }
 
@@ -409,12 +409,13 @@ class Couchbase {
      *
      * @param array $ids an array containing the identifiers to retrieve
      * @param array $cas where to store the cas identifier
+     * @param int $flags TODO update document for this param
      * @param integer $expiry a configuratble lock expiry time (0 == use the
      * value configured on the server).
      * @return array an array containint the requested documents
      * @throws CouchbaseException if an error occurs
      */
-    function getAndLockMulti($ids, $cas = array(), $expiry = 0) {
+    function getAndLockMulti($ids, &$cas = array(), $flags = 0, $expiry = 0) {
 
     }
 
@@ -427,7 +428,7 @@ class Couchbase {
      * @return object The requested document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function getAndTouch($id, $expiry = 0, $cas = "") {
+    function getAndTouch($id, $expiry = 0, &$cas = "") {
 
     }
 
@@ -436,11 +437,11 @@ class Couchbase {
      *
      * @param array $ids an array containint the document identifiers
      * @param integer $expiry the new time to live (0 == infinite)
-     * @param string $cas where to store the cas identifier
+     * @param array $cas where to store the cas identifier
      * @return array an array containing the requested documents
      * @throws CouchbaseException if an error occurs
      */
-    function getAndTouchMulti($ids, $expiry = 0, $cas = array()) {
+    function getAndTouchMulti($ids, $expiry = 0, &$cas = array()) {
 
     }
 
@@ -558,7 +559,7 @@ class Couchbase {
      *
      * @param array $ids the document identifiers to retrieve
      * @param boolean $with_cas if the cas identifier should be retrieved
-     * @param function $callback function to call per retrieved document
+     * @param callable $callback function to call per retrieved document
      * @param integer $expiry lock expiry time
      * @param boolean $lock if the documents should be locked or not
      * @return boolean true upon success, false otherwise
@@ -620,13 +621,12 @@ class Couchbase {
      * @param string $document The design document containing the view to call
      * @param string $view The view to execute
      * @param array $options extra options to add to the view request (see above)
-     * @param boolean $return_errors Should error messages be returned upon
-     *                failures
+     * @param boolean $return_errors Should error messages be returned upon failures
      * @return array an array with the result of the view request upon success,
      *               or an array containing an error message
      * @throws CouchbaseException if an error occurs
      */
-    function view($document, $view = "", $options = array()) {
+    function view($document, $view = "", $options = array(), $return_errors = false) {
 
     }
 
@@ -637,10 +637,11 @@ class Couchbase {
      * @param string $view The view to execute
      * @param array $options extra options to add to the view request (see view()
      *                       for more information)
-     * @return The generated view request
+     * @param boolean $return_errors Should error messages be returned upon failures
+     * @return string generated view request in format: "/_design/$doc/_view/$view?stale=ok&..."
      * @throws CouchbaseException if an error occurs
      */
-    function viewGenQuery($document, $view = "", $options = array()) {
+    function viewGenQuery($document, $view = "", $options = array(), $return_errors = false) {
 
     }
 
@@ -699,7 +700,7 @@ class Couchbase {
      * </table>
      *
      * @param integer $option the option to set
-     * @param value $value the new value for the option
+     * @param integer $value the new value for the option
      * @throws CouchbaseException if an error occurs (e.g illegal option / value)
      */
     function setOption($option, $value) {
@@ -710,7 +711,7 @@ class Couchbase {
      * Retrieve the current value of a tunable.
      *
      * @param integer $option the option to retrieve the value for
-     * @return value The current value for a tunable. See setOption() for a
+     * @return integer The current value for a tunable. See setOption() for a
      *               description of the legal options to retrieve.
      * @throws CouchbaseException if an error occurs (e.g illegal option)
      */
@@ -785,10 +786,10 @@ class Couchbase {
      * @param string $cas The cas for the document to get information about
      * @param array $details an array to store the details about the key
      * @todo update the documentation about the name and meaning of the details
-     * @return true on success, false otherwise
+     * @return bool true on success, false otherwise
      * @throws CouchbaseException if an error occurs
      */
-    function observe($id, $cas, $details = array()) {
+    function observe($id, $cas, &$details = array()) {
 
     }
 
@@ -800,7 +801,7 @@ class Couchbase {
      * @return array with the keys with true on success, false otherwise
      * @throws CouchbaseException if an error occurs
      */
-    function observeMulti($ids, $details = array()) {
+    function observeMulti($ids, &$details = array()) {
 
     }
 
@@ -822,7 +823,7 @@ class Couchbase {
      * @param string $id the identifier for the document to wait for
      * @param string $cas the cas identifier for the document to wait for
      * @param array $details an array containing the details. see above
-     * @return true on success, false otherwise
+     * @return bool true on success, false otherwise
      * @throws CouchbaseException if an error occurs
      */
     function keyDurability($id, $cas, $details = array()) {
@@ -882,7 +883,7 @@ class Couchbase {
      *
      * @param string $name the name of the design document to store
      * @param string $document the new document to create
-     * @return true on success
+     * @return bool true on success
      * @throws CouchbaseException if an error occurs
      */
     function setDesignDoc($name, $document) {
@@ -893,7 +894,7 @@ class Couchbase {
      * Delete the named design document from the cluster.
      *
      * @param string $name the name of the design document to delete
-     * @return true on success
+     * @return bool true on success
      * @throws CouchbaseException if an error occurs
      */
     function deleteDesignDoc($name) {
@@ -1081,5 +1082,3 @@ class CouchbaseIllegalOptionException extends CouchbaseException {
 class CouchbaseIllegalValueException extends CouchbaseException {
 
 }
-
-?>
