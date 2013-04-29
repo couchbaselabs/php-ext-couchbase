@@ -20,7 +20,7 @@
 #ifndef PHP_COUCHBASE_H
 #define PHP_COUCHBASE_H
 
-#define PHP_COUCHBASE_VERSION_STRING "1.1.5-dev"
+#define PHP_COUCHBASE_VERSION_STRING "1.1.5"
 
 extern zend_module_entry couchbase_module_entry;
 #define phpext_couchbase_ptr &couchbase_module_entry

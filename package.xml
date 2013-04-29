@@ -32,17 +32,18 @@
     <email>jan@php.net</email>
     <active>no</active>
   </lead>
-  <date>2013-04-11</date>
+  <date>2013-05-07</date>
   <version>
-    <release>1.1.4</release>
+    <release>1.1.5</release>
     <api>1.1.4</api>
   </version>
   <stability>
-    <release>snapshot</release>
+    <release>beta</release>
     <api>stable</api>
   </stability>
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
   <notes>
+    Same release as 1.1.4, fixed pecl package:
     - Don't check for JSON. It's part of the php core
     - Adjust parameter names in reflection to match couchbase-api.php
     - Prototype trying to get the thing working for PECL
