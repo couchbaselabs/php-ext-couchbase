@@ -669,8 +669,20 @@ void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS)
 		char *payload;
 		unsigned int flags = 0;
 		zval **ppzval;
+		int allocated_key = 0;
 
-		if (zend_hash_get_current_key_type(Z_ARRVAL_P(akeys)) != HASH_KEY_IS_STRING) {
+		switch (zend_hash_get_current_key_type(Z_ARRVAL_P(akeys))) {
+		case HASH_KEY_IS_LONG: {
+			ulong kval;
+			zend_hash_get_current_key(Z_ARRVAL_P(akeys), &key, &kval, 0);
+			spprintf(&key, 0, "%llu", kval);
+			allocated_key = 1;
+		}
+		break;
+		case HASH_KEY_IS_STRING:
+			zend_hash_get_current_key(Z_ARRVAL_P(akeys), &key, NULL, 0);
+			break;
+		default: {
 			int xx;
 			for (xx = 0; xx < ii; ++xx) {
 				efree((void *)cmds[xx].v.v0.bytes);
@@ -685,9 +697,10 @@ void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS)
 								 0 TSRMLS_CC);
 			return ;
 		}
+		}
 
-		zend_hash_get_current_key(Z_ARRVAL_P(akeys), &key, NULL, 0);
-		if ((klen = strlen(key)) == 0) {
+		klen = strlen(key);
+		if (klen == 0) {
 			int xx;
 			for (xx = 0; xx < ii; ++xx) {
 				efree((void *)cmds[xx].v.v0.bytes);
@@ -732,7 +745,9 @@ void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS)
 
 		if (couchbase_res->prefix_key_len) {
 			char *new_key;
-			klen = spprintf(&new_key, 0, "%s_%s", couchbase_res->prefix_key, key);
+			allocated_key = 1;
+			klen = spprintf(&new_key, 0, "%s_%s", couchbase_res->prefix_key,
+							key);
 			key = new_key;
 		}
 
@@ -747,7 +762,7 @@ void php_couchbase_store_multi_impl_oo(INTERNAL_FUNCTION_PARAMETERS)
 		cmds[ii].v.v0.flags = flags;
 		cmds[ii].v.v0.exptime = exp;
 
-		if (couchbase_res->prefix_key_len) {
+		if (allocated_key) {
 			efree(key);
 		}
 	}

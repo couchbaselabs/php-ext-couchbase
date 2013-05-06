@@ -48,4 +48,65 @@ class Regression extends CouchbaseTestCommon {
          $this->assertEquals("", $msg);
     }
 
+    function testPCBC_227() {
+       $oo = $this->oo;
+       $msg = "";
+
+
+       try {
+           couchbase_set($this->handle, "1234", "foo");
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           couchbase_set($this->handle, 1234, "foo");
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           couchbase_set_multi($this->handle, array("1234" =>  "foo"));
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           couchbase_set_multi($this->handle, array(1234 =>  "foo"));
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           $oo->set("1234", "foo");
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           $oo->set(1234, "foo");
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           $oo->setMulti(array("1234" =>  "foo"));
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+
+       try {
+           $oo->setMulti(array(1234 =>  "foo"));
+       } catch (Exception $exp) {
+           $msg = $exp->getMessage();
+       }
+       $this->assertEquals("", $msg);
+    }
 }
