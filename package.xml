@@ -32,13 +32,13 @@
     <email>jan@php.net</email>
     <active>no</active>
   </lead>
-  <date>2013-05-07</date>
+  <date>2013-05-08</date>
   <version>
     <release>1.1.5</release>
     <api>1.1.4</api>
   </version>
   <stability>
-    <release>beta</release>
+    <release>stable</release>
     <api>stable</api>
   </stability>
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
