@@ -8,9 +8,7 @@ if test "$PHP_COUCHBASE" != "no"; then
   saved_cppflags="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $INCLUDES"
 
-  AC_CHECK_HEADERS_ONCE([libcouchbase/couchbase.h
-                         zlib.h
-                         ext/igbinary/igbinary.h])
+  AC_CHECK_HEADERS([libcouchbase/couchbase.h zlib.h ext/igbinary/igbinary.h])
 
   dnl Reset the CPPFLAGS
   CPPFLAGS="$saved_cppflags"
