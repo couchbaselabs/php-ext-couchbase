@@ -41,6 +41,7 @@ void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		if (couchbase_res->handle) {
 			lcb_destroy(couchbase_res->handle);
 		}
+		free(couchbase_res->errinfo);
 		free(couchbase_res->bucket);
 		if (couchbase_res->prefix_key) {
 			free((void *)couchbase_res->prefix_key);
@@ -58,6 +59,7 @@ void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		if (couchbase_res->handle) {
 			lcb_destroy(couchbase_res->handle);
 		}
+		free(couchbase_res->errinfo);
 		free(couchbase_res->bucket);
 		if (couchbase_res->prefix_key) {
 			free((void *)couchbase_res->prefix_key);
@@ -71,6 +73,13 @@ void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const char *errinfo) /* {{{ */
 {
 	php_couchbase_res *res = (php_couchbase_res *)lcb_get_cookie(handle);
+	if (res) {
+		free(res->errinfo);
+		if (errinfo) {
+			res->errinfo = strdup(errinfo);
+		}
+	}
+
 	/**
 	 * @FIXME: when connect to a non-couchbase-server port (but the socket is valid)
 	 * like a apache server, process will be hanged by event_loop
@@ -118,13 +127,19 @@ int pcbc_check_expiry(INTERNAL_FUNCTION_PARAMETERS, int oo, long expiry, long *o
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
 {
-	php_couchbase_res *couchbase_res;
+	php_couchbase_res *res;
 	char *str;
 	int str_len;
 	int argflags = (oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL)
 				   | PHP_COUCHBASE_ARG_F_ONLYVALID;
-	PHP_COUCHBASE_GET_PARAMS(couchbase_res, argflags, "");
-	str_len = spprintf(&str, 0, "%s", lcb_strerror(couchbase_res->handle, couchbase_res->rc));
+	PHP_COUCHBASE_GET_PARAMS(res, argflags, "");
+
+	if (res->errinfo) {
+		str_len = spprintf(&str, 0, "%s (%s)", lcb_strerror(res->handle, res->rc),
+						   res->errinfo);
+	} else {
+		str_len = spprintf(&str, 0, "%s", lcb_strerror(res->handle, res->rc));
+	}
 	RETURN_STRINGL(str, str_len, 0);
 }
 /* }}} */

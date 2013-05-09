@@ -148,6 +148,7 @@ typedef struct _php_couchbase_res {
 	unsigned char is_connected;
 	unsigned char viewopts_passthrough;
 
+	char *errinfo;
 	/* asynchronous context */
 	struct _php_couchbase_ctx *async_ctx;
 } php_couchbase_res;
