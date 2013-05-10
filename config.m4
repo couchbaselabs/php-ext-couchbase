@@ -1,5 +1,5 @@
 PHP_ARG_WITH([couchbase], [for Couchbase support],
-             [  --with-couchbase=[DIR]    Include Couchbase support])
+             [  --with-couchbase          Include Couchbase support])
 
 if test "$PHP_COUCHBASE" != "no"; then
   dnl PCBC-180 Add support for igbinary.
