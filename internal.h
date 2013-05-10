@@ -82,7 +82,6 @@
 #define COUCHBASE_G(v) (couchbase_globals.v)
 #endif
 
-#define PHP_COUCHBASE_VERSION	  "1.1.4dp1"
 #define PHP_COUCHBASE_RESOURCE	  "Couchbase"
 #define PHP_COUCHBASE_PERSISTENT_RESOURCE "Persistent Couchbase"
 #define COUCHBASE_PROPERTY_HANDLE "_handle"

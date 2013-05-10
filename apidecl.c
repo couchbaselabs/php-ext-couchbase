@@ -813,7 +813,7 @@ PHP_METHOD(couchbase, getVersion)
 
 PHP_METHOD(couchbase, getClientVersion)
 {
-	RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
+	RETURN_STRING(PHP_COUCHBASE_VERSION_STRING, 1);
 }
 
 PHP_METHOD(couchbase, getNumReplicas)
@@ -1047,7 +1047,7 @@ PHP_FUNCTION(couchbase_get_version)
 
 PHP_FUNCTION(couchbase_get_client_version)
 {
-	RETURN_STRING(PHP_COUCHBASE_VERSION, 1);
+	RETURN_STRING(PHP_COUCHBASE_VERSION_STRING, 1);
 }
 
 PHP_FUNCTION(couchbase_get_num_replicas)
@@ -1148,7 +1148,7 @@ zend_module_entry couchbase_module_entry = {
 	PHP_RSHUTDOWN(couchbase),	 /* Replace with NULL if there's nothing to do at request end */
 	PHP_MINFO(couchbase),
 #if ZEND_MODULE_API_NO >= 20010901
-	PHP_COUCHBASE_VERSION,
+	PHP_COUCHBASE_VERSION_STRING,
 #endif
 	PHP_MODULE_GLOBALS(couchbase),
 	PHP_GINIT(couchbase),
@@ -1347,7 +1347,7 @@ PHP_MINFO_FUNCTION(couchbase)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "couchbase support", "enabled");
-	php_info_print_table_row(2, "version", PHP_COUCHBASE_VERSION);
+	php_info_print_table_row(2, "version", PHP_COUCHBASE_VERSION_STRING);
 	php_info_print_table_row(2, "libcouchbase version", lcb_get_version(NULL));
 	php_info_print_table_row(2, "json support", "yes");
 	php_info_print_table_row(2, "fastlz support", "yes");
