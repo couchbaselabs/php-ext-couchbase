@@ -387,12 +387,6 @@ create_new_link:
 			}
 		}
 
-		if ((retval = lcb_connect(handle)) != LCB_SUCCESS) {
-			php_error(E_WARNING,
-					  "Failed to connect libcouchbase to the server: %s",
-					  lcb_strerror(handle, retval));
-		}
-
 		php_couchbase_setup_callbacks(handle);
 
 		couchbase_res = calloc(1, sizeof(php_couchbase_res));
@@ -408,25 +402,33 @@ create_new_link:
 		couchbase_res->compressor = COUCHBASE_G(compressor_real);
 		couchbase_res->ignoreflags = 0;
 
-		lcb_set_cookie(handle, (const void *)couchbase_res);
+		lcb_set_cookie(handle, couchbase_res);
 
-		/* wait for the connection established */
-		if (LCB_SUCCESS == retval) { /* earlier lcb_connect's retval */
-			lcb_wait(handle);
+		lcb_behavior_set_syncmode(handle, LCB_SYNCHRONOUS);
+		if ((retval = lcb_connect(handle)) != LCB_SUCCESS) {
+			if (couchbase_res->errinfo != NULL) {
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_lcb_exception,
+									   "Failed to connect libcouchbase to the server: %s (%s)",
+									   lcb_strerror(handle, retval), couchbase_res->errinfo);
+			} else {
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+									   cb_lcb_exception,
+									   "Failed to connect libcouchbase to the server: %s",
+									   lcb_strerror(handle, retval));
+			}
+			lcb_destroy(handle);
+			free(couchbase_res->bucket);
+			free(couchbase_res);
+			free_connparams(&cparams);
+
+			return ;
 		}
 
+		lcb_behavior_set_syncmode(handle, LCB_ASYNCHRONOUS);
 		couchbase_res->seqno = 0;
-		if (LCB_SUCCESS != (retval = lcb_get_last_error(handle))) {
-			couchbase_res->rc = retval;
-			couchbase_res->is_connected = 0;
-			php_error(E_WARNING,
-					  "Failed to establish libcouchbase connection to server: %s",
-					  lcb_strerror(handle, retval));
-		} else {
-			couchbase_res->is_connected = 1;
-		}
-
-		if (persistent && couchbase_res->is_connected) {
+		couchbase_res->is_connected = 1;
+		if (persistent) {
 			zend_rsrc_list_entry le;
 			Z_TYPE(le) = le_pcouchbase;
 			le.ptr = couchbase_res;

@@ -116,23 +116,9 @@ class Connection extends CouchbaseTestCommon
                                 'bad-password',
                                 'does-not-exist');
 
-        } catch (Exception $e) {
+        } catch (CouchbaseLibcouchbaseException $e) {
             $this->assertRegExp('/failed/i', $e->getMessage());
         }
-
-        // now, make sure the object would support the given operations:
-        $this->setErrorsRaiseException(false);
-
-        $oo = new Couchbase('http://999.999.999.999:9999',
-                            'bad-user',
-                            'bad-password',
-                            'does-not-exist');
-
-        $this->assertGreaterThan(0, $oo->getResultCode());
-        $this->assertNotNull($oo->getResultMessage());
-        $this->assertNotEquals("", $oo->getResultMessage());
-
-        $this->setErrorsRaiseException(true);
     }
 
     function testConnectUri() {
@@ -170,7 +156,7 @@ class Connection extends CouchbaseTestCommon
                                      array($url),
                                      "/failed/i");
 
-		$this->assertExceptionRegexp(function ($u) { return new Couchbase($u); },
+                $this->assertExceptionRegexp(function ($u) { return new Couchbase($u); },
                                      array($url),
                                      "/failed/i");
 
@@ -179,15 +165,18 @@ class Connection extends CouchbaseTestCommon
         $h = couchbase_connect($url);
         $this->assertFalse($h);
 
-        $o = new Couchbase($url);
-        $this->assertEquals(24, $o->getResultCode()); // 24 = 0x18 = LCB_CONNECT_ERROR
-        $this->assertContains('Connection', $o->getResultMessage());
+        try {
+            $o = new Couchbase($url);
+            $this->assertNull("We should fail to connect");
+        } catch (CouchbaseLibcouchbaseException $e) {
+            $this->assertRegexp('/connect/i', $e->getMessage());
+        }
 
         # Try with a malformed uri
 
-	try {
-	    $cb = new Couchbase(array("http://"));
-            $his->assertNull("We should detect bogus url");
+        try {
+            $cb = new Couchbase(array("http://"));
+            $this->assertNull("We should detect bogus url");
         } catch (CouchbaseException $e) {
             $this->assertRegexp('/malformed/i', $e->getMessage());
         }
@@ -201,11 +190,13 @@ class Connection extends CouchbaseTestCommon
             $h = couchbase_connect($hosts);
             $this->assertFalse($h);
 
-            $o = new Couchbase($hosts);
-            $this->assertEquals(24, $o->getResultCode()); // see note above re: 24
-            $this->assertContains('Connection', $o->getResultMessage());
+            try {
+                $o = new Couchbase($hosts);
+                $this->assertNull("We should fail to connect");
+            } catch (CouchbaseLibcouchbaseException $e) {
+                $this->assertRegexp('/connect/i', $e->getMessage());
+            }
         }
-
     }
 
     /**
