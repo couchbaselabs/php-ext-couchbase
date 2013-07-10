@@ -49,6 +49,7 @@ if test "$PHP_COUCHBASE" != "no"; then
                      observe.c \
                      options.c \
                      remove.c \
+                     replica.c \
                      resmgr.c \
                      simple_observe.c \
                      stat.c \

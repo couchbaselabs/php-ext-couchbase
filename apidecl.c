@@ -375,6 +375,11 @@ ZEND_ARG_ARRAY_INFO(1, cas, 1)
 ZEND_ARG_INFO(0, flags)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getreplica, 0, 0, 1)
+ZEND_ARG_INFO(0, ids)
+ZEND_ARG_INFO(0, strategy)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_m_getdelayed, 0, 0, 1)
 ZEND_ARG_ARRAY_INFO(0, ids, 0)
 ZEND_ARG_INFO(0, with_cas)
@@ -597,8 +602,7 @@ static zend_function_entry couchbase_methods[] = {
 	PHP_ME(couchbase, cas, arginfo_m_cas, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, get, arginfo_m_get, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getMulti, arginfo_m_getmulti, ZEND_ACC_PUBLIC)
-	PHP_ME(couchbase, getReplica, arginfo_m_get, ZEND_ACC_PUBLIC)
-	PHP_ME(couchbase, getReplicaMulti, arginfo_m_getmulti, ZEND_ACC_PUBLIC)
+	PHP_ME(couchbase, getReplica, arginfo_m_getreplica, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getDelayed, arginfo_m_getdelayed, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getAndLock, arginfo_m_get_and_lock, ZEND_ACC_PUBLIC)
 	PHP_ME(couchbase, getAndLockMulti, arginfo_m_get_and_lock_multi, ZEND_ACC_PUBLIC)
@@ -655,12 +659,7 @@ PHP_METHOD(couchbase, getMulti)
 
 PHP_METHOD(couchbase, getReplica)
 {
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0, 1, 0, 0, 1);
-}
-
-PHP_METHOD(couchbase, getReplicaMulti)
-{
-	php_couchbase_get_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU, 1, 1, 0, 0, 1);
+	php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
 PHP_METHOD(couchbase, getAndLock)
@@ -1290,7 +1289,11 @@ PHP_GINIT_FUNCTION(couchbase)
 	XX("COMPRESSION_FASTLZ", COUCHBASE_COMPRESSION_FASTLZ) \
 	XX("COMPRESSION_ZLIB", COUCHBASE_COMPRESSION_ZLIB) \
 	XX("GET_PRESERVE_ORDER", COUCHBASE_GET_PRESERVE_ORDER) \
-	XX("OPT_VOPTS_PASSTHROUGH", COUCHBASE_OPT_VOPTS_PASSTHROUGH)
+	XX("OPT_VOPTS_PASSTHROUGH", COUCHBASE_OPT_VOPTS_PASSTHROUGH) \
+	/* REPLICA */ \
+	XX("REPLICA_FIRST", LCB_REPLICA_FIRST) \
+	XX("REPLICA_ALL", LCB_REPLICA_ALL) \
+	XX("REPLICA_SELECT", LCB_REPLICA_SELECT)
 
 PHP_MINIT_FUNCTION(couchbase)
 {

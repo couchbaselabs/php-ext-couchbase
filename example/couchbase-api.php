@@ -86,7 +86,6 @@
  */
         const COUCHBASE_UNKNOWN_HOST = 0x15; //LCB_UNKNOWN_HOST
 
-
 ////////////////////////////////////////////////////////
 //                                                    //
 //        The following option constants exist        //
@@ -150,6 +149,34 @@
  */
         const COUCHBASE_PRESERVE_ORDER = 1;
 
+
+////////////////////////////////////////////////////////
+//                                                    //
+//      The following replica strategies exist        //
+//                                                    //
+////////////////////////////////////////////////////////
+
+/**
+ * The caller will get a reply from the first replica to successfully
+ * reply within the timeout for the operation or will receive an
+ * error.
+ */
+const COUCHBASE_REPLICA_FIRST = LCB_REPLICA_FIRST;
+
+/**
+ * Ask all replicas to send documents/items back. The order of the
+ * replicas does not imply anything and is just the order they are
+ * received from the servers (one server may be more busy than
+ * the other etc).
+ */
+const COUCHBASE_REPLICA_ALL = LCB_REPLICA_ALL;
+
+/**
+ * Select one replica by the index in the configuration starting from
+ * zero. This approach can more quickly receive all possible replies
+ * for a given topology, but it can also generate false negatives
+ */
+const COUCHBASE_REPLICA_SELECT = LCB_REPLICA_SELECT;
 
 class Couchbase {
 
@@ -349,21 +376,44 @@ class Couchbase {
     /**
      * Retrieve a replica of a document from the cluster.
      *
-     * Please note that this method is currently experimental and its
-     * signature may change in a future release.
+     * Examples:
+     * <code>
+     *    $obj = $cb->getReplica("key",
+     *                           array("strategy" => COUCHBASE_REPLICA_SELECT,
+     *                                 "index" => 0));
      *
-     * @param string $id identifies the object to retrieve
-     * @param callable $callback a callback function to call for missing
-     *                 objects. The function signature looks like:
-     *                 <code>bool function($res, $id, &$val)</code>
-     *                 if the function returns <code>true</code> the value
-     *                 returned through $val is returned. Please note that
-     *                 the cas field is not updated in these cases.
-     * @param string $cas where to store the cas identifier of the object
+     *    returns
+     *      [ "foo" => [ "value" => "bar", "cas" => 0] ]
+     *
+     *
+     *    $obj = $cb->getReplica("foo", COUCHBASE_REPLICA_ALL);
+     *
+     *    returns
+     *      [ "foo" => [ [ "value" => "bar", "cas" => 0],
+     *                   [ "value" => "bar", "cas" => 0] ]
+     *      ]
+     *
+     *
+     *    $obj = $cb->getReplica(array("foo", "bar"), COUCHBASE_REPLICA_ALL);
+     *
+     *    returns
+     *      [ "foo" => [ [ "value" => "bar", "cas" => 0],
+     *                   [ "value" => "bar", "cas" => 0] ],
+     *        "bar" => [ [ "value" => "val", "cas" => 0],
+     *                   [ "value" => "val", "cas" => 0] ]
+     *      ]
+     *
+     * </code>
+     *
+     * @param string $ids The document id(s) to get. Pass an array to
+     *                    retrieve multiple documets
+     * @param string $strategy Which strategy to use to pick the replica.
+     *                         Pass in an array to specify extra options
+     *                         to the strategy.
      * @return object The document from the cluster
      * @throws CouchbaseException if an error occurs
      */
-    function getReplica($id, $callback = NULL, &$cas = "") {
+    function getReplica($id, $strategy = COUCHBASE_REPLICA_FIRST) {
 
     }
 
@@ -375,10 +425,12 @@ class Couchbase {
      *
      * @param array $ids an array containing all of the document identifiers
      * @param array $cas an array to store the cas identifiers of the documents
+     * @param string $strategy Which strategy to use to pick the replica
+     * @param int $replicaidx Index (for COUCHBASE_REPLICA_SELECT)
      * @return array an array containing the documents
      * @throws CouchbaseException if an error occurs
      */
-    function getReplicaMulti($ids, &$cas = array()) {
+    function getReplicaMulti($ids, &$cas = array(), $strategy, $replicaidx) {
 
     }
 
