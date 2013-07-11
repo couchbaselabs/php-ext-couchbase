@@ -14,8 +14,6 @@
   | implied. See the License for the specific language governing         |
   | permissions and limitations under the License.                       |
   +----------------------------------------------------------------------+
-  | Author: Mark Nunberg       <mnunberg@haskalah.org>                   |
-  +----------------------------------------------------------------------+
 */
 
 /**
@@ -26,8 +24,8 @@
 #error "Must include internal.h"
 #endif
 
-#ifndef COUCHBASE_APIDECL_H_
-#define COUCHBASE_APIDECL_H_
+#ifndef COUCHBASE_APIDECL_H
+#define COUCHBASE_APIDECL_H
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_create_impl(INTERNAL_FUNCTION_PARAMETERS, int oo);

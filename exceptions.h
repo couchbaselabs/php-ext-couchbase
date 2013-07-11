@@ -14,8 +14,6 @@
   | implied. See the License for the specific language governing         |
   | permissions and limitations under the License.                       |
   +----------------------------------------------------------------------+
-  | Author: Trond Norbye   <trond.norbye@couchbase.com>                  |
-  +----------------------------------------------------------------------+
 */
 #ifndef COUCHBASE_EXCEPTIONS_H
 #define COUCHBASE_EXCEPTIONS_H

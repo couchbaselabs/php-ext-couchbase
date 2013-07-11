@@ -14,16 +14,14 @@
   | implied. See the License for the specific language governing         |
   | permissions and limitations under the License.                       |
   +----------------------------------------------------------------------+
-  | Author: Mark Nunberg       <mnunberg@haskalah.org>                   |
-  +----------------------------------------------------------------------+
 */
 
 #ifndef PHP_COUCHBASE_H
 #error "Include php_couchbase.h first"
 #endif
 
-#ifndef PCBC_RESGET_H_
-#define PCBC_RESGET_H_
+#ifndef PCBC_RESGET_H
+#define PCBC_RESGET_H
 
 #include <stdarg.h>
 

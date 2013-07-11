@@ -14,9 +14,6 @@
   | implied. See the License for the specific language governing         |
   | permissions and limitations under the License.                       |
   +----------------------------------------------------------------------+
-  | Author: Michael Jackson                                              |
-  | Author: Mark Nunberg       <mnunberg@haskalah.org>                   |
-  +----------------------------------------------------------------------+
 */
 
 /* This file contains the internal functions that drive observe (polling and
