@@ -89,91 +89,7 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 	long expire = 0, cas_len = 0;
 	char *key = NULL;
 
-	if (!multi) {
-		char *key = NULL;
-		zval *value;
-		long klen = 0;
-		PHP_COUCHBASE_GET_PARAMS(couchbase_res,
-								 PHP_COUCHBASE_ARG_F_FUNCTIONAL,
-								 "sz|ls",
-								 &key, &klen,
-								 &value,
-								 &expire,
-								 &cas, &cas_len);
-
-		if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
-							  expire, &exp) == -1) {
-			/* Incorrect expiry time */
-			return;
-		}
-
-		if (!klen) {
-			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
-								   cb_illegal_key_exception,
-								   "No key specified: Empty key");
-			return;
-		}
-
-		if (cas) {
-			char *e;
-			cas_v = (lcb_cas_t)strtoull(cas, &e, 10);
-			if (*e != '\0') {
-				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
-									   cb_illegal_key_exception,
-									   "Invalid CAS specified");
-				return;
-			}
-		}
-
-		payload = php_couchbase_zval_to_payload(value, &payload_len,
-												&flags,
-												couchbase_res->serializer,
-												couchbase_res->compressor
-												TSRMLS_CC);
-		if (payload == NULL) {
-			RETURN_FALSE;
-		}
-
-		if (couchbase_res->prefix_key_len) {
-			klen = spprintf(&key, 0, "%s_%s", couchbase_res->prefix_key, key);
-		}
-
-		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
-		ctx->res = couchbase_res;
-		ctx->rv	 = return_value;
-		couchbase_res->seqno += 1;
-
-		{
-			lcb_store_cmd_t cmd;
-			lcb_store_cmd_t *commands[] = { &cmd };
-			memset(&cmd, 0, sizeof(cmd));
-			cmd.v.v0.operation = op;
-			cmd.v.v0.key = key;
-			cmd.v.v0.nkey = klen;
-			cmd.v.v0.bytes = payload;
-			cmd.v.v0.nbytes = payload_len;
-			cmd.v.v0.flags = flags;
-			cmd.v.v0.exptime = exp;
-			cmd.v.v0.cas = (uint64_t)cas_v;
-
-			retval = lcb_store(couchbase_res->handle, ctx,
-							   1, (const lcb_store_cmd_t * const *)commands);
-		}
-
-		efree(payload);
-		if (couchbase_res->prefix_key_len) {
-			efree(key);
-		}
-		if (LCB_SUCCESS != retval) {
-			efree(ctx);
-			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
-								   cb_lcb_exception,
-								   "Failed to schedule set request: %s",
-								   lcb_strerror(couchbase_res->handle, retval));
-			return;
-		}
-
-	} else { /* multi */
+	if (multi) { /* multi-get */
 		zval *akeys, **ppzval;
 		char *key = NULL;
 		uint klen = 0;
@@ -270,7 +186,93 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 			return;
 		}
 		couchbase_res->seqno += nkey;
+	} else {
+		/* single-get */
+		char *key = NULL;
+		zval *value;
+		long klen = 0;
+		PHP_COUCHBASE_GET_PARAMS(couchbase_res,
+								 PHP_COUCHBASE_ARG_F_FUNCTIONAL,
+								 "sz|ls",
+								 &key, &klen,
+								 &value,
+								 &expire,
+								 &cas, &cas_len);
+
+		if (pcbc_check_expiry(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+							  expire, &exp) == -1) {
+			/* Incorrect expiry time */
+			return;
+		}
+
+		if (!klen) {
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+								   cb_illegal_key_exception,
+								   "No key specified: Empty key");
+			return;
+		}
+
+		if (cas) {
+			char *e;
+			cas_v = (lcb_cas_t)strtoull(cas, &e, 10);
+			if (*e != '\0') {
+				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+									   cb_illegal_key_exception,
+									   "Invalid CAS specified");
+				return;
+			}
+		}
+
+		payload = php_couchbase_zval_to_payload(value, &payload_len,
+												&flags,
+												couchbase_res->serializer,
+												couchbase_res->compressor
+												TSRMLS_CC);
+		if (payload == NULL) {
+			RETURN_FALSE;
+		}
+
+		if (couchbase_res->prefix_key_len) {
+			klen = spprintf(&key, 0, "%s_%s", couchbase_res->prefix_key, key);
+		}
+
+		ctx = ecalloc(1, sizeof(php_couchbase_ctx));
+		ctx->res = couchbase_res;
+		ctx->rv	 = return_value;
+		couchbase_res->seqno += 1;
+
+		{
+			lcb_store_cmd_t cmd;
+			lcb_store_cmd_t *commands[] = { &cmd };
+			memset(&cmd, 0, sizeof(cmd));
+			cmd.v.v0.operation = op;
+			cmd.v.v0.key = key;
+			cmd.v.v0.nkey = klen;
+			cmd.v.v0.bytes = payload;
+			cmd.v.v0.nbytes = payload_len;
+			cmd.v.v0.flags = flags;
+			cmd.v.v0.exptime = exp;
+			cmd.v.v0.cas = (uint64_t)cas_v;
+
+			retval = lcb_store(couchbase_res->handle, ctx,
+							   1, (const lcb_store_cmd_t * const *)commands);
+		}
+
+		efree(payload);
+		if (couchbase_res->prefix_key_len) {
+			efree(key);
+		}
+		if (LCB_SUCCESS != retval) {
+			efree(ctx);
+			couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, 0,
+								   cb_lcb_exception,
+								   "Failed to schedule set request: %s",
+								   lcb_strerror(couchbase_res->handle, retval));
+			return;
+		}
+
 	}
+
 	{
 		pcbc_start_loop(couchbase_res);
 		if (IS_ARRAY != Z_TYPE_P(return_value)) {
