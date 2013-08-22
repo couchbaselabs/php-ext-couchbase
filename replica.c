@@ -112,7 +112,7 @@ static lcb_get_replica_cmd_t *create_cmd(zval *k,
 	return cmd;
 }
 
-static zval *entry2array(struct entry *e, php_couchbase_res *res)
+static zval *entry2array(INTERNAL_FUNCTION_PARAMETERS, struct entry *e, php_couchbase_res *res)
 {
 	zval *r;
 	MAKE_STD_ZVAL(r);
@@ -394,7 +394,7 @@ void php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAMETERS)
 					array_init(bl);
 
 					len = sprintf(idx, "%u", ii++);
-					add_assoc_zval_ex(bl, idx, len + 1, entry2array(e, cb_res));
+					add_assoc_zval_ex(bl, idx, len + 1, entry2array(INTERNAL_FUNCTION_PARAM_PASSTHRU, e, cb_res));
 
 					/* Do we have more entries? */
 					for (curr = cookie.data; curr; curr = curr->next) {
@@ -403,7 +403,7 @@ void php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAMETERS)
 									   e->data.v.v0.nkey) == 0) {
 							len = sprintf(idx, "%u", ii++);
 							add_assoc_zval_ex(bl, idx, len + 1,
-											  entry2array(curr, cb_res));
+											  entry2array(INTERNAL_FUNCTION_PARAM_PASSTHRU, curr, cb_res));
 							curr->data.v.v0.nkey = 0;
 						}
 					}
@@ -434,7 +434,7 @@ void php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAMETERS)
 				}
 				++nk;
 
-				r = entry2array(e, cb_res);
+				r = entry2array(INTERNAL_FUNCTION_PARAM_PASSTHRU, e, cb_res);
 				add_assoc_zval_ex(return_value, k, nk, r);
 
 				free((void *)e->data.v.v0.key);

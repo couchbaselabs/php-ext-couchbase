@@ -22,6 +22,11 @@
 #include "config.h"
 #endif
 
+#ifdef NDEBUG
+#undef assert
+#define assert(a)
+#endif
+
 #ifdef PHP_WIN32
 #	 define PHP_COUCHBASE_API __declspec(dllexport)
 #    define PHP_COUCHBASE_LOCAL
