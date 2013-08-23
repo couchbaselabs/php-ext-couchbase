@@ -145,7 +145,6 @@ static void do_memcached_flush(INTERNAL_FUNCTION_PARAMETERS,
 {
 	lcb_error_t retval;
 	lcb_error_t cberr = LCB_SUCCESS;
-	php_couchbase_ctx *ctx;
 	lcb_flush_cmd_t cmd;
 	const lcb_flush_cmd_t *const commands[] = { &cmd };
 	lcb_t instance;

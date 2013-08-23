@@ -204,7 +204,7 @@ static void oks_update(struct observe_keystate *oks,
 	if (resp->v.v0.cas && oks->expected.cas &&
 			resp->v.v0.cas != oks->expected.cas) {
 
-		obs_debug("Cas Mismatch: Got %llu, Expected %llu\n",
+		obs_debug("Cas Mismatch: Got %"PRIu64", Expected %"PRIu64"\n",
 				  resp->v.v0.cas, oks->expected.cas);
 
 		oks_set_error(oks, "CAS Mismatch", 1);

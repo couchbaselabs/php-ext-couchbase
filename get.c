@@ -90,7 +90,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 			zval *c;
 			MAKE_STD_ZVAL(c);
 			Z_TYPE_P(c) = IS_STRING;
-			Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%llu", cas);
+			Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%"PRIu64, cas);
 			zend_hash_add(Z_ARRVAL_P(retval), "cas", sizeof("cas"),
 						  (void **)&c, sizeof(zval *), NULL);
 		}
@@ -133,7 +133,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 				zval *c;
 				MAKE_STD_ZVAL(c);
 				Z_TYPE_P(c) = IS_STRING;
-				Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%llu", cas);
+				Z_STRLEN_P(c) = spprintf(&(Z_STRVAL_P(c)), 0, "%"PRIu64, cas);
 				zend_hash_add(Z_ARRVAL_P(ctx->cas), (char *)key_string, nkey + 1,
 							  (void **)&c, sizeof(zval *), NULL);
 			}
@@ -160,7 +160,7 @@ static void php_couchbase_get_callback(lcb_t instance,
 			}
 			if (ctx->cas) {
 				Z_TYPE_P(ctx->cas) = IS_STRING;
-				Z_STRLEN_P(ctx->cas) = spprintf(&(Z_STRVAL_P(ctx->cas)), 0, "%llu", cas);
+				Z_STRLEN_P(ctx->cas) = spprintf(&(Z_STRVAL_P(ctx->cas)), 0, "%"PRIu64, cas);
 			}
 		}
 	}

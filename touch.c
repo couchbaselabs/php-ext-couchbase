@@ -109,7 +109,7 @@ void php_couchbase_touch_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	} else {
 		Z_TYPE_P(return_value) = IS_STRING;
 		Z_STRLEN_P(return_value) = spprintf(&(Z_STRVAL_P(return_value)), 0,
-											"%llu", cookie.cas);
+											"%"PRIu64, cookie.cas);
 	}
 }
 
@@ -246,7 +246,7 @@ void php_couchbase_touch_multi_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 			char *k = cookie.keys[ii].key;
 			if (cookie.keys[ii].error == LCB_SUCCESS) {
 				char cas[80];
-				snprintf(cas, sizeof(cas), "%llu",
+				snprintf(cas, sizeof(cas), "%"PRIu64,
 						 (unsigned long long)cookie.keys[ii].cas);
 				add_assoc_string(return_value, k, cas, 1);
 			} else {

@@ -58,6 +58,14 @@
 #include "php_couchbase.h"
 #include "fastlz/fastlz.h"
 
+#ifdef PHP_WIN32
+#ifndef PRIu64
+#define PRIu64 "I64u"
+#endif
+#else
+#include <inttypes.h>
+#endif
+
 #ifdef HAVE_COMPRESSION_ZLIB
 # include <zlib.h>
 #endif
@@ -326,7 +334,7 @@ extern void observe_polling_internal(
 	php_couchbase_ctx *ctx, zval *adurability, int modify_rv);
 
 PHP_COUCHBASE_LOCAL
-ZEND_EXTERN_MODULE_GLOBALS(couchbase);
+ZEND_EXTERN_MODULE_GLOBALS(couchbase)
 
 PHP_COUCHBASE_LOCAL
 extern int le_couchbase;

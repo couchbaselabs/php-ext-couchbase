@@ -72,7 +72,6 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	lcb_cas_t cas_v = 0;
 	php_couchbase_res *couchbase_res;
 	lcb_error_t retval;
-	php_couchbase_ctx *ctx;
 	char errmsg[256];
 
 	int arg = (oo) ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
@@ -113,7 +112,7 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	case LCB_SUCCESS:
 		Z_TYPE_P(return_value) = IS_STRING;
 		Z_STRLEN_P(return_value) = spprintf(&(Z_STRVAL_P(return_value)), 0,
-											"%llu", cas_v);
+											"%"PRIu64, cas_v);
 		break;
 	case LCB_KEY_ENOENT:
 		RETURN_FALSE;

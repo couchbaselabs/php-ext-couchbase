@@ -118,8 +118,7 @@ lcb_error_t simple_observe(lcb_t instance,
 						   long persist_to,
 						   long replicate_to)
 {
-	lcb_error_t err;
-
+	lcb_error_t err = LCB_SUCCESS;
 	lcb_observe_cmd_t *cmds = ecalloc(nentries, sizeof(lcb_observe_cmd_t));
 	lcb_observe_cmd_t **commands = ecalloc(nentries, sizeof(lcb_observe_cmd_t *));
 	int ii;

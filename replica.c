@@ -38,13 +38,13 @@ static struct entry *clone(lcb_error_t error, const lcb_get_resp_t *r)
 		ret->data.v.v0.key = malloc(ret->data.v.v0.nkey);
 		ret->data.v.v0.bytes = malloc(ret->data.v.v0.nbytes);
 		if (ret->data.v.v0.key == NULL || ret->data.v.v0.bytes == NULL) {
-			free(ret->data.v.v0.key);
-			free(ret->data.v.v0.bytes);
+			free((void*)ret->data.v.v0.key);
+			free((void*)ret->data.v.v0.bytes);
 			free(ret);
 			return NULL;
 		}
-		memcpy(ret->data.v.v0.key, r->v.v0.key, ret->data.v.v0.nkey);
-		memcpy(ret->data.v.v0.bytes, r->v.v0.bytes, ret->data.v.v0.nbytes);
+		memcpy((void*)ret->data.v.v0.key, r->v.v0.key, ret->data.v.v0.nkey);
+		memcpy((void*)ret->data.v.v0.bytes, r->v.v0.bytes, ret->data.v.v0.nbytes);
 	}
 
 	return ret;
@@ -120,7 +120,7 @@ static zval *entry2array(INTERNAL_FUNCTION_PARAMETERS, struct entry *e, php_couc
 
 	if (e->error == LCB_SUCCESS) {
 		char cas[30];
-		sprintf(cas, "%llu", e->data.v.v0.cas);
+		sprintf(cas, "%"PRIu64, e->data.v.v0.cas);
 		add_assoc_string(r, "cas", cas, 1);
 
 		if (e->data.v.v0.nbytes > 0) {
@@ -139,7 +139,7 @@ static zval *entry2array(INTERNAL_FUNCTION_PARAMETERS, struct entry *e, php_couc
 			}
 		}
 	} else {
-		add_assoc_string(r, "error", lcb_strerror(NULL, e->error), 1);
+		add_assoc_string(r, "error", (void*)lcb_strerror(NULL, e->error), 1);
 		add_assoc_long(r, "errorcode", (long)e->error);
 	}
 	return r;
@@ -148,7 +148,6 @@ static zval *entry2array(INTERNAL_FUNCTION_PARAMETERS, struct entry *e, php_couc
 PHP_COUCHBASE_LOCAL
 void php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAMETERS)
 {
-	zval *me = getThis();
 	zval *ids = NULL;
 	zval *strategy_spec = NULL;
 	lcb_replica_t strategy = LCB_REPLICA_FIRST;
@@ -355,7 +354,8 @@ void php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAMETERS)
 	cookie.data = NULL;
 
 	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
-	retval = lcb_get_replica(instance, &cookie, num_docs, commands);
+	retval = lcb_get_replica(instance, &cookie, num_docs,
+                             (const lcb_get_replica_cmd_t * const*)commands);
 	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
 	lcb_set_get_callback(instance, old);
 

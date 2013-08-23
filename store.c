@@ -65,13 +65,13 @@ static void php_couchbase_store_callback(lcb_t instance,
 
 		MAKE_STD_ZVAL(rv);
 		Z_TYPE_P(rv) = IS_STRING;
-		Z_STRLEN_P(rv) = spprintf(&(Z_STRVAL_P(rv)), 0, "%llu", cas);
+		Z_STRLEN_P(rv) = spprintf(&(Z_STRVAL_P(rv)), 0, "%"PRIu64, cas);
 		zend_hash_update(Z_ARRVAL_P(ctx->rv), string_key, nkey + 1,
 						 (void **)&rv, sizeof(zval *), NULL);
 		efree(string_key);
 	} else {
 		Z_TYPE_P(ctx->rv) = IS_STRING;
-		Z_STRLEN_P(ctx->rv) = spprintf(&(Z_STRVAL_P(ctx->rv)), 0, "%llu", cas);
+		Z_STRLEN_P(ctx->rv) = spprintf(&(Z_STRVAL_P(ctx->rv)), 0, "%"PRIu64, cas);
 	}
 }
 
@@ -87,7 +87,6 @@ void php_couchbase_store_impl(INTERNAL_FUNCTION_PARAMETERS, lcb_storage_t op, in
 	size_t payload_len = 0;
 	unsigned long long cas_v = 0;
 	long expire = 0, cas_len = 0;
-	char *key = NULL;
 
 	if (multi) { /* multi-get */
 		zval *akeys, **ppzval;
