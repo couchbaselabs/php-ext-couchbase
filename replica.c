@@ -29,8 +29,7 @@ struct response {
 	struct entry *data;
 };
 
-static struct entry *clone(lcb_error_t error, const lcb_get_resp_t *r)
-{
+static struct entry *clone(lcb_error_t error, const lcb_get_resp_t *r) {
 	struct entry *ret = calloc(1, sizeof(struct entry));
 	if (ret != NULL) {
 		ret->error = error;
@@ -38,13 +37,13 @@ static struct entry *clone(lcb_error_t error, const lcb_get_resp_t *r)
 		ret->data.v.v0.key = malloc(ret->data.v.v0.nkey);
 		ret->data.v.v0.bytes = malloc(ret->data.v.v0.nbytes);
 		if (ret->data.v.v0.key == NULL || ret->data.v.v0.bytes == NULL) {
-			free((void*)ret->data.v.v0.key);
-			free((void*)ret->data.v.v0.bytes);
+			free((void *)ret->data.v.v0.key);
+			free((void *)ret->data.v.v0.bytes);
 			free(ret);
 			return NULL;
 		}
-		memcpy((void*)ret->data.v.v0.key, r->v.v0.key, ret->data.v.v0.nkey);
-		memcpy((void*)ret->data.v.v0.bytes, r->v.v0.bytes, ret->data.v.v0.nbytes);
+		memcpy((void *)ret->data.v.v0.key, r->v.v0.key, ret->data.v.v0.nkey);
+		memcpy((void *)ret->data.v.v0.bytes, r->v.v0.bytes, ret->data.v.v0.nbytes);
 	}
 
 	return ret;
@@ -139,7 +138,7 @@ static zval *entry2array(INTERNAL_FUNCTION_PARAMETERS, struct entry *e, php_couc
 			}
 		}
 	} else {
-		add_assoc_string(r, "error", (void*)lcb_strerror(NULL, e->error), 1);
+		add_assoc_string(r, "error", (void *)lcb_strerror(NULL, e->error), 1);
 		add_assoc_long(r, "errorcode", (long)e->error);
 	}
 	return r;
@@ -355,7 +354,7 @@ void php_couchbase_get_replica_impl(INTERNAL_FUNCTION_PARAMETERS)
 
 	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
 	retval = lcb_get_replica(instance, &cookie, num_docs,
-                             (const lcb_get_replica_cmd_t * const*)commands);
+							 (const lcb_get_replica_cmd_t * const *)commands);
 	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
 	lcb_set_get_callback(instance, old);
 
