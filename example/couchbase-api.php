@@ -521,7 +521,8 @@ class Couchbase {
      *
      * @param string $id identifies the document
      * @param integer $expiry the new time to live (0 == infinite)
-     * @return boolean true upon success
+     * @return string containing the cas value (note some servers will
+     *                will always return "0" for the cas value)
      * @throws CouchbaseException if an error occurs
      */
     function touch($id, $expiry) {
