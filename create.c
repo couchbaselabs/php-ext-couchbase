@@ -366,6 +366,19 @@ create_new_link:
 									   "Failed to create libcouchbase instance");
 				return;
 			}
+
+            if (COUCHBASE_G(skip_config_errors_on_connect)) {
+                int enable = 1;
+                if (lcb_cntl(handle, LCB_CNTL_SET,
+                             LCB_CNTL_SKIP_CONFIGURATION_ERRORS_ON_CONNECT,
+                             &enable) != LCB_SUCCESS) {
+                    free_connparams(&cparams);
+                    lcb_destroy(handle);
+                    couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+                                           cb_lcb_exception,
+                                           "Failed to enable skip_config_errors_on_connect");
+                }
+            }
 		} else {
 			lcb_error_t err;
 			char cachefile[1024];

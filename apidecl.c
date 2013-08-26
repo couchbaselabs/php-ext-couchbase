@@ -1241,6 +1241,14 @@ STD_PHP_INI_BOOLEAN(PCBC_INIENT_INST_RESTFLUSH,
 					zend_couchbase_globals,
 					couchbase_globals)
 
+STD_PHP_INI_BOOLEAN(PCBC_INIENT_INST_SKIP_CONFIG_ERROR_ON_CONNECT,
+					PCBC_INIDEFL_INST_SKIP_CONFIG_ERROR_ON_CONNECT,
+					PHP_INI_ALL,
+					OnUpdateBool,
+					skip_config_errors_on_connect,
+					zend_couchbase_globals,
+					couchbase_globals)
+
 PHP_INI_END()
 
 

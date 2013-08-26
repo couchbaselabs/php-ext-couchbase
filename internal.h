@@ -174,6 +174,7 @@ typedef struct _php_couchbase_ctx {
 ZEND_BEGIN_MODULE_GLOBALS(couchbase)
 zend_bool persistent;
 zend_bool restflush;
+zend_bool skip_config_errors_on_connect;
 char serializer_real;
 char *serializer;
 char compressor_real;
@@ -319,6 +320,9 @@ PHP_FUNCTION(couchbase_list_design_docs);
 
 #define PCBC_INIENT_CONFIG_CACHE "couchbase.config_cache"
 #define PCBC_INIDEFL_CONFIG_CACHE ""
+
+#define PCBC_INIENT_INST_SKIP_CONFIG_ERROR_ON_CONNECT "couchbase.skip_config_errors_on_connect"
+#define PCBC_INIDEFL_INST_SKIP_CONFIG_ERROR_ON_CONNECT "Off"
 
 /**
  * Hash table manipulation functions.
