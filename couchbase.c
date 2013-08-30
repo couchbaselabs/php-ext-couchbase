@@ -32,7 +32,7 @@ void pcbc_stop_loop(struct _php_couchbase_res *res)
 
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
+void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	php_couchbase_res *couchbase_res = (php_couchbase_res *)rsrc->ptr;
 	if (couchbase_res) {
@@ -47,10 +47,10 @@ void php_couchbase_res_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		free(couchbase_res);
 	}
 }
-/* }}} */
+
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
+void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 {
 	php_couchbase_res *couchbase_res = (php_couchbase_res *)rsrc->ptr;
 	if (couchbase_res) {
@@ -65,10 +65,10 @@ void php_couchbase_pres_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) /* {{{ */
 		free(couchbase_res);
 	}
 }
-/* }}} */
+
 
 /* callbacks */
-static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const char *errinfo) /* {{{ */
+static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const char *errinfo)
 {
 	php_couchbase_res *res = (php_couchbase_res *)lcb_get_cookie(handle);
 	if (res) {
@@ -86,7 +86,7 @@ static void php_couchbase_error_callback(lcb_t handle, lcb_error_t error, const 
 		pcbc_stop_loop(res);
 	}
 }
-/* }}} */
+
 
 PHP_COUCHBASE_LOCAL
 void php_couchbase_setup_callbacks(lcb_t handle)
@@ -123,7 +123,7 @@ int pcbc_check_expiry(INTERNAL_FUNCTION_PARAMETERS, int oo, long expiry, long *o
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
+void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	php_couchbase_res *res;
 	char *str;
@@ -140,7 +140,6 @@ void php_couchbase_get_result_message_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 	}
 	RETURN_STRINGL(str, str_len, 0);
 }
-/* }}} */
 
 /*
  * Local variables:

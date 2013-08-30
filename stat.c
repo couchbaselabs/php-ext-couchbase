@@ -65,7 +65,7 @@ static void php_couchbase_stat_callback(lcb_t handle,
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo) /* {{{ */
+void php_couchbase_stats_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 {
 	php_couchbase_res *couchbase_res;
 	lcb_error_t retval;

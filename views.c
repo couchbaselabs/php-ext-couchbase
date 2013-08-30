@@ -19,9 +19,6 @@
 #include "internal.h"
 #include "views.h"
 
-/* {{{ static void php_couchbase_complete_callback(...)
-*/
-
 /* append a string literal to a smart_str */
 #define APPEND_URI_s(u, s) \
 	smart_str_appendl(u, s, sizeof(s)-1)
@@ -50,7 +47,7 @@ static void php_couchbase_complete_callback(lcb_http_request_t request,
 		return;
 	}
 
-	/** We have one extra byte in 'data' */
+	/* We have one extra byte in 'data' */
 	hti = emalloc(sizeof(*hti) + resp->v.v0.nbytes);
 	hti->ndata = resp->v.v0.nbytes;
 
@@ -249,7 +246,7 @@ void timer_callback(lcb_timer_t timer, lcb_t instance, const void *cookie)
 }
 
 PHP_COUCHBASE_LOCAL
-void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only) /* {{{ */
+void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 {
 	zval *options = NULL;
 	char *doc_name = NULL, *view_name = NULL;
@@ -380,7 +377,6 @@ void php_couchbase_callbacks_view_init(lcb_t handle)
 	lcb_set_http_complete_callback(handle, php_couchbase_complete_callback);
 }
 
-/* }}} */
 /*
  * Local variables:
  * tab-width: 4

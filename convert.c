@@ -31,7 +31,7 @@ void pcbc_json_encode(smart_str *buf, zval *value TSRMLS_DC)
 }
 
 PHP_COUCHBASE_LOCAL
-char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned int *flags, int serializer, int compressor TSRMLS_DC) /* {{{ */
+char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned int *flags, int serializer, int compressor TSRMLS_DC)
 {
 	char *payload = NULL;
 	smart_str buf = {0};
@@ -163,10 +163,9 @@ char *php_couchbase_zval_to_payload(zval *value, size_t *payload_len, unsigned i
 	smart_str_free(&buf);
 	return payload;
 }
-/* }}} */
 
 PHP_COUCHBASE_LOCAL
-int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_len, unsigned int flags, int serializer, int ignoreflags TSRMLS_DC) /* {{{ */
+int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_len, unsigned int flags, int serializer, int ignoreflags TSRMLS_DC)
 {
 	int compressor;
 	zend_bool payload_emalloc = 0;
@@ -306,7 +305,6 @@ int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_l
 
 	return 1;
 }
-/* }}} */
 
 /*
  * Local variables:
