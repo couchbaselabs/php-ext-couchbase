@@ -110,15 +110,14 @@ static int append_view_option(php_couchbase_res *res,
 
 
 static void extract_view_options(php_couchbase_res *couchbase_res,
-								 zval *options,
+								 zval *options, char **payload,
 								 smart_str *uri TSRMLS_DC)
 {
 	smart_str_appendc(uri, '?');
 
-	for (
-		zend_hash_internal_pointer_reset(Z_ARRVAL_P(options));
-		zend_hash_has_more_elements(Z_ARRVAL_P(options)) == SUCCESS;
-		zend_hash_move_forward(Z_ARRVAL_P(options))) {
+	for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(options));
+			zend_hash_has_more_elements(Z_ARRVAL_P(options)) == SUCCESS;
+			zend_hash_move_forward(Z_ARRVAL_P(options))) {
 
 		char *key;
 		uint klen;
@@ -137,17 +136,44 @@ static void extract_view_options(php_couchbase_res *couchbase_res,
 			continue;
 		}
 
-		if (FAILURE ==
-				zend_hash_get_current_data(
-					Z_ARRVAL_P(options), (void **)&ppzval)) {
+		if (zend_hash_get_current_data(Z_ARRVAL_P(options), (void **)&ppzval) == FAILURE) {
 
 			php_error_docref(NULL TSRMLS_CC, E_ERROR,
 							 "Couldn't get value for %*s", klen, key);
 			continue;
 		}
 
-		/* Yes! The length *includes* the NUL byte */
-		append_view_option(couchbase_res, uri, key, klen - 1, *ppzval TSRMLS_CC);
+		if (strcasecmp("keys", key) == 0) {
+			smart_str buf = {0};
+			char *body;
+			lcb_size_t nbody;
+
+			pcbc_json_encode(&buf, *ppzval TSRMLS_CC);
+			if (buf.len == 0) {
+				php_error_docref(NULL TSRMLS_CC, E_ERROR,
+								 "Failed to encode key array");
+				return;
+			}
+
+			nbody = buf.len + 15;
+			body = calloc(nbody, 1);
+
+			if (body == NULL) {
+				php_error_docref(NULL TSRMLS_CC, E_ERROR,
+								 "Failed to allocate memory");
+				smart_str_free(&buf);
+				return;
+			}
+
+			sprintf(body, "{ \"keys\" : ");
+			strncat(body, buf.c, buf.len);
+			strcat(body, " }");
+			*payload = body;
+			smart_str_free(&buf);
+		} else {
+			/* Yes! The length *includes* the NUL byte */
+			append_view_option(couchbase_res, uri, key, klen - 1, *ppzval TSRMLS_CC);
+		}
 	}
 
 	/* trim the last '&' from the uri */
@@ -259,6 +285,7 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	lcb_http_cmd_t cmd = {0};
 	lcb_timer_t timer;
 	struct tc_cookie tcc;
+	char *body = NULL;
 	long view_timeout = INI_INT(PCBC_INIENT_VIEW_TIMEOUT);
 
 	int argflags = oo ? PHP_COUCHBASE_ARG_F_OO : PHP_COUCHBASE_ARG_F_FUNCTIONAL;
@@ -274,7 +301,12 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 								view_name, view_name_len);
 
 	if (options && memchr(uri.c, '?', uri.len) == NULL) {
-		extract_view_options(couchbase_res, options, &uri TSRMLS_CC);
+		extract_view_options(couchbase_res, options, &body, &uri TSRMLS_CC);
+	}
+
+	/* Strip off the '?' if it is at the end */
+	if (uri.len > 0 && uri.c[uri.len] == '\0' && uri.c[uri.len - 1] == '?') {
+		--uri.len;
 	}
 
 	if (uri_only) {
@@ -289,11 +321,16 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 	}
 
 	ctx.res = couchbase_res;
-
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.v.v0.path = uri.c;
 	cmd.v.v0.npath = uri.len;
-	cmd.v.v0.method = LCB_HTTP_METHOD_GET;
+	cmd.v.v0.body = body;
+	if (body) {
+		cmd.v.v0.nbody = strlen(body);
+		cmd.v.v0.method = LCB_HTTP_METHOD_POST;
+	} else {
+		cmd.v.v0.method = LCB_HTTP_METHOD_GET;
+	}
 	cmd.v.v0.content_type = "application/json";
 
 	retval = lcb_make_http_request(couchbase_res->handle,
@@ -301,6 +338,7 @@ void php_couchbase_view_impl(INTERNAL_FUNCTION_PARAMETERS, int oo, int uri_only)
 								   LCB_HTTP_TYPE_VIEW,
 								   &cmd, &tcc.request);
 	smart_str_free(&uri);
+	free(body);
 
 	if (retval != LCB_SUCCESS) {
 		couchbase_res->rc = retval;
