@@ -359,26 +359,28 @@ create_new_link:
 		create_options.v.v0.bucket = cparams.bucket;
 
 		if (strlen(COUCHBASE_G(config_cache)) == 0) {
-			if (lcb_create(&handle, &create_options) != LCB_SUCCESS) {
+			if ((retval = lcb_create(&handle, &create_options)) != LCB_SUCCESS) {
 				free_connparams(&cparams);
 				couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 									   cb_lcb_exception,
-									   "Failed to create libcouchbase instance");
+									   "Failed to create libcouchbase instance: %s",
+									   lcb_strerror(NULL, retval));
+
 				return;
 			}
 
-            if (COUCHBASE_G(skip_config_errors_on_connect)) {
-                int enable = 1;
-                if (lcb_cntl(handle, LCB_CNTL_SET,
-                             LCB_CNTL_SKIP_CONFIGURATION_ERRORS_ON_CONNECT,
-                             &enable) != LCB_SUCCESS) {
-                    free_connparams(&cparams);
-                    lcb_destroy(handle);
-                    couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
-                                           cb_lcb_exception,
-                                           "Failed to enable skip_config_errors_on_connect");
-                }
-            }
+			if (COUCHBASE_G(skip_config_errors_on_connect)) {
+				int enable = 1;
+				if (lcb_cntl(handle, LCB_CNTL_SET,
+							 LCB_CNTL_SKIP_CONFIGURATION_ERRORS_ON_CONNECT,
+							 &enable) != LCB_SUCCESS) {
+					free_connparams(&cparams);
+					lcb_destroy(handle);
+					couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
+										   cb_lcb_exception,
+										   "Failed to enable skip_config_errors_on_connect");
+				}
+			}
 		} else {
 			lcb_error_t err;
 			char cachefile[1024];
@@ -411,7 +413,8 @@ create_new_link:
 				} else {
 					couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 										   cb_lcb_exception,
-										   "Failed to create libcouchbase instance");
+										   "Failed to create libcouchbase instance: %s",
+										   lcb_strerror(NULL, err));
 				}
 				return;
 			}
