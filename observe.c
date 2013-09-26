@@ -124,24 +124,20 @@ static lcb_cas_t cas_from_zval(zval *zv)
 			(Z_TYPE_P(zv) == IS_BOOL && Z_BVAL_P(zv) == 0)) {
 		/* invalid, but fals-ish */
 		return 0;
-
 	}
 
-	if (IS_STRING != Z_TYPE_P(zv) || Z_STRLEN_P(zv) > sizeof(casbuf)) {
-		goto GT_ERR;
+	if (Z_TYPE_P(zv) == IS_STRING) {
+		char *e;
+		ret = strtoull(Z_STRVAL_P(zv), &e, 10);
+		if (*e == '\0') {
+			return ret;
+		}
 	}
 
-	/* TODO: make this portable */
-	memcpy(casbuf, Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-	ret = strtoull(casbuf, &endptr, 10);
-
-	if (*endptr != '\0') {
-		goto GT_ERR;
+	if (Z_TYPE_P(zv) == IS_LONG) {
+		return Z_LVAL_P(zv);
 	}
 
-	return ret;
-
-GT_ERR:
 	php_error(E_RECOVERABLE_ERROR,
 			  "Invalid CAS Specified (must be a numeric string)");
 	return -1;
@@ -304,6 +300,7 @@ static int oks_extract_durability(php_couchbase_res *res,
 		tmplong = Z_LVAL_P(tmpval); \
 		if (tmplong < gt) { \
 			php_error(E_RECOVERABLE_ERROR, k " must be greater than %d", gt); \
+            return -1; \
 		} \
 	}
 
@@ -733,14 +730,14 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 		array_init(return_value);
 
 		if (poll) {
-			if (-1 == oks_extract_durability(couchbase_res,
-											 &expect, &pollprefs, adurability)) {
+			if (oks_extract_durability(couchbase_res, &expect, &pollprefs,
+									   adurability) == -1) {
 				RETURN_FALSE;
 			}
 		}
 
-		if (-1 == oks_build_context(couchbase_res,
-									&ocoll, &expect, akey_to_cas, 1)) {
+		if (oks_build_context(couchbase_res, &ocoll, &expect,
+							  akey_to_cas, 1) == -1) {
 			RETURN_FALSE;
 		}
 
@@ -794,22 +791,18 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 		{
 			int have_failure = 0;
 			do {
-
 				if (poll) {
-					if (-1 == oks_extract_durability(couchbase_res,
-													 &expect,
-													 &pollprefs,
-													 adurability)) {
-						have_failure = 1;
-						break;
-					}
+					have_failure = oks_extract_durability(couchbase_res,
+														  &expect,
+														  &pollprefs,
+														  adurability);
 				}
 
-				if (-1 == oks_build_context(
-							couchbase_res, &ocoll, &expect, akc_dummy, 0)) {
-
-					have_failure = 1;
-					break;
+				if (have_failure == 0) {
+					have_failure = oks_build_context(couchbase_res,
+													 &ocoll,
+													 &expect,
+													 akc_dummy, 0);
 				}
 			} while (0);
 
@@ -829,7 +822,6 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 
 	if (poll) {
 		observe_poll(couchbase_res, &ocoll, &pollprefs);
-
 	} else {
 		observe_iterate(couchbase_res, &ocoll);
 	}
@@ -840,6 +832,12 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
 	oks_cleanup_context(&ocoll);
 }
 
+PHP_COUCHBASE_LOCAL
+void php_couchbase_callbacks_observe_init(lcb_t handle)
+{
+	lcb_set_observe_callback(handle, php_couchbase_observe_callback);
+}
+
 /*
  * Local variables:
  * tab-width: 4
@@ -848,9 +846,3 @@ void php_couchbase_observe_impl(INTERNAL_FUNCTION_PARAMETERS,
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-
-PHP_COUCHBASE_LOCAL
-void php_couchbase_callbacks_observe_init(lcb_t handle)
-{
-	lcb_set_observe_callback(handle, php_couchbase_observe_callback);
-}
