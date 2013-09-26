@@ -32,10 +32,10 @@
     <email>jan@php.net</email>
     <active>no</active>
   </lead>
-  <date>2013-05-08</date>
+  <date>2013-09-26</date>
   <version>
-    <release>1.1.5</release>
-    <api>1.1.4</api>
+    <release>1.1.6</release>
+    <api>1.1.6</api>
   </version>
   <stability>
     <release>stable</release>
@@ -43,23 +43,18 @@
   </stability>
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
   <notes>
-    Same release as 1.1.4, fixed pecl package:
-    - Don't check for JSON. It's part of the php core
-    - Adjust parameter names in reflection to match couchbase-api.php
-    - Prototype trying to get the thing working for PECL
-    - Reset the error code between each request of a persistent connection
-    - Report libcouchbase version in phpinfo
-    - Remove gettimeofday implementation for win32
-    - PCBC-206: Prototype for configuration caching
-    - Fixup memory allocation for URL path
-    - PCBC-186: Add method to list all design docs
-    - PCBC-178: Add support for connection_timeout
-    - Update GetReplica test
-    - PCBC-218: Detect invalid characters in CAS
-    - Add bucket manipulation example
-    - PCBC-172: Add design document examples
-    - PCBC-191 Don't coredump for invalid argument
-    - Update the list of supported PHP versions
+     - Fixup observe test failure
+     - Updated create function to include error message with lcb_create failures.
+     - PCBC-226 Use HTTP POST if "keys" are specified
+     - PCBC-246 Add support for LCB_CNTL_SKIP_CONFIGURATION_ERRORS_ON_CONNECT
+     - PCBC-240: Fixup API descr of return value for touch
+     - PCBC-241: Fix compile warnings
+     - Added example of a Client wrapper for complete &amp; partial updates
+     - Updated support for getReplica
+     - PCBC-236: Throw exceptions from constructor
+     - PCBC-229: Fix --with-couchbase help text
+     - PCBC-231: Remove obsolete version string
+     - PCBC-228: Preserve extra error information
   </notes>
   <contents>
     <dir name="/">
@@ -69,6 +64,9 @@
       <file role="doc" name="README.md"/>
       <file role="doc" name="example/couchbase-api.php"/>
       <file role="doc" name="example/couchbase.ini"/>
+      <file role="doc" name="example/CouchbaseUpdate.php"/>
+      <file role="doc" name="example/CouchbaseUpdateExample.php"/>
+      <file role="doc" name="example/view.php"/>
       <file role="doc" name="fastlz/LICENSE"/>
       <file role="doc" name="package/README.md"/>
       <file role="src" name="apidecl.c"/>
@@ -141,6 +139,36 @@
   <providesextension>couchbase</providesextension>
   <extsrcrelease/>
   <changelog>
+    <release>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <version>
+        <release>1.1.5</release>
+        <api>1.1.4</api>
+      </version>
+      <date>2013-05-08</date>
+      <notes>
+       Same release as 1.1.4, fixed pecl package:
+        - Don't check for JSON. It's part of the php core
+        - Adjust parameter names in reflection to match couchbase-api.php
+        - Experimenting with PECL integration
+        - Reset the error code between each request of a persistent connection
+        - Report libcouchbase version in phpinfo
+        - Remove gettimeofday implementation for win32
+        - PCBC-206: Prototype for configuration caching
+        - Fixup memory allocation for URL path
+        - PCBC-186: Add method to list all design docs
+        - PCBC-178: Add support for connection_timeout
+        - Update GetReplica test
+        - PCBC-218: Detect invalid characters in CAS
+        - Add bucket manipulation example
+        - PCBC-172: Add design document examples
+        - PCBC-191 Don't coredump for invalid argument
+        - Update the list of supported PHP versions
+      </notes>
+    </release>
     <release>
       <stability>
         <release>devel</release>
