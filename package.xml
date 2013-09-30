@@ -43,6 +43,7 @@
   </stability>
   <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache V2</license>
   <notes>
+     - PCBC-251 Fix missing prefix from incr/decr/delete and unlock
      - Fixup observe test failure
      - Updated create function to include error message with lcb_create failures.
      - PCBC-226 Use HTTP POST if "keys" are specified
