@@ -85,8 +85,17 @@ void php_couchbase_unlock_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		return;
 	}
 
+
+	if (couchbase_res->prefix_key_len) {
+		klen = spprintf(&key, 0, "%s_%s", couchbase_res->prefix_key, key);
+	}
+
 	retval = do_unlock(couchbase_res->handle, key, klen, cas_v);
 	couchbase_res->rc = retval;
+
+	if (couchbase_res->prefix_key_len) {
+		efree(key);
+	}
 
 	if (retval == LCB_SUCCESS) {
 		RETVAL_TRUE;

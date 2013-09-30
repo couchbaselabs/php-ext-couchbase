@@ -70,6 +70,10 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 	memset(&cookie, 0, sizeof(cookie));
 	delta = (op == '+') ? offset : -offset;
 
+	if (couchbase_res->prefix_key_len) {
+		klen = spprintf(&key, 0, "%s_%s", couchbase_res->prefix_key, key);
+	}
+
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.v.v0.key = key;
 	cmd.v.v0.nkey = klen;
@@ -81,6 +85,10 @@ void php_couchbase_arithmetic_impl(INTERNAL_FUNCTION_PARAMETERS, char op, int oo
 	lcb_behavior_set_syncmode(instance, LCB_SYNCHRONOUS);
 	retval = lcb_arithmetic(instance, &cookie, 1, commands);
 	lcb_behavior_set_syncmode(instance, LCB_ASYNCHRONOUS);
+
+	if (couchbase_res->prefix_key_len) {
+		efree(key);
+	}
 
 	if (retval == LCB_SUCCESS) {
 		retval = cookie.error ;

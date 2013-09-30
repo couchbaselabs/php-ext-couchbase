@@ -107,4 +107,36 @@ class Regression extends CouchbaseTestCommon {
        }
        $this->assertEquals("", $msg);
     }
+
+    function testPCBC_251() {
+       $handle = $this->handle;
+       couchbase_set_option($handle, Couchbase::OPT_PREFIX_KEY, "PCBC-251");
+       couchbase_delete($handle, "counter");
+       couchbase_add($handle, "counter", 2);
+       $this->assertEquals(1, couchbase_decrement($handle, "counter"));
+       $this->assertEquals(0, couchbase_decrement($handle, "counter"));
+       $lock = 0;
+       $this->assertEquals(0, couchbase_get_and_lock($handle, "counter", $lock, 1));
+       $this->assertTrue(couchbase_unlock($handle, "counter", $lock));
+       # decr 0 -> 0
+       $this->assertEquals(0, couchbase_decrement($handle, "counter"));
+       couchbase_set_option($handle, Couchbase::OPT_PREFIX_KEY, "");
+    }
+
+    function testPCBC_251_oo() {
+       $oo = $this->oo;
+       $oo->setOption(Couchbase::OPT_PREFIX_KEY, "PCBC-251");
+       $oo->delete("counter");
+       $oo->add("counter", 2);
+       $this->assertEquals(1, $oo->decrement("counter"));
+       $this->assertEquals(0, $oo->decrement("counter"));
+       $lock = 0;
+       $this->assertEquals(0, $oo->getAndLock("counter", $lock, 1));
+       $this->assertTrue($oo->unlock("counter", $lock));
+
+       # decr 0 -> 0
+       $this->assertEquals(0, $oo->decrement("counter"));
+       $oo->setOption(Couchbase::OPT_PREFIX_KEY, "");
+    }
+
 }

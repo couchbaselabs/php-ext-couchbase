@@ -105,8 +105,16 @@ void php_couchbase_remove_impl(INTERNAL_FUNCTION_PARAMETERS, int oo)
 		}
 	}
 
+	if (couchbase_res->prefix_key_len) {
+		klen = spprintf(&key, 0, "%s_%s", couchbase_res->prefix_key, key);
+	}
+
 	retval = do_remove(couchbase_res->handle, key, klen, &cas_v);
 	couchbase_res->rc = retval;
+
+	if (couchbase_res->prefix_key_len) {
+		efree(key);
+	}
 
 	switch (retval) {
 	case LCB_SUCCESS:
