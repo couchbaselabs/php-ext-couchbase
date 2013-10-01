@@ -422,23 +422,6 @@ class Couchbase {
     }
 
     /**
-     * Retrieve multiple replica documents from the cluster.
-     *
-     * Please note that this method is currently experimental and its
-     * signature may change in a future release.
-     *
-     * @param array $ids an array containing all of the document identifiers
-     * @param array $cas an array to store the cas identifiers of the documents
-     * @param string $strategy Which strategy to use to pick the replica
-     * @param int $replicaidx Index (for COUCHBASE_REPLICA_SELECT)
-     * @return array an array containing the documents
-     * @throws CouchbaseException if an error occurs
-     */
-    function getReplicaMulti($ids, &$cas = array(), $strategy, $replicaidx) {
-
-    }
-
-    /**
      * Retrieve an object from the cache and lock it from modifications.
      *
      * While the object is locked it may only be modified by providing the
