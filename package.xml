@@ -40,7 +40,7 @@
   </lead>
   <date>2013-10-03</date>
   <version>
-    <release>1.2.0</release>
+    <release>1.2.1</release>
     <api>1.2.0</api>
   </version>
   <stability>
@@ -147,6 +147,23 @@
   <providesextension>couchbase</providesextension>
   <extsrcrelease/>
   <changelog>
+    <release>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <version>
+        <release>1.2.1</release>
+        <api>1.2.0</api>
+      </version>
+      <date>2013-10-03</date>
+      <notes>
+       Same release as 1.2.1, fixed pecl package:
+        - Various bug fixes
+        - Added support for replica-read.
+        - Added further examples.
+      </notes>
+    </release>
     <release>
       <stability>
         <release>stable</release>
