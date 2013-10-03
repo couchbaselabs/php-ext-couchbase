@@ -15,6 +15,12 @@
     <active>yes</active>
   </lead>
   <lead>
+    <name>Brett Lawson</name>
+    <user>brett19</user>
+    <email>brett@couchbase.com</email>
+    <active>yes</active>
+  </lead>
+  <lead>
     <name>Xinchen Hui</name>
     <user>laruence</user>
     <email>laruence@php.net</email>
