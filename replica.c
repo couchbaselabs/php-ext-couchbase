@@ -29,7 +29,7 @@ struct response {
 	struct entry *data;
 };
 
-static struct entry *clone(lcb_error_t error, const lcb_get_resp_t *r) {
+static struct entry *clone_entry(lcb_error_t error, const lcb_get_resp_t *r) {
 	struct entry *ret = calloc(1, sizeof(struct entry));
 	if (ret != NULL) {
 		ret->error = error;
@@ -55,7 +55,7 @@ static void get_replica_callback(lcb_t instance,
 								 const lcb_get_resp_t *resp)
 {
 	struct response *r = (void *)cookie;
-	struct entry *c = clone(error, resp);
+	struct entry *c = clone_entry(error, resp);
 	if (c) {
 		r->entries++;
 		c->next = r->data;
