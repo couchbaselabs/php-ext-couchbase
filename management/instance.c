@@ -143,6 +143,12 @@ void ccm_create_impl(INTERNAL_FUNCTION_PARAMETERS)
 		}
 		free(allochosts);
 
+		if (lcb_connect(handle) != LCB_SUCCESS) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING,
+							 "Failed to connect libcouchbase instance");
+			RETURN_FALSE;
+		}
+
 		// @todo fixme!
 		/* lcb_set_error_callback(handle, php_couchbase_error_callback); */
 		lcb_behavior_set_syncmode(handle, LCB_SYNCHRONOUS);
