@@ -392,6 +392,7 @@ create_new_link:
 					couchbase_report_error(INTERNAL_FUNCTION_PARAM_PASSTHRU, oo,
 										   cb_exception,
 										   COUCHBASE_G(config_cache_error));
+					return;
 				}
 			}
 
