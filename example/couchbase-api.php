@@ -256,7 +256,7 @@ class Couchbase {
      *                            this many nodes
      * @param integer $replicate_to wait until the document is replicated to (at least)
      *                            this many nodes
-     * @return boolean true if success
+     * @return array list of CAS's for stored values
      * @throws CouchbaseException if an error occurs
      */
     function setMulti($documents, $expiry = 0, $persist_to = 0, $replicate_to = 0) {
