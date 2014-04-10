@@ -33,17 +33,19 @@ class Regression extends CouchbaseTestCommon {
     }
 
     function testPCBC_219() {
-         $cb = $this->oo;
-         $msg = "";
-         try {
-             $value = 50.00;
-             $cb->set("pcbc-219", $value);
-	     $this->assertEquals(50.00, floatval($cb->get("pcbc-219")));
-	     $this->assertEquals(50.00, $cb->get("pcbc-219"));
-         } catch (Exception $exp) {
-             $msg = $exp->getMessage();
-         }
-         $this->assertEquals("", $msg);
+        $cb = $this->oo;
+        $msg = "";
+        try {
+          $value1 = floatval(123.45);
+          $value2 = floatval(50.00);
+          $cb->set("pcbc-219-1", $value1);
+          $cb->set("pcbc-219-2", $value2);
+          $this->assertEquals(123.45, floatval($cb->get("pcbc-219-1")));
+          $this->assertEquals(50.00, floatval($cb->get("pcbc-219-2")));
+        } catch (Exception $exp) {
+          $msg = $exp->getMessage();
+        }
+        $this->assertEquals("", $msg);
     }
 
     function testPCBC_227() {

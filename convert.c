@@ -242,7 +242,7 @@ int php_couchbase_zval_from_payload(zval *value, char *payload, size_t payload_l
 		char *buf = emalloc(payload_len + sizeof(char));
 		memcpy(buf, payload, payload_len);
 		buf[payload_len] = '\0';
-		dval = zend_strtod(payload, NULL);
+		dval = zend_strtod(buf, NULL);
 		efree(buf);
 		ZVAL_DOUBLE(value, dval);
 		break;
