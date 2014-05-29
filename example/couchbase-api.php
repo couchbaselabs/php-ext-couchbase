@@ -382,9 +382,7 @@ class Couchbase {
      *
      * Examples:
      * <code>
-     *    $obj = $cb->getReplica("key",
-     *                           array("strategy" => COUCHBASE_REPLICA_SELECT,
-     *                                 "index" => 0));
+     *    $obj = $cb->getReplica("key", COUCHBASE_REPLICA_SELECT);
      *
      *    returns
      *      [ "foo" => [ "value" => "bar", "cas" => 0] ]
